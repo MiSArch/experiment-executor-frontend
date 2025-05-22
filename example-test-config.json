@@ -1,0 +1,41 @@
+{
+  "failure": {
+    "chaosToolkit": {
+      "pathUri": "/Users/p371728/master/thesis/misarch/chaos-toolkit-docker/experiment.yaml"
+    },
+    "experimentConfig": {
+      "pathUri": "/Users/p371728/master/thesis/misarch/example-experiment-config.json",
+      "endpointHost": "http://localhost:3000"
+    }
+  },
+  "workLoad": {
+    "gatling": {
+      "pathUri": "/Users/p371728/master/thesis/misarch/gatling-test/untitled",
+      "endpointHost": "http://localhost:8080",
+      "tokenEndpointHost": "http://localhost:8081"
+    }
+  },
+  "metrics": [
+    {
+      "name": "metric1",
+      "description": "Test metric 1",
+      "unit": "ms"
+    }
+  ],
+  "goals": {
+    "user": [
+      {
+        "metric": "metric1",
+        "threshold": "100",
+        "color": "yellow"
+      }
+    ],
+    "system": [
+      {
+        "metric": "mean response time",
+        "threshold": "1000",
+        "color": "red"       
+      }
+    ]
+  }
+}

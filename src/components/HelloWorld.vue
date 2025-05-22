@@ -3,14 +3,41 @@ import { ref } from 'vue'
 
 defineProps<{ msg: string }>()
 
-const count = ref(0)
+const isLoading = ref(false)
+const sendConfig = async () => {
+  isLoading.value = true
+  try {
+
+    const experimentConfigResponse = await fetch('/example-test-config.json');
+    const text = await experimentConfigResponse.text();
+    const experimentConfig = JSON.parse(text);
+    console.log(experimentConfig);
+
+    const response = await fetch('http://localhost:8888/experiment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(experimentConfig),
+    })
+    const testUUID = await response.text()
+    alert(`Experiment executed! Open Results Dashboard: http://localhost:3001/d/${testUUID}` )
+  } catch (error) {
+    console.error('Error running experiment:', error)
+    alert('Failed to run experiment.')
+  } finally {
+    isLoading.value = false
+  }
+}
 </script>
 
 <template>
   <h1>{{ msg }}</h1>
 
   <div class="card">
-    <button type="button" @click="count++">count is {{ count }}</button>
+    <button type="button" @click="sendConfig" :disabled="isLoading">
+      {{ isLoading ? 'Running Experiment...' : 'Start Experiment' }}
+    </button>
     <p>
       Edit
       <code>components/HelloWorld.vue</code> to test HMR
