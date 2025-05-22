@@ -7,20 +7,20 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 const editorElement = ref<HTMLElement | null>(null)
+const misarchConfig = ref<string>('')
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
 
+const loadConfig = async (): Promise<string> => {
+  const misarchConfigResponse = await fetch('/example-experiment-config.json')
+  const text = await misarchConfigResponse.text()
+  return JSON.stringify(JSON.parse(text), null, 2)
+}
 
-//const loadConfig = async (): Promise<string> => {
-//  const misarchConfigResponse = await fetch('/example-experiment-config.json');
-//  const text = await misarchConfigResponse.text();
-//  return JSON.parse(text);
-//}
-
-onMounted(() => {
+onMounted(async () => {
   if (editorElement.value) {
-    const misarchConfig = 'test';
+    misarchConfig.value = await loadConfig()
     editorInstance = monaco.editor.create(editorElement.value, {
-      value: misarchConfig,
+      value: misarchConfig.value,
       language: 'json',
       tabSize: 2,
       insertSpaces: true,
@@ -35,6 +35,10 @@ onMounted(() => {
       wordWrap: 'on',
       wordWrapColumn: 80,
       wrappingIndent: 'same',
+    })
+
+    editorInstance.onDidChangeModelContent(() => {
+      misarchConfig.value = editorInstance?.getValue() || ''
     })
   }
 })

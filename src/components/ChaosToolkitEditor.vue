@@ -1,19 +1,26 @@
 <template>
-  <div class="editor-element" ref="editorElement"></div>
+  <div class="editor-element2" ref="editorElement2"></div>
 </template>
 
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
-const editorElement = ref<HTMLElement | null>(null)
-let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
+const editorElement2 = ref<HTMLElement | null>(null)
+const chaostoolkitConfig = ref<string>('')
+let editorInstance2: monaco.editor.IStandaloneCodeEditor | null = null
 
-onMounted(() => {
-  if (editorElement.value) {
-    editorInstance = monaco.editor.create(editorElement.value, {
-      value: '{\n  "message": "Start coding here..."\n}',
-      language: 'json',
+const loadConfig = async (): Promise<string> => {
+  const chaostoolkitConfig = await fetch('/todo-delete-toolkit.yaml') // TODO probably via API
+  return await chaostoolkitConfig.text()
+}
+
+onMounted(async () => {
+  if (editorElement2.value) {
+    chaostoolkitConfig.value = await loadConfig()
+    editorInstance2 = monaco.editor.create(editorElement2.value, {
+      value: chaostoolkitConfig.value,
+      language: 'yaml',
       tabSize: 2,
       insertSpaces: true,
       theme: 'vs-dark',
@@ -28,16 +35,20 @@ onMounted(() => {
       wordWrapColumn: 80,
       wrappingIndent: 'same',
     })
+
+    editorInstance2.onDidChangeModelContent(() => {
+      chaostoolkitConfig.value = editorInstance2?.getValue() || ''
+    })
   }
 })
 
 onBeforeUnmount(() => {
-  editorInstance?.dispose()
+  editorInstance2?.dispose()
 })
 </script>
 
 <style scoped>
-.editor-element {
+.editor-element2 {
   position: fixed;
   bottom: 0;
   left: 0;
