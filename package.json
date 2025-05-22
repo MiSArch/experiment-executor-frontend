@@ -9,13 +9,21 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.5.13"
+    "@vueuse/core": "^13.2.0",
+    "monaco-editor": "^0.52.2",
+    "monaco-editor-wrapper": "^6.7.0",
+    "sprotty": "^1.4.0",
+    "uuid": "^11.1.0",
+    "vscode-languageserver-protocol": "^3.17.5",
+    "vue": "^3.5.13",
+    "vue-chart-3": "^3.1.8"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/tsconfig": "^0.7.0",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
+    "vite-plugin-monaco-editor": "^1.1.0",
     "vue-tsc": "^2.2.8"
   }
 }
