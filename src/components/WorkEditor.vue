@@ -43,10 +43,10 @@ onBeforeUnmount(() => {
 <style scoped>
 .header {
   position: fixed;
-  top: 4em;
+  top: 7%;
   right: 0;
   height: 6%;
-  width: 32%;
+  width: 32.4%;
   background-color: #235f43;
   color: white;
   display: flex;
@@ -76,7 +76,7 @@ onBeforeUnmount(() => {
 
 .editor-element {
   position: fixed;
-  top: 8em;
+  top: 12.9%;
   right: 0;
   width: 34%;
   height: 47.5%;

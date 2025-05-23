@@ -55,7 +55,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .header {
   position: fixed;
-  bottom: 19.5em;
+  bottom: 33%;
   left: 40%;
   height: 6%;
   width: 38.5%;
