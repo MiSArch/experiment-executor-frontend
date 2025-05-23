@@ -54,10 +54,10 @@ onBeforeUnmount(() => {
 <style scoped>
 .header {
   position: fixed;
-  bottom: 19em;
+  bottom: 19.5em;
   left: 0;
   height: 6%;
-  width: 32%;
+  width: 38.5%;
   background-color: #235f43;
   color: white;
   display: flex;
@@ -90,7 +90,7 @@ onBeforeUnmount(() => {
   position: fixed;
   bottom: 0;
   left: 0;
-  width: 33%;
+  width: 40%;
   height: 33vh;
   z-index: 10;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);

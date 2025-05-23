@@ -83,7 +83,7 @@ watch(duration, (newValue) => {
   left: 0;
   margin: 1em;
   padding-top: 5em;
-  width: 45%;
+  width: 64%;
 }
 
 .controls {

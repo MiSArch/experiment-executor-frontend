@@ -55,10 +55,10 @@ onBeforeUnmount(() => {
 <style scoped>
 .header {
   position: fixed;
-  bottom: 19em;
-  left: 33%;
+  bottom: 19.5em;
+  left: 40%;
   height: 6%;
-  width: 32%;
+  width: 38.5%;
   background-color: #235f43;
   color: white;
   display: flex;
@@ -90,8 +90,8 @@ onBeforeUnmount(() => {
 .editor-element {
   position: fixed;
   bottom: 0;
-  left: 33%;
-  width: 33%;
+  left: 40%;
+  width: 40%;
   height: 33vh;
   z-index: 10;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);

@@ -79,7 +79,7 @@ onBeforeUnmount(() => {
   top: 8em;
   right: 0;
   width: 34%;
-  height: 100vh;
+  height: 47.5%;
   z-index: 10;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
   background-color: #1e1e1e;

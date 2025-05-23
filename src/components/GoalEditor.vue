@@ -43,9 +43,9 @@ const removeLine = (index: number) => {
   flex-direction: column;
   gap: 1em;
   position: fixed;
-  right: 35%;
-  top: 9em;
-  max-height: calc(8 * 3em); /* Adjust based on the approximate height of each line */
+  right: 1em;
+  bottom: 1em;
+  max-height: calc(6 * 3em);
   overflow-y: auto;
 }
 
@@ -80,10 +80,10 @@ const removeLine = (index: number) => {
 
 .header {
   position: fixed;
-  top: 4em;
-  right: 33%;
+  bottom: 33%;
+  right: 0;
   height: 6%;
-  width: 18%;
+  width: 18.3%;
   background-color: #235f43;
   color: white;
   display: flex;
