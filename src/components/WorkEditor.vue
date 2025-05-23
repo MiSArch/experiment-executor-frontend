@@ -1,4 +1,8 @@
 <template>
+  <div class="header">
+    <span>Work Configuration</span>
+    <button class="header-button">Simple View</button>
+  </div>
   <div class="editor-element" ref="editorElement"></div>
 </template>
 
@@ -37,11 +41,44 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.header {
+  position: fixed;
+  top: 4em;
+  right: 0;
+  height: 6%;
+  width: 32%;
+  background-color: #235f43;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 0 1em;
+}
+
+.header span {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.header-button {
+  padding: 0.5em 1em;
+  background-color: #369a6e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.header-button:hover {
+  background-color: #2d7a5a;
+}
+
 .editor-element {
   position: fixed;
-  top: 0;
+  top: 8em;
   right: 0;
-  width: 33%;
+  width: 34%;
   height: 100vh;
   z-index: 10;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
