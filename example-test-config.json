@@ -1,4 +1,5 @@
 {
+  "testUUID": "61d8c270-32bd-405f-99e3-f05d0b77fdbc",
   "failure": {
     "chaosToolkit": {
       "pathUri": "/Users/p371728/master/thesis/misarch/chaos-toolkit-docker/experiment.yaml"
@@ -11,31 +12,16 @@
   "workLoad": {
     "gatling": {
       "pathUri": "/Users/p371728/master/thesis/misarch/gatling-test/untitled",
+      "loadType": "RampUpListLoadTest",
       "endpointHost": "http://localhost:8080",
       "tokenEndpointHost": "http://localhost:8081"
     }
   },
-  "metrics": [
+  "goals": [
     {
-      "name": "metric1",
-      "description": "Test metric 1",
-      "unit": "ms"
+      "metric": "mean response time",
+      "threshold": "1000",
+      "color": "red"
     }
-  ],
-  "goals": {
-    "user": [
-      {
-        "metric": "metric1",
-        "threshold": "100",
-        "color": "yellow"
-      }
-    ],
-    "system": [
-      {
-        "metric": "mean response time",
-        "threshold": "1000",
-        "color": "red"       
-      }
-    ]
-  }
+  ]
 }
