@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import StartExperiment from './components/StartExperiment.vue'
+import Header from './components/Header.vue'
 import Graph from "./components/Graph.vue";
 import WorkEditor from "./components/WorkEditor.vue";
 import ChaosToolkitEditor from "./components/ChaosToolkitEditor.vue";
@@ -8,7 +8,7 @@ import GoalEditor from "./components/GoalEditor.vue";
 </script>
 
 <template>
-    <StartExperiment/>
+    <Header/>
     <Graph/>
     <WorkEditor/>
     <ChaosToolkitEditor/>
