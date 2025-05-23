@@ -35,6 +35,7 @@ const addLine = () => {
 const removeLine = (index: number) => {
   lines.value.splice(index, 1)
 }
+// TODO proper resizing of the elmeent, not really responsive rn
 </script>
 
 <style scoped>
@@ -53,6 +54,9 @@ const removeLine = (index: number) => {
   display: flex;
   align-items: center;
   gap: 0.5em;
+  flex-wrap: wrap;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .add-button,
