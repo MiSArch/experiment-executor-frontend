@@ -9,8 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@vueuse/core": "^13.2.0",
     "@types/node": "^22.15.21",
+    "@vueuse/core": "^13.2.0",
+    "chartjs-plugin-dragdata": "^2.3.1",
     "monaco-editor": "^0.52.2",
     "monaco-editor-wrapper": "^6.7.0",
     "sprotty": "^1.4.0",
