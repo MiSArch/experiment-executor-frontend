@@ -8,18 +8,20 @@
 
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import {ref, onBeforeUnmount, watch} from 'vue'
+import {testUuid} from "../util/test-uuid.ts";
+import {showOverlay} from '../util/show-overlay.ts'
+import {chaostoolkitConfig} from '../util/test-handler.ts'
 
 const editorElement2 = ref<HTMLElement | null>(null)
-const chaostoolkitConfig = ref<string>('')
 let editorInstance2: monaco.editor.IStandaloneCodeEditor | null = null
 
 const loadConfig = async (): Promise<string> => {
-  const chaostoolkitConfig = await fetch('/todo-delete-toolkit.yaml') // TODO probably via API
-  return await chaostoolkitConfig.text()
+  const response = await fetch(`http://localhost:8888/experiment/${testUuid.value}/chaosToolkitConfig`)
+  return await response.text()
 }
 
-onMounted(async () => {
+watch(showOverlay, async () => {
   if (editorElement2.value) {
     chaostoolkitConfig.value = await loadConfig()
     editorInstance2 = monaco.editor.create(editorElement2.value, {

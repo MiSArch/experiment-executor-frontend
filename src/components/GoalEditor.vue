@@ -6,9 +6,9 @@
     <button @click="addLine" class="add-button">+</button>
     <div v-for="(line, index) in lines" :key="index" class="line">
       <select v-model="line.dropdown" class="dropdown">
-        <option value="option1">Option 1</option>
-        <option value="option2">Option 2</option>
-        <option value="option3">Option 3</option>
+        <option value="min response time">Min Response Time</option>
+        <option value="mean response time">Mean Response Time</option>
+        <option value="max response time">Max Response Time</option>
       </select>
       <input type="color" v-model="line.color" class="color-picker"/>
       <input type="number" v-model="line.value" class="number-input"/>
@@ -18,7 +18,13 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue'
+// TODO all options in dropdown above
+// TODO color picker should actually pick a color from the chart
+import {ref, watch} from 'vue'
+import type {TestConfig} from "../model/test-config.ts";
+import {config} from "../util/test-handler.ts";
+import {testUuid} from "../util/test-uuid.ts";
+import {showOverlay} from "../util/show-overlay.ts";
 
 interface Line {
   dropdown: string
@@ -28,13 +34,41 @@ interface Line {
 
 const lines = ref<Line[]>([])
 
+const fetchConfig = async () => {
+  const response = await fetch(`http://localhost:8888/experiment/${testUuid.value}/config`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  const data: TestConfig = await response.json()
+  lines.value = data.goals.map(goal => ({
+    dropdown: goal.metric,
+    color: goal.color,
+    value: parseFloat(goal.threshold) || null
+  }))
+  return data
+}
+
 const addLine = () => {
-  lines.value.push({dropdown: 'option1', color: '#000000', value: null})
+  lines.value.push({dropdown: 'min response time', color: '#000000', value: null})
 }
 
 const removeLine = (index: number) => {
   lines.value.splice(index, 1)
 }
+
+watch(lines, (newLines) => {
+  config.value.goals = newLines.map(line => ({
+    metric: line.dropdown,
+    color: line.color,
+    threshold: line.value?.toString() || ''
+  }))
+}, { deep: true })
+
+watch(showOverlay, async () => {
+  config.value = await fetchConfig();
+});
 // TODO proper resizing of the elmeent, not really responsive rn
 </script>
 
@@ -75,11 +109,17 @@ const removeLine = (index: number) => {
 }
 
 .dropdown,
-.color-picker,
+.color-picker {
+  padding: 0.5em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
 .number-input {
   padding: 0.5em;
   border: 1px solid #ccc;
   border-radius: 4px;
+  width: 5em;
 }
 
 .header {

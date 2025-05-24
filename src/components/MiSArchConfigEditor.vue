@@ -8,23 +8,25 @@
 
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import {ref, onBeforeUnmount, watch} from 'vue'
+import {testUuid} from "../util/test-uuid.ts";
+import {showOverlay} from '../util/show-overlay.ts'
+import {misarchExperimentConfig} from '../util/test-handler.ts'
 
 const editorElement = ref<HTMLElement | null>(null)
-const misarchConfig = ref<string>('')
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
 
 const loadConfig = async (): Promise<string> => {
-  const misarchConfigResponse = await fetch('/example-experiment-config.json')
-  const text = await misarchConfigResponse.text()
+  const response = await fetch(`http://localhost:8888/experiment/${testUuid.value}/misarchExperimentConfig`)
+  const text = await response.text()
   return JSON.stringify(JSON.parse(text), null, 2)
 }
 
-onMounted(async () => {
+watch(showOverlay, async () => {
   if (editorElement.value) {
-    misarchConfig.value = await loadConfig()
+    misarchExperimentConfig.value = await loadConfig()
     editorInstance = monaco.editor.create(editorElement.value, {
-      value: misarchConfig.value,
+      value: misarchExperimentConfig.value,
       language: 'json',
       tabSize: 2,
       insertSpaces: true,
@@ -42,10 +44,11 @@ onMounted(async () => {
     })
 
     editorInstance.onDidChangeModelContent(() => {
-      misarchConfig.value = editorInstance?.getValue() || ''
+      misarchExperimentConfig.value = editorInstance?.getValue() || ''
     })
   }
 })
+
 
 onBeforeUnmount(() => {
   editorInstance?.dispose()

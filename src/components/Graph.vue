@@ -12,20 +12,23 @@
 <script setup lang="ts">
 import { defineChartComponent } from 'vue-chart-3'
 import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale, LineController } from 'chart.js'
-import {onMounted, ref, watch} from 'vue'
+import {ref, watch} from 'vue'
+import {testUuid} from "../util/test-uuid.ts";
+import {showOverlay} from "../util/show-overlay.ts";
+import {userSteps} from "../util/test-handler.ts";
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale, LineController)
 
 const LineChart = defineChartComponent("test", 'line')
 
 async function calculateTotalUsers(sessionDuration: number): Promise<number[]> {
-  const response =  await fetch('/todo-delete-usersteps.csv')
+  const response = await fetch(`http://localhost:8888/experiment/${testUuid.value}/gatlingConfig/userSteps`)
   const data = await response.text()
-  const userSteps = data.split('\n').map(line => parseInt(line.trim(), 10)).filter(Number.isFinite);
+  userSteps.value = data.split('\n').map(line => parseInt(line.trim(), 10)).filter(Number.isFinite);
 
   const totalUsers: number[] = [];
 
-  userSteps.forEach((users, time) => {
+  userSteps.value.forEach((users, time) => {
     for (let i = 0; i < sessionDuration; i++) {
       totalUsers[time + i] = (totalUsers[time + i] || 0) + users;
     }
@@ -34,7 +37,7 @@ async function calculateTotalUsers(sessionDuration: number): Promise<number[]> {
   return totalUsers;
 }
 
-onMounted(async () => {
+watch(showOverlay, async () => {
   const approximateSessionDuration = 10
   const result = await calculateTotalUsers(Math.floor(approximateSessionDuration))
 

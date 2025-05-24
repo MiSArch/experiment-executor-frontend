@@ -8,12 +8,13 @@
 
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, onBeforeUnmount } from 'vue'
+import {showOverlay} from "../util/show-overlay.ts";
 
 const editorElement = ref<HTMLElement | null>(null)
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
 
-onMounted(() => {
+watch(showOverlay, async() => {
   if (editorElement.value) {
     editorInstance = monaco.editor.create(editorElement.value, {
       value: '{\n  "message": "Start coding here..."\n}',
