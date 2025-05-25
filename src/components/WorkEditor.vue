@@ -9,15 +9,23 @@
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { ref, watch, onBeforeUnmount } from 'vue'
+import { testUuid } from '../util/test-uuid.ts';
 import {showOverlay} from "../util/show-overlay.ts";
+import {gatlingWork} from '../util/test-handler.ts'
 
 const editorElement = ref<HTMLElement | null>(null)
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
 
+const loadConfig = async (): Promise<string> => {
+  const response = await fetch(`http://localhost:8888/experiment/${testUuid.value}/gatlingConfig/work`)
+  return await response.text()
+}
+
 watch(showOverlay, async() => {
   if (editorElement.value) {
+    gatlingWork.value = await loadConfig()
     editorInstance = monaco.editor.create(editorElement.value, {
-      value: '{\n  "message": "Start coding here..."\n}',
+      value: gatlingWork.value,
       language: 'json',
       tabSize: 2,
       insertSpaces: true,
@@ -32,6 +40,10 @@ watch(showOverlay, async() => {
       wordWrap: 'on',
       wordWrapColumn: 80,
       wrappingIndent: 'same',
+    })
+
+    editorInstance.onDidChangeModelContent(() => {
+      gatlingWork.value = editorInstance?.getValue() || ''
     })
   }
 })
