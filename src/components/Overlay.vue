@@ -5,8 +5,7 @@
       <input v-model="inputValue" type="text" placeholder="Enter Existing Test UUID" />
       <button @click="useExistingTest">Use Existing Test</button>
       <select v-model="loadType">
-        <option value="RampUpListLoadTest">Realistic Load Test</option>
-        <option value="RampUpListLoadTest">Customizable Load Test</option>
+        <option value="NormalLoadTest">Realistic Load Test</option>
         <option value="ElasticityLoadTest">Elasticity Load Test</option>
         <option value="ResilienceLoadTest">Resilience Load Test</option>
         <option value="ScalabilityLoadTest">Scalability Load Test</option>
@@ -24,7 +23,7 @@ import { showOverlay } from '../util/show-overlay.ts'
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const inputValue = ref('')
-const loadType = ref('RampUpListLoadTest')
+const loadType = ref('NormalLoadTest')
 
 const submitRequest = async () => {
   try {
