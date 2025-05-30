@@ -28,7 +28,8 @@ const startExperiment = async () => {
     await fetch(`http://localhost:8888/experiment/${testUuid.value}`, {
       method: 'POST',
     })
-    alert(`Experiment executed! Open Results Dashboard: http://localhost:3001/d/${testUuid.value}`)
+    // TODO implement server-side event handling to notify when the experiment is completed
+    alert(`Experiment started! You will be notified once it is completed`)
   } catch (error) {
     console.error('Error running experiment:', error)
     alert('Failed to run experiment.')
