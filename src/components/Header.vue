@@ -6,8 +6,11 @@
       <button type="button" class="header-button">{{ 'Help and Guidelines' }}</button>
       <button type="button" @click="persistAll" :disabled="isSaving" class="header-button">{{ isSaving ? 'Saving... ' : 'Save Experiment' }}</button>
       <button type="button" class="header-button">{{ 'Load / Generate New Experiment' }}</button>
-      <button type="button" @click="startExperiment" :disabled="isLoading" class="header-button">
-        {{ isLoading ? 'Running Experiment...' : 'Start Experiment' }}
+      <button
+          type="button"
+          @click="isLoading ? stopExperiment() : startExperiment()"
+          class="header-button">
+        {{ isLoading ? 'Stop Experiment' : 'Start Experiment' }}
       </button>
     </div>
   </div>
@@ -33,9 +36,20 @@ const startExperiment = async () => {
   } catch (error) {
     console.error('Error running experiment:', error)
     alert('Failed to run experiment.')
-  } finally {
+  } finally {}
+}
+
+const stopExperiment = async () => {
+  try {
+    await fetch(`http://localhost:8888/experiment/${testUuid.value}`, {
+      method: 'DELETE',
+    })
+    alert('Experiment stopped successfully.')
     isLoading.value = false
-  }
+  } catch (error) {
+    console.error('Error stopping experiment:', error)
+    alert('Failed to stop experiment.')
+  } finally {}
 }
 
 const persistAll = async () => {
