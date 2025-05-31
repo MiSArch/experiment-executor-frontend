@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import {ref} from 'vue'
 import {testUuid} from '../util/test-uuid.ts'
-import {testHandler} from '../util/test-handler.ts'
+import {backendUrl, testHandler} from '../util/test-handler.ts'
 
 const isLoading = ref(false)
 const isSaving = ref(false)
@@ -28,7 +28,7 @@ const startExperiment = async () => {
   isLoading.value = true
   try {
     await persistAll()
-    await fetch(`http://localhost:8888/experiment/${testUuid.value}`, {
+    await fetch(`${backendUrl}/experiment/${testUuid.value}`, {
       method: 'POST',
     })
     // TODO implement server-side event handling to notify when the experiment is completed
@@ -41,7 +41,7 @@ const startExperiment = async () => {
 
 const stopExperiment = async () => {
   try {
-    await fetch(`http://localhost:8888/experiment/${testUuid.value}`, {
+    await fetch(`${backendUrl}/experiment/${testUuid.value}`, {
       method: 'DELETE',
     })
     alert('Experiment stopped successfully.')

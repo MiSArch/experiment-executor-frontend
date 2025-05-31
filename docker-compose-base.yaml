@@ -1,0 +1,6 @@
+services:
+  experiment-executor-frontend:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile

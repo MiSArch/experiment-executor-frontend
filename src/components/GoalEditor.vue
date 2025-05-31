@@ -22,7 +22,7 @@
 // TODO color picker should actually pick a color from the chart
 import {ref, watch} from 'vue'
 import type {TestConfig} from "../model/test-config.ts";
-import {config} from "../util/test-handler.ts";
+import {backendUrl, config} from "../util/test-handler.ts";
 import {testUuid} from "../util/test-uuid.ts";
 import {showOverlay} from "../util/show-overlay.ts";
 
@@ -35,7 +35,7 @@ interface Line {
 const lines = ref<Line[]>([])
 
 const fetchConfig = async () => {
-  const response = await fetch(`http://localhost:8888/experiment/${testUuid.value}/config`, {
+  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/config`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'

@@ -20,7 +20,7 @@ import {Chart as ChartJS, Title, Tooltip, Legend, LineElement, LinearScale, Poin
 import {onMounted, ref, watch} from 'vue'
 import {testUuid} from "../util/test-uuid.ts";
 import {showOverlay} from "../util/show-overlay.ts";
-import {userSteps} from "../util/test-handler.ts";
+import {backendUrl, userSteps} from "../util/test-handler.ts";
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale, LineController, dragDataPlugin)
 
@@ -62,7 +62,7 @@ async function updateGraph() {
 }
 
 async function fetchUserSteps() {
-  const response = await fetch(`http://localhost:8888/experiment/${testUuid.value}/gatlingConfig/userSteps`)
+  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/gatlingConfig/userSteps`)
   const data = await response.text()
   userSteps.value = data.split('\n').map(line => parseInt(line.trim(), 10)).filter(Number.isFinite);
 }

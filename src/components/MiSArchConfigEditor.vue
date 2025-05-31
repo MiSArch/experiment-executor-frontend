@@ -11,13 +11,13 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import {ref, onBeforeUnmount, watch} from 'vue'
 import {testUuid} from "../util/test-uuid.ts";
 import {showOverlay} from '../util/show-overlay.ts'
-import {misarchExperimentConfig} from '../util/test-handler.ts'
+import {backendUrl, misarchExperimentConfig} from '../util/test-handler.ts'
 
 const editorElement = ref<HTMLElement | null>(null)
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
 
 const loadConfig = async (): Promise<string> => {
-  const response = await fetch(`http://localhost:8888/experiment/${testUuid.value}/misarchExperimentConfig`)
+  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/misarchExperimentConfig`)
   const text = await response.text()
   return JSON.stringify(JSON.parse(text), null, 2)
 }

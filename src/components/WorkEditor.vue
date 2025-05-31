@@ -11,13 +11,13 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { ref, watch, onBeforeUnmount } from 'vue'
 import { testUuid } from '../util/test-uuid.ts';
 import {showOverlay} from "../util/show-overlay.ts";
-import {gatlingWork} from '../util/test-handler.ts'
+import {backendUrl, gatlingWork} from '../util/test-handler.ts'
 
 const editorElement = ref<HTMLElement | null>(null)
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
 
 const loadConfig = async (): Promise<string> => {
-  const response = await fetch(`http://localhost:8888/experiment/${testUuid.value}/gatlingConfig/work`)
+  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/gatlingConfig/work`)
   return await response.text()
 }
 

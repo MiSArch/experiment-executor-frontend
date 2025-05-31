@@ -19,6 +19,7 @@
 import { ref } from 'vue'
 import { testUuid } from '../util/test-uuid.ts'
 import { showOverlay } from '../util/show-overlay.ts'
+import { backendUrl } from "../util/test-handler.ts";
 
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -27,7 +28,7 @@ const loadType = ref('NormalLoadTest')
 
 const submitRequest = async () => {
   try {
-    const response = await fetch(`http://localhost:8888/experiment/generate/${loadType.value}`, {
+    const response = await fetch(`${backendUrl}/experiment/generate/${loadType.value}`, {
       method: 'POST',
     })
     testUuid.value = await response.text()
