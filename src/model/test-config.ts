@@ -1,29 +1,14 @@
 export class TestConfig {
   testUUID!: string;
   testVersion!: string;
-  failure!: Failure;
   workLoad!: WorkLoad;
   goals!: Goal[];
 }
 
-class ChaosToolkit {
-  pathUri!: string;
-}
-
-class ExperimentConfig {
-  pathUri!: string;
-  endpointHost!: string;
-}
-
-class Failure {
-  chaosToolkit!: ChaosToolkit;
-  experimentConfig!: ExperimentConfig;
-}
-
 class Gatling {
-  pathUri!: string;
+  loadType!: string;
   endpointHost!: string;
-  tokenEndpointHost!: string;
+  endpointAccessToken! : string;
 }
 
 class WorkLoad {
