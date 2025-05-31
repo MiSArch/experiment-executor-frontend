@@ -1,5 +1,6 @@
 export class TestConfig {
   testUUID!: string;
+  testVersion!: string;
   failure!: Failure;
   workLoad!: WorkLoad;
   goals!: Goal[];

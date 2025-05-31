@@ -2,15 +2,17 @@
   <div class="header">
     <span>MISARCH EXPERIMENT TOOL</span>
     <span v-if="testUuid" class="test-uuid">Test UUID: {{ testUuid }}</span>
+    <span v-if="testVersion" class="test-version">Test Version: {{ testVersion }}</span>
     <div class="button-group">
-      <button type="button" class="header-button">{{ 'Help and Guidelines' }}</button>
-      <button type="button" @click="persistAll" :disabled="isSaving" class="header-button">{{ isSaving ? 'Saving... ' : 'Save Experiment' }}</button>
-      <button type="button" class="header-button">{{ 'Load / Generate New Experiment' }}</button>
+      <button type="button" class="header-button">{{ 'Help' }}</button>
+      <button type="button" @click="persistAll" :disabled="isSaving" class="header-button">{{ isSaving ? 'Saving... ' : 'Save' }}</button>
+      <button type="button" @click="loadOrGenerate" :disabled="isSaving" class="header-button">{{ 'Load / Generate' }}</button>
+      <button type="button" @click="newVersion" :disabled="isSaving" class="header-button">{{ 'New Version' }}</button>
       <button
           type="button"
           @click="isLoading ? stopExperiment() : startExperiment()"
           class="header-button">
-        {{ isLoading ? 'Stop Experiment' : 'Start Experiment' }}
+        {{ isLoading ? 'Stop Experiment' : 'Execute Experiment' }}
       </button>
     </div>
   </div>
@@ -18,8 +20,9 @@
 
 <script setup lang="ts">
 import {ref} from 'vue'
-import {testUuid} from '../util/test-uuid.ts'
+import {testUuid, testVersion} from '../util/test-uuid.ts'
 import {backendUrl, testHandler} from '../util/test-handler.ts'
+import {showOverlay} from "../util/show-overlay.ts";
 
 const isLoading = ref(false)
 const isSaving = ref(false)
@@ -28,7 +31,7 @@ const startExperiment = async () => {
   isLoading.value = true
   try {
     await persistAll()
-    await fetch(`${backendUrl}/experiment/${testUuid.value}`, {
+    await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}`, {
       method: 'POST',
     })
     // TODO implement server-side event handling to notify when the experiment is completed
@@ -41,7 +44,7 @@ const startExperiment = async () => {
 
 const stopExperiment = async () => {
   try {
-    await fetch(`${backendUrl}/experiment/${testUuid.value}`, {
+    await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}`, {
       method: 'DELETE',
     })
     alert('Experiment stopped successfully.')
@@ -62,6 +65,26 @@ const persistAll = async () => {
   } finally {
     isSaving.value = false
   }
+}
+
+const newVersion = async () => {
+  isSaving.value = true
+  try {
+    await testHandler.persistAllConfigs()
+    const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/newVersion`, {
+      method: 'POST',
+    })
+    testVersion.value = await response.text()
+  } catch (error) {
+    console.error('Error creating new version:', error)
+    alert('Failed to create new version.')
+  } finally {
+    isSaving.value = false
+  }
+}
+
+const loadOrGenerate = async () => {
+    showOverlay.value = true
 }
 </script>
 

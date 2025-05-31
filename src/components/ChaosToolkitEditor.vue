@@ -9,7 +9,7 @@
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import {ref, onBeforeUnmount, watch} from 'vue'
-import {testUuid} from "../util/test-uuid.ts";
+import {testUuid, testVersion} from "../util/test-uuid.ts";
 import {showOverlay} from '../util/show-overlay.ts'
 import {backendUrl, chaostoolkitConfig} from '../util/test-handler.ts'
 
@@ -17,7 +17,7 @@ const editorElement2 = ref<HTMLElement | null>(null)
 let editorInstance2: monaco.editor.IStandaloneCodeEditor | null = null
 
 const loadConfig = async (): Promise<string> => {
-  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/chaosToolkitConfig`)
+  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/chaosToolkitConfig`)
   return await response.text()
 }
 

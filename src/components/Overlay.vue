@@ -2,7 +2,8 @@
   <div v-if="showOverlay" class="overlay">
     <div class="overlay-content">
       <p>Enter your experiment details:</p>
-      <input v-model="inputValue" type="text" placeholder="Enter Existing Test UUID" />
+      <input v-model="uuidInputValue" type="text" placeholder="Enter Existing Test UUID" />
+      <input v-model="versionInputValue" type="text" placeholder="Enter Existing Test Version" />
       <button @click="useExistingTest">Use Existing Test</button>
       <select v-model="loadType">
         <option value="NormalLoadTest">Realistic Load Test</option>
@@ -17,13 +18,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { testUuid } from '../util/test-uuid.ts'
+import {testUuid, testVersion} from '../util/test-uuid.ts'
 import { showOverlay } from '../util/show-overlay.ts'
 import { backendUrl } from "../util/test-handler.ts";
 
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-const inputValue = ref('')
+const uuidInputValue = ref('')
+const versionInputValue = ref('')
 const loadType = ref('NormalLoadTest')
 
 const submitRequest = async () => {
@@ -31,7 +33,10 @@ const submitRequest = async () => {
     const response = await fetch(`${backendUrl}/experiment/generate/${loadType.value}`, {
       method: 'POST',
     })
-    testUuid.value = await response.text()
+    const strings = (await response.text()).split(":")
+
+    testUuid.value = strings[0].trim()
+    testVersion.value = strings[1].trim()
     showOverlay.value = false
   } catch (error) {
     console.error('Error:', error)
@@ -39,9 +44,11 @@ const submitRequest = async () => {
 }
 
 const useExistingTest = () => {
-  const trimmedValue = inputValue.value?.trim();
-  if (trimmedValue && uuidRegex.test(trimmedValue)) {
-    testUuid.value = trimmedValue;
+  const trimmedUuidValue = uuidInputValue.value?.trim();
+  const trimmedVersionValue = versionInputValue.value?.trim();
+  if (trimmedUuidValue && uuidRegex.test(trimmedUuidValue && trimmedVersionValue)) {
+    testUuid.value = trimmedUuidValue;
+    testVersion.value = trimmedVersionValue;
     showOverlay.value = false;
   } else {
     alert('Please enter a valid Test UUID.');

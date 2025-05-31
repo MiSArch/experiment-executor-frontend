@@ -18,7 +18,7 @@ import {defineChartComponent} from 'vue-chart-3'
 import dragDataPlugin from 'chartjs-plugin-dragdata'
 import {Chart as ChartJS, Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale, LineController} from 'chart.js'
 import {onMounted, ref, watch} from 'vue'
-import {testUuid} from "../util/test-uuid.ts";
+import {testUuid, testVersion} from "../util/test-uuid.ts";
 import {showOverlay} from "../util/show-overlay.ts";
 import {backendUrl, userSteps} from "../util/test-handler.ts";
 
@@ -62,7 +62,7 @@ async function updateGraph() {
 }
 
 async function fetchUserSteps() {
-  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/gatlingConfig/userSteps`)
+  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/gatlingConfig/userSteps`)
   const data = await response.text()
   userSteps.value = data.split('\n').map(line => parseInt(line.trim(), 10)).filter(Number.isFinite);
 }
@@ -96,7 +96,7 @@ async function applyUsers() {
 }
 
 onMounted(async () => {
-  if (testUuid.value != '') {
+  if (testUuid.value != '' || testVersion.value != '') {
     await updateGraph()
   }
 })

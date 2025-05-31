@@ -23,7 +23,7 @@
 import {ref, watch} from 'vue'
 import type {TestConfig} from "../model/test-config.ts";
 import {backendUrl, config} from "../util/test-handler.ts";
-import {testUuid} from "../util/test-uuid.ts";
+import {testUuid, testVersion} from "../util/test-uuid.ts";
 import {showOverlay} from "../util/show-overlay.ts";
 
 interface Line {
@@ -35,7 +35,7 @@ interface Line {
 const lines = ref<Line[]>([])
 
 const fetchConfig = async () => {
-  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/config`, {
+  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/config`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'

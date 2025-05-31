@@ -1,7 +1,8 @@
 import {TestConfig} from '../model/test-config.ts';
-import {testUuid} from "./test-uuid.ts";
+import {testUuid, testVersion} from "./test-uuid.ts";
 import {ref} from "vue";
 
+// TODO: move this to a more appropriate place
 export const chaostoolkitConfig = ref('')
 export const userSteps = ref<number[]>([])
 export const misarchExperimentConfig = ref('')
@@ -20,7 +21,7 @@ export class TestHandler {
 
   async persistConfig(): Promise<void> {
     const jsonData = JSON.stringify(config.value, null, 2);
-    await fetch(`${backendUrl}/experiment/${testUuid.value}/config`, {
+    await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/config`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -31,28 +32,28 @@ export class TestHandler {
 
   async persistUserSteps(): Promise<void> {
     const csvData = `userSteps\n${userSteps.value.join('\n')}`;
-    await fetch(`${backendUrl}/experiment/${testUuid.value}/gatlingConfig/userSteps`, {
+    await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/gatlingConfig/userSteps`, {
       method: 'PUT',
       body: csvData
     })
   }
 
   async persistChaosToolkitConfig(): Promise<void> {
-    await fetch(`${backendUrl}/experiment/${testUuid.value}/chaosToolkitConfig`, {
+    await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/chaosToolkitConfig`, {
       method: 'PUT',
       body: chaostoolkitConfig.value
     })
   }
 
   async persistWork(): Promise<void> {
-    await fetch(`${backendUrl}/experiment/${testUuid.value}/gatlingConfig/work`, {
+    await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/gatlingConfig/work`, {
       method: 'PUT',
       body: gatlingWork.value
     })
   }
 
   async persistMisarchExperimentConfig(): Promise<void> {
-    await fetch(`${backendUrl}/experiment/${testUuid.value}/misarchExperimentConfig`, {
+    await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/misarchExperimentConfig`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
