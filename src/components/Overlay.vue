@@ -46,12 +46,12 @@ const submitRequest = async () => {
 const useExistingTest = () => {
   const trimmedUuidValue = uuidInputValue.value?.trim();
   const trimmedVersionValue = versionInputValue.value?.trim();
-  if (trimmedUuidValue && uuidRegex.test(trimmedUuidValue && trimmedVersionValue)) {
+  if (trimmedUuidValue && uuidRegex.test(trimmedUuidValue) && trimmedVersionValue) {
     testUuid.value = trimmedUuidValue;
     testVersion.value = trimmedVersionValue;
     showOverlay.value = false;
   } else {
-    alert('Please enter a valid Test UUID.');
+    alert('Please enter a valid Test UUID and version.');
   }
 }
 </script>
