@@ -2,14 +2,14 @@
   <div v-if="showOverlay" class="overlay">
     <div class="overlay-content">
       <p>Enter your experiment details:</p>
-      <select v-model="uuidInputValue" @change="fetchVersions">
+      <select v-model="uuidInputValue" @change="fetchVersions" class="dropdown">
         <option v-for="uuid in uuidList" :key="uuid" :value="uuid">{{ uuid }}</option>
       </select>
-      <select v-model="versionInputValue">
+      <select v-model="versionInputValue" class="dropdown">
         <option v-for="version in versionList" :key="version" :value="version">{{ version }}</option>
       </select>
       <button @click="useExistingTest">Use Existing Test</button>
-      <select v-model="loadType">
+      <select v-model="loadType" class="dropdown">
         <option value="NormalLoadTest">Realistic Load Test</option>
         <option value="ElasticityLoadTest">Elasticity Load Test</option>
         <option value="ResilienceLoadTest">Resilience Load Test</option>
@@ -110,6 +110,28 @@ onMounted(fetchUUIDs)
   border-radius: 8px;
   text-align: center;
 }
+
+.dropdown {
+  flex: 6;
+  padding: 0.5em;
+  border: 0 solid #ccc;
+  border-radius: 4px;
+  background-color: #369a6e;
+  color: white;
+  font-size: 0.8em;
+  appearance: none;
+  cursor: pointer;
+}
+
+.dropdown:hover {
+  background-color: #42b883;
+}
+
+.dropdown:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(54, 154, 110, 0.5);
+}
+
 
 input, select {
   margin: 1em 0;
