@@ -2,13 +2,17 @@
   <div class="graph-container">
     <LineChart :chart-data="chartData" :chart-options="chartOptions"/>
     <div class="controls">
-      <span>Duration</span>
+      <span>Duration in s</span>
       <input type="number" v-model="duration" placeholder="Duration"/>
-      <span>Time:</span>
-      <input type="number" v-model="time" placeholder="Time"/>
-      <span>Arriving Users:</span>
+      <button @click="applyDuration">Apply</button>
+      <span>From s</span>
+      <input type="number" v-model="timeFrom" placeholder="TimeFrom"/>
+      <span>To s</span>
+      <input type="number" v-model="timeTo" placeholder="TimeTo"/>
+      <span>Arriving Users / s</span>
       <input type="number" v-model="arrivingUsers" placeholder="Arriving Users"/>
       <button @click="applyUsers">Apply</button>
+      <button @click="reset">Reset</button>
     </div>
   </div>
 </template>
@@ -25,9 +29,14 @@ import {backendUrl, userSteps} from "../util/test-handler.ts";
 ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale, LineController, dragDataPlugin)
 
 const LineChart = defineChartComponent("test", 'line')
-const time = ref<number>(0)
+const timeFrom = ref<number>(0)
+const timeTo = ref<number>(0)
 const arrivingUsers = ref<number>(0)
 const needsUpdate = ref<boolean>(false)
+const duration = ref(userSteps.value.length)
+
+const userStepsBackup = ref([] as number[])
+
 // TODO this must be calculated from the work
 const approximateSessionDuration = 20
 const sessionRequests = [1, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1]
@@ -56,13 +65,13 @@ const chartData = ref({
 
 const chartOptions = ref({
   responsive: true,
+  maintainAspectRatio: true,
   plugins: {
     legend: {
       display: true,
     }
   },
 })
-
 
 async function updateGraph() {
   const usersResult = await calculateTotalUsers(Math.floor(approximateSessionDuration));
@@ -77,11 +86,15 @@ async function fetchUserSteps() {
   const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/gatlingConfig/userSteps`)
   const data = await response.text()
   userSteps.value = data.split('\n').map(line => parseInt(line.trim(), 10)).filter(Number.isFinite);
+  userStepsBackup.value = userSteps.value.slice()
+}
+
+async function reset() {
+  userSteps.value = [...userStepsBackup.value];
+  needsUpdate.value = true;
 }
 
 async function calculateTotalUsers(sessionDuration: number): Promise<number[]> {
-
-
   const totalUsers: number[] = [];
 
   userSteps.value.forEach((users, time) => {
@@ -107,16 +120,23 @@ async function calculateApproximateRequests(): Promise<number[]> {
 }
 
 async function applyUsers() {
-  if (time.value < 0 || arrivingUsers.value < 0) {
+  if (timeTo.value < 0 || timeFrom.value < 0 || arrivingUsers.value < 0) {
     alert('Time and Arriving Users must be non-negative.')
     return
   }
-  if (time.value >= userSteps.value.length) {
-    for (let i = userSteps.value.length; i <= time.value; i++) {
+  if (timeFrom.value >= userSteps.value.length) {
+    for (let i = userSteps.value.length; i < timeFrom.value; i++) {
       userSteps.value.push(0)
     }
   }
-  userSteps.value[time.value] = arrivingUsers.value
+  for (let i = timeFrom.value; i <= timeTo.value; i++) {
+    if (i < userSteps.value.length) {
+      userSteps.value[i] = arrivingUsers.value;
+    } else {
+      userSteps.value.push(arrivingUsers.value);
+    }
+  }
+
   needsUpdate.value = true
 }
 
@@ -138,16 +158,17 @@ watch(needsUpdate, async () => {
   needsUpdate.value = false
 })
 
-const duration = ref(userSteps.value.length)
 
-watch(duration, (newValue) => {
-  for (let i = 0; i < chartData.value.labels.length; i++) {
-    chartData.value.labels.pop()
+async function applyDuration() {
+  if (duration.value > userSteps.value.length) {
+    for (let i = userSteps.value.length; i < duration.value; i++) {
+      userSteps.value.push(0);
+    }
+  } else if (duration.value < userSteps.value.length) {
+    userSteps.value.splice(duration.value);
   }
-  for (let i = 0; i < newValue; i++) {
-    chartData.value.labels[i] = (i).toString()
-  }
-})
+  needsUpdate.value = true
+}
 
 // ChartJS.defaults.plugins.dragData = {
 //  round: 0,
@@ -172,29 +193,65 @@ watch(duration, (newValue) => {
   margin: 1em;
   padding-top: 5em;
   width: 64%;
+  height: 50%;
+  overflow-y: auto;
 }
 
 .controls {
+  margin-top: 0.5em;
+  position: relative;
   display: flex;
-  align-items: center;
-  margin-top: 1em;
+  align-items: stretch;
+  gap: 0.5em;
+  flex-wrap: wrap;
+  max-width: 100%;
+  width: 100%;
+  height: 2.5em;
+  box-sizing: border-box;
+}
+
+.controls > * {
+  height: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 input {
-  margin-left: 1em;
-  margin-right: 1em;
+  flex: 1;
   padding: 0.5em;
-  border: 1px solid #ccc;
+  border: 0 solid #ccc;
   border-radius: 4px;
+  background-color: #369a6e;
+  appearance: none;
+}
+
+input:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(54, 154, 110, 0.5);
+}
+
+span {
+  flex: 4;
+  padding: 0.5em;
+  border: 0 solid #ccc;
+  border-radius: 4px;
+  background-color: #369a6e;
+  color: white;
+  font-size: 1em;
+  text-align: center;
+  appearance: none;
+  cursor: pointer;
 }
 
 button {
-  padding: 0.5em 1em;
+  padding: 0.5em;
+  margin-right: 0.5em;
   background-color: #42b883;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  flex: 1;
 }
 
 button:hover {
