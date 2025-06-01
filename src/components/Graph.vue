@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import {defineChartComponent} from 'vue-chart-3'
 import dragDataPlugin from 'chartjs-plugin-dragdata'
-import {Chart as ChartJS, Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale, LineController} from 'chart.js'
+import {CategoryScale, Chart as ChartJS, Legend, LinearScale, LineController, LineElement, PointElement, Title, Tooltip} from 'chart.js'
 import {onMounted, ref, watch} from 'vue'
 import {testUuid, testVersion} from "../util/test-uuid.ts";
 import {showOverlay} from "../util/show-overlay.ts";
@@ -28,7 +28,9 @@ const LineChart = defineChartComponent("test", 'line')
 const time = ref<number>(0)
 const arrivingUsers = ref<number>(0)
 const needsUpdate = ref<boolean>(false)
-const approximateSessionDuration = 10
+// TODO this must be calculated from the work
+const approximateSessionDuration = 20
+const sessionRequests = [1, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1]
 
 const chartData = ref({
   labels: [''],
@@ -41,6 +43,14 @@ const chartData = ref({
       borderWidth: 2,
       dragData: true,
     },
+    {
+      label: 'Approx. Total Requests',
+      data: [0],
+      borderColor: 'rgba(153, 102, 255, 1)',
+      backgroundColor: 'rgba(153, 102, 255, 0.2)',
+      borderWidth: 2,
+      dragData: true,
+    }
   ],
 })
 
@@ -55,10 +65,12 @@ const chartOptions = ref({
 
 
 async function updateGraph() {
-  const result = await calculateTotalUsers(Math.floor(approximateSessionDuration));
-  chartData.value.labels = result.map((_, index) => index.toString());
-  chartData.value.datasets[0].data = result;
-  duration.value = result.length;
+  const usersResult = await calculateTotalUsers(Math.floor(approximateSessionDuration));
+  chartData.value.labels = usersResult.map((_, index) => index.toString());
+  chartData.value.datasets[0].data = usersResult;
+  duration.value = usersResult.length;
+
+  chartData.value.datasets[1].data = await calculateApproximateRequests();
 }
 
 async function fetchUserSteps() {
@@ -79,6 +91,19 @@ async function calculateTotalUsers(sessionDuration: number): Promise<number[]> {
   });
 
   return totalUsers;
+}
+
+async function calculateApproximateRequests(): Promise<number[]> {
+  const approximateRequests: number[] = [];
+
+  userSteps.value.forEach((users, time) => {
+    for (let i = 0; i < sessionRequests.length; i++) {
+      const requestIndex = time + i;
+      approximateRequests[requestIndex] = (approximateRequests[requestIndex] || 0) + users * sessionRequests[i];
+    }
+  });
+
+  return approximateRequests;
 }
 
 async function applyUsers() {
