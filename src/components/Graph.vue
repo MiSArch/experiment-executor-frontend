@@ -5,9 +5,9 @@
       <span>Duration in s</span>
       <input type="number" v-model="duration" placeholder="Duration"/>
       <button @click="applyDuration">Apply</button>
-      <span>From s</span>
+      <span>From second</span>
       <input type="number" v-model="timeFrom" placeholder="TimeFrom"/>
-      <span>To s</span>
+      <span>To second</span>
       <input type="number" v-model="timeTo" placeholder="TimeTo"/>
       <span>Arriving Users / s</span>
       <input type="number" v-model="arrivingUsers" placeholder="Arriving Users"/>
