@@ -6,11 +6,22 @@
     <button @click="addLine" class="add-button">+</button>
     <div v-for="(line, index) in lines" :key="index" class="line">
       <select v-model="line.dropdown" class="dropdown">
-        <option value="min response time">Min Response Time</option>
-        <option value="mean response time">Mean Response Time</option>
-        <option value="max response time">Max Response Time</option>
+        <option v-for="option in dropdownOptions" :key="option" :value="option">{{ option }}</option>
       </select>
-      <input type="color" v-model="line.color" class="color-picker"/>
+      <div
+          class="color-display"
+          :style="{ backgroundColor: line.color }"
+          @click="toggleColorOptions(index)"
+      ></div>
+      <div v-if="line.showDropdown" class="color-options">
+        <div
+            v-for="(hex, color) in reverseColorMap"
+            :key="color"
+            class="color-option"
+            :style="{ backgroundColor: hex }"
+            @click="selectColor(index, hex)"
+        ></div>
+      </div>
       <input type="number" v-model="line.value" class="number-input"/>
       <button @click="removeLine(index)" class="delete-button">x</button>
     </div>
@@ -27,12 +38,62 @@ import {testUuid, testVersion} from "../util/test-uuid.ts";
 import {showOverlay} from "../util/show-overlay.ts";
 
 interface Line {
-  dropdown: string
-  color: string
-  value: number | null
+  dropdown: string;
+  color: string;
+  value: number | null;
+  showDropdown: boolean;
 }
 
 const lines = ref<Line[]>([])
+
+const colorMap: Record<string, string> = {
+  '#f2495c': 'red',
+  '#fc9830': 'orange',
+  '#fade2b': 'yellow',
+  '#73bf69': 'green',
+  '#5794f2': 'blue',
+  '#b977d9': 'purple',
+};
+
+const reverseColorMap: Record<string, string> = {
+  red: '#f2495c',
+  orange: '#fc9830',
+  yellow: '#fade2b',
+  green: '#73bf69',
+  blue: '#5794f2',
+  purple: '#b977d9',
+};
+
+const dropdownOptions = [
+  'number reqs with resp. time t < 800 ms',
+  'number reqs with resp. time t < 800 ms < t < 1200 ms',
+  'number reqs with resp. time t > 1200 ms',
+  'number failed requests',
+  'number of requests total',
+  'number of requests total ok',
+  'number of requests total ko',
+  'mean requests/sec',
+  'mean requests/sec ok',
+  'mean requests/sec ko',
+  'min response time',
+  'mean response time',
+  'max response time',
+  'min response time ok',
+  'mean response time ok',
+  'max response time ok',
+  'min response time ko',
+  'mean response time ko',
+  'max response time ko',
+];
+
+const toggleColorOptions = (index: number) => {
+  lines.value[index].showDropdown = !lines.value[index].showDropdown;
+};
+
+const selectColor = (index: number, color: string) => {
+  lines.value[index].color = color;
+  lines.value[index].showDropdown = false;
+};
 
 const fetchConfig = async () => {
   const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/config`, {
@@ -44,15 +105,16 @@ const fetchConfig = async () => {
   const data: TestConfig = await response.json()
   lines.value = data.goals.map(goal => ({
     dropdown: goal.metric,
-    color: goal.color,
-    value: parseFloat(goal.threshold) || null
+    color: reverseColorMap[goal.color] || goal.color,
+    value: parseFloat(goal.threshold) || null,
+    showDropdown: false
   }))
   return data
 }
 
 const addLine = () => {
-  lines.value.push({dropdown: 'min response time', color: '#000000', value: null})
-}
+  lines.value.push({dropdown: 'min response time', color: '#000000', value: null, showDropdown: false});
+};
 
 const removeLine = (index: number) => {
   lines.value.splice(index, 1)
@@ -61,10 +123,10 @@ const removeLine = (index: number) => {
 watch(lines, (newLines) => {
   config.value.goals = newLines.map(line => ({
     metric: line.dropdown,
-    color: line.color,
+    color: colorMap[line.color] || line.color,
     threshold: line.value?.toString() || ''
   }))
-}, { deep: true })
+}, {deep: true})
 
 watch(showOverlay, async () => {
   config.value = await fetchConfig();
@@ -80,46 +142,111 @@ watch(showOverlay, async () => {
   position: fixed;
   right: 1em;
   bottom: 1em;
-  max-height: calc(6 * 3em);
+  max-height: 30%;
   overflow-y: auto;
+  width: 18.3%;
+}
+
+.color-display {
+  flex: 1;
+}
+
+.color-option {
+  width: 12%
+}
+
+.color-display,
+.color-option {
+  height: 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.color-options {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 10;
+  display: flex;
+  gap: 0.5em;
+  margin-top: 0.2em; /* Slight spacing */
+  background-color: #f9f9f9;
+  padding: 0.5em;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+  width: 50%;
+  max-width: 100%;
+  overflow: auto;
 }
 
 .line {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.5em;
   flex-wrap: wrap;
   max-width: 100%;
-  max-height: 100%;
+  width: 100%;
+  height: 2.5em;
+}
+
+.line > * {
+  flex: 1;
+  height: 100%;
+  min-width: 0;
 }
 
 .add-button,
 .delete-button {
   padding: 0.5em;
-  background-color: #42b883;
+  background-color: #369a6e;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  flex: 1;
 }
 
 .add-button:hover,
 .delete-button:hover {
-  background-color: #369a6e;
+  background-color: #42b883;
 }
 
-.dropdown,
-.color-picker {
+.dropdown {
+  flex: 6;
   padding: 0.5em;
-  border: 1px solid #ccc;
+  border: 0 solid #ccc;
   border-radius: 4px;
+  background-color: #369a6e;
+  color: white;
+  font-size: 0.8em;
+  appearance: none;
+  cursor: pointer;
+}
+
+.dropdown:hover {
+  background-color: #42b883;
+}
+
+.dropdown:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(54, 154, 110, 0.5);
 }
 
 .number-input {
+  height: 2.5em;
   padding: 0.5em;
-  border: 1px solid #ccc;
+  border: 0 solid #ccc;
   border-radius: 4px;
-  width: 5em;
+  background-color: #369a6e;
+  flex: 1.5;
+  appearance: none;
+}
+
+.number-input:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(54, 154, 110, 0.5);
 }
 
 .header {
