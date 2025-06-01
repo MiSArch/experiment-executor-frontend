@@ -2,8 +2,12 @@
   <div v-if="showOverlay" class="overlay">
     <div class="overlay-content">
       <p>Enter your experiment details:</p>
-      <input v-model="uuidInputValue" type="text" placeholder="Enter Existing Test UUID" />
-      <input v-model="versionInputValue" type="text" placeholder="Enter Existing Test Version" />
+      <select v-model="uuidInputValue" @change="fetchVersions">
+        <option v-for="uuid in uuidList" :key="uuid" :value="uuid">{{ uuid }}</option>
+      </select>
+      <select v-model="versionInputValue">
+        <option v-for="version in versionList" :key="version" :value="version">{{ version }}</option>
+      </select>
       <button @click="useExistingTest">Use Existing Test</button>
       <select v-model="loadType">
         <option value="NormalLoadTest">Realistic Load Test</option>
@@ -17,16 +21,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import {onMounted, ref} from 'vue'
 import {testUuid, testVersion} from '../util/test-uuid.ts'
 import { showOverlay } from '../util/show-overlay.ts'
 import { backendUrl } from "../util/test-handler.ts";
 
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+const uuidList = ref<string[]>([])
+const versionList = ref<string[]>([])
 const uuidInputValue = ref('')
 const versionInputValue = ref('')
 const loadType = ref('NormalLoadTest')
+
+const fetchUUIDs = async () => {
+  try {
+    const response = await fetch(`${backendUrl}/experiments`)
+    uuidList.value = await response.json()
+    if (uuidList.value.length > 0) {
+      uuidInputValue.value = uuidList.value[0]
+      await fetchVersions()
+    }
+  } catch (error) {
+    console.error('Error fetching UUIDs:', error)
+  }
+}
+
+const fetchVersions = async () => {
+  try {
+    if (!uuidInputValue.value) return
+    const response = await fetch(`${backendUrl}/experiment/${uuidInputValue.value}/versions`)
+    versionList.value = await response.json()
+    if (versionList.value.length > 0) {
+      versionInputValue.value = versionList.value[0]
+    }
+  } catch (error) {
+    console.error('Error fetching versions:', error)
+  }
+}
 
 const submitRequest = async () => {
   try {
@@ -54,6 +86,8 @@ const useExistingTest = () => {
     alert('Please enter a valid Test UUID and version.');
   }
 }
+
+onMounted(fetchUUIDs)
 </script>
 
 <style scoped>
