@@ -26,21 +26,23 @@ import {showOverlay} from "../util/show-overlay.ts";
 
 const isLoading = ref(false)
 const isSaving = ref(false)
+const eventSource = ref<EventSource | null>(null)
 
 const startExperiment = async () => {
   isLoading.value = true
   try {
     await persistAll()
+    startEventListener()
     await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}`, {
       method: 'POST',
     })
-    // TODO implement server-side event handling to notify when the experiment is completed
     // TODO implement an input field to add an optional access token for the experiment
     alert(`Experiment started! You will be notified once it is completed`)
   } catch (error) {
     console.error('Error running experiment:', error)
     alert('Failed to run experiment.')
-  } finally {}
+  } finally {
+  }
 }
 
 const stopExperiment = async () => {
@@ -51,9 +53,11 @@ const stopExperiment = async () => {
     alert('Experiment stopped successfully.')
     isLoading.value = false
   } catch (error) {
+    stopEventListener()
     console.error('Error stopping experiment:', error)
     alert('Failed to stop experiment.')
-  } finally {}
+  } finally {
+  }
 }
 
 const persistAll = async () => {
@@ -85,7 +89,40 @@ const newVersion = async () => {
 }
 
 const loadOrGenerate = async () => {
-    showOverlay.value = true
+  showOverlay.value = true
+}
+
+const startEventListener = () => {
+  if (eventSource.value) {
+    eventSource.value.close()
+  }
+
+  eventSource.value = new EventSource(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/events`)
+
+  eventSource.value.onmessage = (event) => {
+    const urlRegex = /(http?:\/\/\S+)/g;
+    const message = event.data;
+    isLoading.value = false;
+
+    if (urlRegex.test(message)) {
+      const url = message.match(urlRegex)?.[0];
+      alert(`Experiment finished successfully, please open the URL below.\n\n\n${url}`);
+    } else {
+      alert(message);
+    }
+  };
+  eventSource.value.onerror = () => {
+    console.error('Error receiving server-sent events.')
+    eventSource.value?.close()
+    eventSource.value = null
+  }
+}
+
+const stopEventListener = () => {
+  if (eventSource.value) {
+    eventSource.value.close()
+    eventSource.value = null
+  }
 }
 </script>
 
