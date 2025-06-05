@@ -37,7 +37,7 @@ const startExperiment = async () => {
       method: 'POST',
     })
     // TODO implement an input field to add an optional access token for the experiment
-    alert(`Experiment started! You will be notified once it is completed`)
+    alert(`Experiment started! You will be notified once it is completed!`)
   } catch (error) {
     console.error('Error running experiment:', error)
     alert('Failed to run experiment.')
