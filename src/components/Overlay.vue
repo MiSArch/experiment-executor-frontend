@@ -62,7 +62,7 @@ const fetchVersions = async () => {
 
 const submitRequest = async () => {
   try {
-    const response = await fetch(`${backendUrl}/experiment/generate/${loadType.value}`, {
+    const response = await fetch(`${backendUrl}/experiment/generate?loadType=${loadType.value}`, {
       method: 'POST',
     })
     const strings = (await response.text()).split(":")
