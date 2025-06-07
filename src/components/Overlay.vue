@@ -1,30 +1,31 @@
 <template>
   <div v-if="showOverlay" class="overlay">
     <div class="overlay-content">
-      <p>Enter your experiment details:</p>
+      <button v-if="testUuid && testVersion" class="close-button" @click="showOverlay = false">&times;</button>
+      <h3>Use Existing Or Create New Experiment</h3>
       <select v-model="uuidInputValue" @change="fetchVersions" class="dropdown">
         <option v-for="uuid in uuidList" :key="uuid" :value="uuid">{{ uuid }}</option>
       </select>
       <select v-model="versionInputValue" class="dropdown">
         <option v-for="version in versionList" :key="version" :value="version">{{ version }}</option>
       </select>
-      <button @click="useExistingTest">Use Existing Test</button>
+      <button @click="useExistingTest">Use Existing Experiment</button>
       <select v-model="loadType" class="dropdown">
         <option value="NormalLoadTest">Realistic Load Test</option>
         <option value="ElasticityLoadTest">Elasticity Load Test</option>
         <option value="ResilienceLoadTest">Resilience Load Test</option>
         <option value="ScalabilityLoadTest">Scalability Load Test</option>
       </select>
-      <button @click="submitRequest">Create new Test</button>
+      <button @click="submitRequest">Create New Experiment</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue'
+import {onMounted, ref, watch} from 'vue'
 import {testUuid, testVersion} from '../util/test-uuid.ts'
-import { showOverlay } from '../util/show-overlay.ts'
-import { backendUrl } from "../util/test-handler.ts";
+import {showOverlay} from '../util/show-overlay.ts'
+import {backendUrl} from "../util/test-handler.ts";
 
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -88,6 +89,11 @@ const useExistingTest = () => {
 }
 
 onMounted(fetchUUIDs)
+watch(showOverlay, async (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    await fetchUUIDs()
+  }
+})
 </script>
 
 <style scoped>
@@ -98,6 +104,7 @@ onMounted(fetchUUIDs)
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.7);
+  color: black;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -105,6 +112,7 @@ onMounted(fetchUUIDs)
 }
 
 .overlay-content {
+  position: relative;
   background: white;
   padding: 2em;
   border-radius: 8px;
@@ -152,5 +160,20 @@ button {
 
 button:hover {
   background-color: #2d7a5a;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #333;
+}
+
+.close-button:hover {
+  color: #000;
 }
 </style>

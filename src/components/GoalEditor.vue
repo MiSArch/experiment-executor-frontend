@@ -23,7 +23,7 @@
         ></div>
       </div>
       <input type="number" v-model="line.value" class="number-input"/>
-      <button @click="removeLine(index)" class="delete-button">x</button>
+      <button @click="removeLine(index)" class="delete-button">&times;</button>
     </div>
   </div>
 </template>

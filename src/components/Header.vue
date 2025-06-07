@@ -4,15 +4,16 @@
     <span v-if="testUuid" class="test-uuid">Test UUID: {{ testUuid }}</span>
     <span v-if="testVersion" class="test-version">Test Version: {{ testVersion }}</span>
     <div class="button-group">
-      <button type="button" class="header-button">{{ 'Help' }}</button>
-      <button type="button" @click="persistAll" :disabled="isSaving" class="header-button">{{ isSaving ? 'Saving... ' : 'Save' }}</button>
-      <button type="button" @click="loadOrGenerate" :disabled="isSaving" class="header-button">{{ 'Load / Generate' }}</button>
-      <button type="button" @click="newVersion" :disabled="isSaving" class="header-button">{{ 'New Version' }}</button>
+      <button v-if="!showOverlay" type="button" class="header-button">{{ 'Help' }}</button>
+      <button v-if="!showOverlay" type="button" @click="persistAll" :disabled="isSaving" class="header-button">{{ isSaving ? 'Saving... ' : 'Save' }}</button>
+      <button v-if="!showOverlay" type="button" @click="loadOrGenerate" :disabled="isSaving" class="header-button">{{ 'Load / Generate' }}</button>
+      <button v-if="!showOverlay" type="button" @click="newVersion" :disabled="isSaving" class="header-button">{{ 'New Version' }}</button>
       <button
+          v-if="!showOverlay"
           type="button"
-          @click="isLoading ? stopExperiment() : startExperiment()"
+          @click="isRunningExperiment ? stopExperiment() : startExperiment()"
           class="header-button">
-        {{ isLoading ? 'Stop Experiment' : 'Execute Experiment' }}
+        {{ isRunningExperiment ? 'Stop Experiment' : 'Execute Experiment' }}
       </button>
     </div>
   </div>
@@ -24,12 +25,12 @@ import {testUuid, testVersion} from '../util/test-uuid.ts'
 import {backendUrl, testHandler} from '../util/test-handler.ts'
 import {showOverlay} from "../util/show-overlay.ts";
 
-const isLoading = ref(false)
+const isRunningExperiment = ref(false)
 const isSaving = ref(false)
 const eventSource = ref<EventSource | null>(null)
 
 const startExperiment = async () => {
-  isLoading.value = true
+  isRunningExperiment.value = true
   try {
     await persistAll()
     startEventListener()
@@ -51,7 +52,7 @@ const stopExperiment = async () => {
       method: 'DELETE',
     })
     alert('Experiment stopped successfully.')
-    isLoading.value = false
+    isRunningExperiment.value = false
   } catch (error) {
     stopEventListener()
     console.error('Error stopping experiment:', error)
@@ -102,7 +103,7 @@ const startEventListener = () => {
   eventSource.value.onmessage = (event) => {
     const urlRegex = /(http?:\/\/\S+)/g;
     const message = event.data;
-    isLoading.value = false;
+    isRunningExperiment.value = false;
 
     if (urlRegex.test(message)) {
       const url = message.match(urlRegex)?.[0];
