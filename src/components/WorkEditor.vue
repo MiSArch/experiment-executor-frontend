@@ -5,13 +5,13 @@
   </div>
   <div class="tabs">
     <button
-        v-for="(tab, index) in tabs"
+        v-for="(tab, index) in gatlingWorkConfigs"
         :key="index"
         :class="['tab-button', { active: activeTabIndex === index }]"
         @click="switchTab(index)"
     >
       {{ tab.label }}
-      <span class="close-tab" @click.stop="removeTab(index)">×</span>
+      <span class="close-tab" @click.stop="removeTab(index)">&times;</span>
     </button>
     <button class="add-tab-button" @click="addTab">＋ Add Tab</button>
   </div>
@@ -23,40 +23,51 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import {ref, watch, onBeforeUnmount} from 'vue'
 import {testUuid, testVersion} from '../util/test-uuid.ts';
 import {showOverlay} from "../util/show-overlay.ts";
-import {backendUrl, gatlingWork} from '../util/test-handler.ts'
+import {backendUrl, gatlingWorkConfigs} from '../util/test-handler.ts'
 
-const tabs = ref<{ label: string; model: string}[]>([])
 const activeTabIndex = ref(0)
 const editorElement = ref<HTMLElement | null>(null)
+const newTabCounter = ref(0)
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
 
-const loadConfig = async (): Promise<string> => {
+const loadConfig = async () => {
   const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/gatlingConfig/work`)
-  return await response.text()
+  const encodedValues: string[] = await response.json()
+  encodedValues.forEach((value: string) => {
+    newTabCounter.value++
+    gatlingWorkConfigs.value.push({
+      label: 'Work Configuration ' + (newTabCounter.value),
+      model: atob(value)
+    })
+  })
 }
 
 // TODO fix it, that the correct models are used and the stuff is preserved when switching tabs
 const switchTab = (index: number) => {
-  if (editorInstance && tabs.value[index]) {
+  if (editorInstance && gatlingWorkConfigs.value[index]) {
     activeTabIndex.value = index
-    editorInstance.setValue(tabs.value[index].model)
+    editorInstance.setValue(gatlingWorkConfigs.value[index].model)
   }
 }
 
 const addTab = () => {
-  const newIndex = tabs.value.length + 1
+  newTabCounter.value += 1
   const newTab = {
-    label: `New Tab ${newIndex}`,
-    model: '{\n  "new": "tab"\n}',
+    label: `Work Configuration ${newTabCounter.value}`,
+    model: 'package org.misarch\n\n' +
+        'import io.gatling.javaapi.core.CoreDsl.*\n' +
+        'import io.gatling.javaapi.http.HttpDsl.http\n' +
+        'import java.time.Duration\n\n' +
+        `val newScenario = scenario("My Custom Scenario ${newTabCounter.value}")\n`,
   }
-  tabs.value.push(newTab)
-  switchTab(tabs.value.length - 1)
+  gatlingWorkConfigs.value.push(newTab)
+  switchTab(gatlingWorkConfigs.value.length - 1)
 }
 
 const removeTab = (index: number) => {
-  if (index < 0 || index >= tabs.value.length) return
+  if (index < 0 || index >= gatlingWorkConfigs.value.length) return
 
-  tabs.value.splice(index, 1)
+  gatlingWorkConfigs.value.splice(index, 1)
 
   if (activeTabIndex.value === index) {
     activeTabIndex.value = index > 0 ? index - 1 : 0
@@ -64,30 +75,21 @@ const removeTab = (index: number) => {
     activeTabIndex.value--
   }
 
-  if (tabs.value.length > 0) {
-    editorInstance?.setValue(tabs.value[activeTabIndex.value].model)
+  if (gatlingWorkConfigs.value.length > 0) {
+    editorInstance?.setValue(gatlingWorkConfigs.value[activeTabIndex.value].model)
   } else {
     editorInstance?.setValue('')
   }
 }
 
-watch(showOverlay, async(newValue, oldValue) => {
+watch(showOverlay, async (newValue, oldValue) => {
   if (newValue !== oldValue && editorElement.value) {
-    const config = await loadConfig()
-    gatlingWork.value = config
+    await loadConfig()
     if (editorInstance?.getEditorType() != undefined) {
-      editorInstance?.setValue(config)
+      editorInstance?.setValue(gatlingWorkConfigs.value[0].model)
     } else {
-      tabs.value[0] = {
-        label: 'Work Configuration',
-        model: gatlingWork.value
-      }
-      tabs.value[1] = {
-        label: 'test',
-        model: "something here"
-      }
       editorInstance = monaco.editor.create(editorElement.value, {
-        value: tabs.value[0].model,
+        value: gatlingWorkConfigs.value[0].model,
         language: 'json',
         tabSize: 2,
         insertSpaces: true,
@@ -103,7 +105,7 @@ watch(showOverlay, async(newValue, oldValue) => {
       })
 
       editorInstance.onDidChangeModelContent(() => {
-        gatlingWork.value = editorInstance?.getValue() || ''
+        gatlingWorkConfigs.value[activeTabIndex.value].model = editorInstance?.getValue() || ''
       })
     }
   }
@@ -182,6 +184,12 @@ onBeforeUnmount(() => {
   cursor: pointer;
   font-size: 0.9em;
   border-right: 1px solid #444;
+}
+
+.tab-button.active {
+  background-color: #444;
+  font-weight: bold;
+  color: #fff;
 }
 
 .tab-button:hover {

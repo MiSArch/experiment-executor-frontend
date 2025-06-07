@@ -7,7 +7,7 @@ export const chaostoolkitConfig = ref('')
 export const userSteps = ref<number[]>([])
 export const misarchExperimentConfig = ref('')
 export const config = ref<TestConfig>(new TestConfig());
-export const gatlingWork = ref('')
+export const gatlingWorkConfigs = ref<{ label: string; model: string }[]>([])
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export class TestHandler {
@@ -46,9 +46,13 @@ export class TestHandler {
   }
 
   async persistWork(): Promise<void> {
+    const jsonData = JSON.stringify(gatlingWorkConfigs.value.map(config => btoa(config.model)))
     await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/gatlingConfig/work`, {
       method: 'PUT',
-      body: gatlingWork.value
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: jsonData
     })
   }
 
