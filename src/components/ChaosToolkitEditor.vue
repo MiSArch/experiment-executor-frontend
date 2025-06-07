@@ -3,7 +3,7 @@
     <span>ChaosToolkit Configuration</span>
     <button class="header-button">Simple View</button>
   </div>
-  <div class="editor-element2" ref="editorElement2"></div>
+  <div class="editor-element" ref="editorElement"></div>
 </template>
 
 <script setup lang="ts">
@@ -13,43 +13,48 @@ import {testUuid, testVersion} from "../util/test-uuid.ts";
 import {showOverlay} from '../util/show-overlay.ts'
 import {backendUrl, chaostoolkitConfig} from '../util/test-handler.ts'
 
-const editorElement2 = ref<HTMLElement | null>(null)
-let editorInstance2: monaco.editor.IStandaloneCodeEditor | null = null
+const editorElement = ref<HTMLElement | null>(null)
+let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
 
 const loadConfig = async (): Promise<string> => {
   const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/chaosToolkitConfig`)
   return await response.text()
 }
 
-watch(showOverlay, async () => {
-  if (editorElement2.value) {
-    chaostoolkitConfig.value = await loadConfig()
-    editorInstance2 = monaco.editor.create(editorElement2.value, {
-      value: chaostoolkitConfig.value,
-      language: 'yaml',
-      tabSize: 2,
-      insertSpaces: true,
-      theme: 'vs-dark',
-      detectIndentation: false,
-      automaticLayout: true,
-      formatOnType: true,
-      formatOnPaste: true,
-      glyphMargin: false,
-      lineDecorationsWidth: 0,
-      lineNumbersMinChars: 2,
-      wordWrap: 'on',
-      wordWrapColumn: 80,
-      wrappingIndent: 'same',
-    })
+watch(showOverlay, async (newValue, oldValue) => {
+  if (newValue !== oldValue && editorElement.value) {
+    const config = await loadConfig()
+    chaostoolkitConfig.value = config
+    if (editorInstance?.getEditorType() != undefined) {
+      editorInstance?.setValue(config)
+    } else {
+      editorInstance = monaco.editor.create(editorElement.value, {
+        value: chaostoolkitConfig.value,
+        language: 'yaml',
+        tabSize: 2,
+        insertSpaces: true,
+        theme: 'vs-dark',
+        detectIndentation: false,
+        automaticLayout: true,
+        formatOnType: true,
+        formatOnPaste: true,
+        glyphMargin: false,
+        lineDecorationsWidth: 0,
+        lineNumbersMinChars: 2,
+        wordWrap: 'on',
+        wordWrapColumn: 80,
+        wrappingIndent: 'same',
+      })
 
-    editorInstance2.onDidChangeModelContent(() => {
-      chaostoolkitConfig.value = editorInstance2?.getValue() || ''
-    })
+      editorInstance.onDidChangeModelContent(() => {
+        chaostoolkitConfig.value = editorInstance?.getValue() || ''
+      })
+    }
   }
 })
 
 onBeforeUnmount(() => {
-  editorInstance2?.dispose()
+  editorInstance?.dispose()
 })
 </script>
 
@@ -88,7 +93,7 @@ onBeforeUnmount(() => {
   background-color: #2d7a5a;
 }
 
-.editor-element2 {
+.editor-element {
   position: fixed;
   bottom: 0;
   left: 0;

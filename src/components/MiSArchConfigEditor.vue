@@ -22,30 +22,35 @@ const loadConfig = async (): Promise<string> => {
   return JSON.stringify(JSON.parse(text), null, 2)
 }
 
-watch(showOverlay, async () => {
-  if (editorElement.value) {
-    misarchExperimentConfig.value = await loadConfig()
-    editorInstance = monaco.editor.create(editorElement.value, {
-      value: misarchExperimentConfig.value,
-      language: 'json',
-      tabSize: 2,
-      insertSpaces: true,
-      theme: 'vs-dark',
-      detectIndentation: false,
-      automaticLayout: true,
-      formatOnType: true,
-      formatOnPaste: true,
-      glyphMargin: false,
-      lineDecorationsWidth: 0,
-      lineNumbersMinChars: 2,
-      wordWrap: 'on',
-      wordWrapColumn: 80,
-      wrappingIndent: 'same',
-    })
+watch(showOverlay, async (newValue, oldValue) => {
+  if (newValue !== oldValue && editorElement.value) {
+    const config = await loadConfig()
+    misarchExperimentConfig.value = config
+    if (editorInstance?.getEditorType() != undefined) {
+      editorInstance?.setValue(config)
+    } else {
+      editorInstance = monaco.editor.create(editorElement.value, {
+        value: misarchExperimentConfig.value,
+        language: 'json',
+        tabSize: 2,
+        insertSpaces: true,
+        theme: 'vs-dark',
+        detectIndentation: false,
+        automaticLayout: true,
+        formatOnType: true,
+        formatOnPaste: true,
+        glyphMargin: false,
+        lineDecorationsWidth: 0,
+        lineNumbersMinChars: 2,
+        wordWrap: 'on',
+        wordWrapColumn: 80,
+        wrappingIndent: 'same',
+      })
 
-    editorInstance.onDidChangeModelContent(() => {
-      misarchExperimentConfig.value = editorInstance?.getValue() || ''
-    })
+      editorInstance.onDidChangeModelContent(() => {
+        misarchExperimentConfig.value = editorInstance?.getValue() || ''
+      })
+    }
   }
 })
 

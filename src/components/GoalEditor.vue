@@ -128,8 +128,10 @@ watch(lines, (newLines) => {
   }))
 }, {deep: true})
 
-watch(showOverlay, async () => {
-  config.value = await fetchConfig();
+watch(showOverlay, async (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    config.value = await fetchConfig();
+  }
 });
 // TODO proper resizing of the elmeent, not really responsive rn
 </script>

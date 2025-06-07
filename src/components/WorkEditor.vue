@@ -21,30 +21,35 @@ const loadConfig = async (): Promise<string> => {
   return await response.text()
 }
 
-watch(showOverlay, async() => {
-  if (editorElement.value) {
-    gatlingWork.value = await loadConfig()
-    editorInstance = monaco.editor.create(editorElement.value, {
-      value: gatlingWork.value,
-      language: 'json',
-      tabSize: 2,
-      insertSpaces: true,
-      theme: 'vs-dark',
-      detectIndentation: false,
-      automaticLayout: true,
-      formatOnType: true,
-      formatOnPaste: true,
-      glyphMargin: false,
-      lineDecorationsWidth: 0,
-      lineNumbersMinChars: 2,
-      wordWrap: 'on',
-      wordWrapColumn: 80,
-      wrappingIndent: 'same',
-    })
+watch(showOverlay, async(newValue, oldValue) => {
+  if (newValue !== oldValue && editorElement.value) {
+    const config = await loadConfig()
+    gatlingWork.value = config
+    if (editorInstance?.getEditorType() != undefined) {
+      editorInstance?.setValue(config)
+    } else {
+      editorInstance = monaco.editor.create(editorElement.value, {
+        value: gatlingWork.value,
+        language: 'json',
+        tabSize: 2,
+        insertSpaces: true,
+        theme: 'vs-dark',
+        detectIndentation: false,
+        automaticLayout: true,
+        formatOnType: true,
+        formatOnPaste: true,
+        glyphMargin: false,
+        lineDecorationsWidth: 0,
+        lineNumbersMinChars: 2,
+        wordWrap: 'on',
+        wordWrapColumn: 80,
+        wrappingIndent: 'same',
+      })
 
-    editorInstance.onDidChangeModelContent(() => {
-      gatlingWork.value = editorInstance?.getValue() || ''
-    })
+      editorInstance.onDidChangeModelContent(() => {
+        gatlingWork.value = editorInstance?.getValue() || ''
+      })
+    }
   }
 })
 
