@@ -1,18 +1,19 @@
 <template>
-  <div class="graph-container">
-    <LineChart :chart-data="chartData" :chart-options="chartOptions"/>
-    <div class="controls">
-      <span>Duration in s</span>
-      <input type="number" v-model="duration" placeholder="Duration"/>
-      <button @click="applyDuration">Apply</button>
-      <span>From second</span>
-      <input type="number" v-model="timeFrom" placeholder="TimeFrom"/>
-      <span>To second</span>
-      <input type="number" v-model="timeTo" placeholder="TimeTo"/>
-      <span>Arriving Users / s</span>
-      <input type="number" v-model="arrivingUsers" placeholder="Arriving Users"/>
-      <button @click="applyUsers">Apply</button>
-      <button @click="reset">Reset</button>
+  <div class="flex flex-col m-2 pt-5 w-full md:w-2/3">
+    <LineChart class="grow" :chart-data="chartData" :chart-options="chartOptions"/>
+    <div class="flex flex-row mt-2 items-stretch gap-1 max-w-full w-full box-border">
+      <span class="min-w-0 box-border">Duration in s</span>
+      <input class="min-w-0 box-border flex-1" type="number" v-model="duration" placeholder="Duration"/>
+      <button class="min-w-0 box-border p-2 mr-3 border-0 rounded-xs flex cursor-pointer" @click="applyDuration">Apply</button>
+
+      <span class="min-w-0 box-border">From second</span>
+      <input class="min-w-0 box-border" type="number" v-model="timeFrom" placeholder="TimeFrom"/>
+      <span class="min-w-0 box-border">To second</span>
+      <input class="min-w-0 box-border" type="number" v-model="timeTo" placeholder="TimeTo"/>
+      <span class="min-w-0 box-border">Arriving Users / s</span>
+      <input class="min-w-0 box-border" type="number" v-model="arrivingUsers" placeholder="Arriving Users"/>
+      <button class="min-w-0 box-border" @click="applyUsers">Apply</button>
+      <button class="min-w-0 box-border" @click="reset">Reset</button>
     </div>
   </div>
 </template>
@@ -186,36 +187,6 @@ async function applyDuration() {
 </script>
 
 <style scoped>
-.graph-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  margin: 1em;
-  padding-top: 5em;
-  width: 64%;
-  height: 50%;
-  overflow-y: auto;
-}
-
-.controls {
-  margin-top: 0.5em;
-  position: relative;
-  display: flex;
-  align-items: stretch;
-  gap: 0.5em;
-  flex-wrap: wrap;
-  max-width: 100%;
-  width: 100%;
-  height: 2.5em;
-  box-sizing: border-box;
-}
-
-.controls > * {
-  height: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-}
-
 input {
   flex: 1;
   padding: 0.5em;
@@ -240,18 +211,11 @@ span {
   font-size: 1em;
   text-align: center;
   appearance: none;
-  cursor: pointer;
 }
 
 button {
-  padding: 0.5em;
-  margin-right: 0.5em;
   background-color: #42b883;
   color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  flex: 1;
 }
 
 button:hover {

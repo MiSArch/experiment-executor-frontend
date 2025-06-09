@@ -1,29 +1,31 @@
 <template>
-  <div class="header">
-    <span>Experiment Goals</span>
-  </div>
-  <div class="list-container">
-    <button @click="addLine" class="add-button">+</button>
-    <div v-for="(line, index) in lines" :key="index" class="line">
-      <select v-model="line.dropdown" class="dropdown">
-        <option v-for="option in dropdownOptions" :key="option" :value="option">{{ option }}</option>
-      </select>
-      <div
-          class="color-display"
-          :style="{ backgroundColor: line.color }"
-          @click="toggleColorOptions(index)"
-      ></div>
-      <div v-if="line.showDropdown" class="color-options">
+  <div class="flex flex-col w-full md:min-w-2/12 md:max-w-3/12 h-full max-h-1/2">
+    <div class="header flex flex-row items-center justify-between p-2">
+      <span>Experiment Goals</span>
+      <button @click="addLine" class="header-button">+</button>
+    </div>
+    <div class="list-container flex flex-col gap-2 p-2 overflow-y-scroll">
+      <div v-for="(line, index) in lines" :key="index" class="line">
+        <select v-model="line.dropdown" class="dropdown">
+          <option v-for="option in dropdownOptions" :key="option" :value="option">{{ option }}</option>
+        </select>
         <div
-            v-for="(hex, color) in reverseColorMap"
-            :key="color"
-            class="color-option"
-            :style="{ backgroundColor: hex }"
-            @click="selectColor(index, hex)"
+            class="color-display"
+            :style="{ backgroundColor: line.color }"
+            @click="toggleColorOptions(index)"
         ></div>
+        <div v-if="line.showDropdown" class="color-options">
+          <div
+              v-for="(hex, color) in reverseColorMap"
+              :key="color"
+              class="color-option"
+              :style="{ backgroundColor: hex }"
+              @click="selectColor(index, hex)"
+          ></div>
+        </div>
+        <input type="number" v-model="line.value" class="number-input"/>
+        <button @click="removeLine(index)" class="delete-button">&times;</button>
       </div>
-      <input type="number" v-model="line.value" class="number-input"/>
-      <button @click="removeLine(index)" class="delete-button">&times;</button>
     </div>
   </div>
 </template>
@@ -138,15 +140,7 @@ watch(showOverlay, async (newValue, oldValue) => {
 
 <style scoped>
 .list-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  position: fixed;
-  right: 1em;
-  bottom: 1em;
-  max-height: 30%;
   overflow-y: auto;
-  width: 18.3%;
 }
 
 .color-display {
@@ -199,7 +193,20 @@ watch(showOverlay, async (newValue, oldValue) => {
   min-width: 0;
 }
 
-.add-button,
+.header-button {
+  padding: 0.5em 1em;
+  background-color: #369a6e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 1em;
+}
+
+.header-button:hover {
+  background-color: #2d7a5a;
+}
+
 .delete-button {
   padding: 0.5em;
   background-color: #369a6e;
@@ -210,7 +217,6 @@ watch(showOverlay, async (newValue, oldValue) => {
   flex: 1;
 }
 
-.add-button:hover,
 .delete-button:hover {
   background-color: #42b883;
 }
@@ -252,18 +258,9 @@ watch(showOverlay, async (newValue, oldValue) => {
 }
 
 .header {
-  position: fixed;
-  bottom: 33%;
-  right: 0;
-  height: 6%;
-  width: 18.3%;
   background-color: #235f43;
   color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 0 1em;
 }
 
 .header span {

@@ -1,5 +1,5 @@
 <template>
-  <div class="header">
+  <div class="sticky header">
     <span>MISARCH EXPERIMENT TOOL</span>
     <span v-if="testUuid" class="test-uuid">Test UUID: {{ testUuid }}</span>
     <span v-if="testVersion" class="test-version">Test Version: {{ testVersion }}</span>
@@ -135,9 +135,9 @@ const stopEventListener = () => {
   padding: 1em;
   display: flex;
   align-items: center;
-  position: fixed;
   top: 0;
   left: 0;
+  right: 0;
   z-index: 1000;
 }
 
