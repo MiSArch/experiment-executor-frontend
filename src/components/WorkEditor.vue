@@ -186,6 +186,20 @@ onBeforeUnmount(() => {
   border-right: 1px solid #444;
 }
 
+.add-tab-button {
+  background-color: #369a6e;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9em;
+  padding: 0.5em 1em;
+}
+
+.add-tab-button:hover {
+  background-color: #2d7a5a;
+}
+
+
 .tab-button.active {
   background-color: #444;
   font-weight: bold;
