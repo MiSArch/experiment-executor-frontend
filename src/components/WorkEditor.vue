@@ -34,12 +34,12 @@ let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
 
 const loadConfig = async () => {
   const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/gatlingConfig/work`)
-  const encodedValues: string[] = await response.json()
-  encodedValues.forEach((value: string) => {
+  const dtoList = await response.json()
+  dtoList.forEach((item: { fileName: string, encodedFileContent: string }) => {
     newTabCounter.value++
     gatlingWorkConfigs.value.push({
-      label: 'Work Configuration ' + (newTabCounter.value),
-      model: atob(value)
+      label: item.fileName,
+      model: atob(item.encodedFileContent)
     })
   })
 }
@@ -55,12 +55,12 @@ const switchTab = (index: number) => {
 const addTab = () => {
   newTabCounter.value += 1
   const newTab = {
-    label: `Work Configuration ${newTabCounter.value}`,
+    label: `newScenario${newTabCounter.value}.kt`,
     model: 'package org.misarch\n\n' +
         'import io.gatling.javaapi.core.CoreDsl.*\n' +
         'import io.gatling.javaapi.http.HttpDsl.http\n' +
         'import java.time.Duration\n\n' +
-        `val newScenario = scenario("My Custom Scenario ${newTabCounter.value}")\n`,
+        `val newScenario${newTabCounter.value} = scenario("My Custom Scenario ${newTabCounter.value}")\n`,
   }
   gatlingWorkConfigs.value.push(newTab)
   switchTab(gatlingWorkConfigs.value.length - 1)

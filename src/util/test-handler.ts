@@ -46,7 +46,7 @@ export class TestHandler {
   }
 
   async persistWork(): Promise<void> {
-    const jsonData = JSON.stringify(gatlingWorkConfigs.value.map(config => btoa(config.model)))
+    const jsonData = JSON.stringify(gatlingWorkConfigs.value.map(config => ({ fileName: config.label, encodedFileContent: btoa(config.model) })))
     await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/gatlingConfig/work`, {
       method: 'PUT',
       headers: {
