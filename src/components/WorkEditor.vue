@@ -6,12 +6,12 @@
     </div>
     <div class="tabs flex flex-row w-full justify-evenly">
       <button
-          v-for="(tab, index) in gatlingWorkConfigs"
+          v-for="(tab, index) in gatlingConfigs"
           :key="index"
           :class="['tab-button !rounded-none', { active: activeTabIndex === index }]"
           @click="switchTab(index)"
       >
-        {{ tab.label }}
+        {{ tab.fileName }}
         <span class="close-tab" @click.stop="removeTab(index)">&times;</span>
       </button>
       <button class="add-tab-button !rounded-none" @click="addTab">＋ Add Tab</button>
@@ -23,9 +23,9 @@
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import {ref, watch, onBeforeUnmount} from 'vue'
-import {testUuid, testVersion} from '../util/test-uuid.ts';
 import {showOverlay} from "../util/show-overlay.ts";
-import {backendUrl, gatlingWorkConfigs} from '../util/test-handler.ts'
+import {backendUrl, gatlingConfigs} from '../util/test-handler.ts'
+import {testUuid, testVersion} from "../util/test-uuid.ts";
 
 const activeTabIndex = ref(0)
 const editorElement = ref<HTMLElement | null>(null)
@@ -33,43 +33,44 @@ const newTabCounter = ref(0)
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
 
 const loadConfig = async () => {
-  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/gatlingConfig/work`)
+  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/gatlingConfig`)
   const dtoList = await response.json()
-  dtoList.forEach((item: { fileName: string, encodedFileContent: string }) => {
-    newTabCounter.value++
-    gatlingWorkConfigs.value.push({
-      label: item.fileName,
-      model: atob(item.encodedFileContent)
+  dtoList.forEach((item: { fileName: string, encodedWorkFileContent: string, encodedUserStepsFileContent: string }) => {
+    gatlingConfigs.value.push({
+      fileName: item.fileName,
+      workFileContent: atob(item.encodedWorkFileContent),
+      userSteps: atob(item.encodedUserStepsFileContent).split('\n').map(line => parseInt(line.trim(), 10)).filter(Number.isFinite)
     })
   })
 }
 
-// TODO fix it, that the correct models are used and the stuff is preserved when switching tabs
 const switchTab = (index: number) => {
-  if (editorInstance && gatlingWorkConfigs.value[index]) {
+  if (editorInstance && gatlingConfigs.value[index]) {
     activeTabIndex.value = index
-    editorInstance.setValue(gatlingWorkConfigs.value[index].model)
+    editorInstance.setValue(gatlingConfigs.value[index].workFileContent)
   }
 }
 
 const addTab = () => {
   newTabCounter.value += 1
   const newTab = {
-    label: `newScenario${newTabCounter.value}.kt`,
-    model: 'package org.misarch\n\n' +
+    fileName: `newScenario${newTabCounter.value}`,
+    workFileContent: 'package org.misarch\n\n' +
         'import io.gatling.javaapi.core.CoreDsl.*\n' +
         'import io.gatling.javaapi.http.HttpDsl.http\n' +
         'import java.time.Duration\n\n' +
         `val newScenario${newTabCounter.value} = scenario("My Custom Scenario ${newTabCounter.value}")\n`,
+    // TODO this should add some usersteps
+    userSteps: [1,2,3,4,5,6,7,8,9,10],
   }
-  gatlingWorkConfigs.value.push(newTab)
-  switchTab(gatlingWorkConfigs.value.length - 1)
+  gatlingConfigs.value.push(newTab)
+  switchTab(gatlingConfigs.value.length - 1)
 }
 
 const removeTab = (index: number) => {
-  if (index < 0 || index >= gatlingWorkConfigs.value.length) return
+  if (index < 0 || index >= gatlingConfigs.value.length) return
 
-  gatlingWorkConfigs.value.splice(index, 1)
+  gatlingConfigs.value.splice(index, 1)
 
   if (activeTabIndex.value === index) {
     activeTabIndex.value = index > 0 ? index - 1 : 0
@@ -77,8 +78,8 @@ const removeTab = (index: number) => {
     activeTabIndex.value--
   }
 
-  if (gatlingWorkConfigs.value.length > 0) {
-    editorInstance?.setValue(gatlingWorkConfigs.value[activeTabIndex.value].model)
+  if (gatlingConfigs.value.length > 0) {
+    editorInstance?.setValue(gatlingConfigs.value[activeTabIndex.value].workFileContent)
   } else {
     editorInstance?.setValue('')
   }
@@ -88,10 +89,10 @@ watch(showOverlay, async (newValue, oldValue) => {
   if (newValue !== oldValue && editorElement.value) {
     await loadConfig()
     if (editorInstance?.getEditorType() != undefined) {
-      editorInstance?.setValue(gatlingWorkConfigs.value[0].model)
+      editorInstance?.setValue(gatlingConfigs.value[0].workFileContent)
     } else {
       editorInstance = monaco.editor.create(editorElement.value, {
-        value: gatlingWorkConfigs.value[0].model,
+        value: gatlingConfigs.value[0].workFileContent,
         language: 'json',
         tabSize: 2,
         insertSpaces: true,
@@ -107,7 +108,7 @@ watch(showOverlay, async (newValue, oldValue) => {
       })
 
       editorInstance.onDidChangeModelContent(() => {
-        gatlingWorkConfigs.value[activeTabIndex.value].model = editorInstance?.getValue() || ''
+        gatlingConfigs.value[activeTabIndex.value].workFileContent = editorInstance?.getValue() || ''
       })
     }
   }
