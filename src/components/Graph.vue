@@ -1,23 +1,46 @@
 <template>
-  <div class="flex flex-col m-2 pt-5 w-full md:w-2/3">
-    <LineChart class="grow" :chart-data="chartData" :chart-options="chartOptions"/>
-    <div class="flex flex-row mt-2 items-stretch gap-1 max-w-full w-full box-border">
-      <span class="min-w-0 box-border">Duration in s</span>
-      <input class="min-w-0 box-border flex-1" type="number" v-model="duration" placeholder="Duration"/>
-      <button class="min-w-0 box-border p-2 mr-3 border-0 rounded-xs flex cursor-pointer" @click="applyDuration">Apply</button>
+  <div class="m-2 pt-5 w-full md:w-2/3 relative">
+    <button class="z-50 absolute top-2 right-2 w-10 h-10 flex justify-center items-center border rounded-md bg-gray-800 text-white"
+            @click="toggleGraphOverlay">
+      ☰
+    </button>
 
-      <span class="min-w-0 box-border">From second</span>
-      <input class="min-w-0 box-border" type="number" v-model="timeFrom" placeholder="TimeFrom"/>
-      <span class="min-w-0 box-border">To second</span>
-      <input class="min-w-0 box-border" type="number" v-model="timeTo" placeholder="TimeTo"/>
-      <span class="min-w-0 box-border">Arriving Users / s</span>
-      <input class="min-w-0 box-border" type="number" v-model="arrivingUsers" placeholder="Arriving Users"/>
-      <button class="min-w-0 box-border" @click="applyUsers">Apply</button>
-      <select v-model="currentlyEditing" class="dropdown">
-        <option v-for="(config, idx) in gatlingConfigs" :key="config.fileName" :value="idx">
-          {{ config.fileName }}
-        </option>
-      </select>
+    <LineChart :key="chartKey" class="grow" :chart-data="chartData" :chart-options="chartOptions"/>
+
+    <div v-if="isGraphOverlayVisible" class="z-50 absolute w-full h-full top-0 left-0 right-0 bg-[#242424]">
+      <button class="z-50 absolute top-2 right-2 w-10 h-10 flex justify-center items-center border rounded-md bg-gray-800 text-white"
+              @click="toggleGraphOverlay">
+        X
+      </button>
+
+      <div class="flex flex-col gap-2 m-4 justify-start items-start">
+        <div class="flex flex-row gap-2">
+          <span class="box-border min-w-96">Duration in s</span>
+          <input class="min-w-0 box-border" type="number" v-model="duration" placeholder="Duration"/>
+          <button class="min-w-0 box-border p-2 border-0 rounded-xs flex cursor-pointer" @click="applyDuration">Apply</button>
+        </div>
+
+        <div class="flex flex-row gap-2 mt-5">
+          <span class="box-border min-w-96">To second</span>
+          <input class="min-w-0 box-border" type="number" v-model="timeFrom" placeholder="TimeFrom"/>
+        </div>
+        <div class="flex flex-row gap-2">
+          <span class="box-border min-w-96">From second</span>
+          <input class="min-w-0 box-border" type="number" v-model="timeTo" placeholder="TimeTo"/>
+        </div>
+        <div class="flex flex-row gap-2">
+          <span class="box-border min-w-96">Arriving Users / s</span>
+          <input class="min-w-0 box-border" type="number" v-model="arrivingUsers" placeholder="Arriving Users"/>
+        </div>
+        <div class="flex flex-row gap-2">
+          <button class="min-w-0 box-border" @click="applyUsers">Apply</button>
+          <select v-model="currentlyEditing" class="dropdown">
+            <option v-for="(config, idx) in gatlingConfigs" :key="config.fileName" :value="idx">
+              {{ config.fileName }}
+            </option>
+          </select>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -27,9 +50,7 @@
 import {defineChartComponent} from 'vue-chart-3'
 import dragDataPlugin from 'chartjs-plugin-dragdata'
 import {CategoryScale, Chart as ChartJS, Legend, LinearScale, LineController, LineElement, PointElement, Title, Tooltip} from 'chart.js'
-import {onMounted, ref, watch} from 'vue'
-import {testUuid, testVersion} from "../util/test-uuid.ts";
-import {showOverlay} from "../util/show-overlay.ts";
+import {ref, watch} from 'vue'
 import {gatlingConfigs} from "../util/test-handler.ts";
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale, LineController, dragDataPlugin)
@@ -41,6 +62,8 @@ const arrivingUsers = ref<number>(0)
 const needsUpdate = ref<boolean>(false)
 const duration = ref(0)
 const currentlyEditing = ref<number>(1)
+const isGraphOverlayVisible = ref(false)
+const chartKey = ref(0);
 
 // TODO this must be calculated from the work
 const approximateSessionDuration = 20
@@ -83,12 +106,18 @@ const chartOptions = ref({
   },
 })
 
+function toggleGraphOverlay() {
+  isGraphOverlayVisible.value = !isGraphOverlayVisible.value;
+}
+
 async function updateGraph() {
-  for (let i = 1; i <= gatlingConfigs.value.length; i++) {
-    const usersResult = await calculateTotalUsers(Math.floor(approximateSessionDuration), i - 1);
-    chartData.value.labels = usersResult.map((_, index) => index.toString());
-    chartData.value.datasets[i].data = usersResult;
-    duration.value = usersResult.length;
+  const maxLength = Math.max(...gatlingConfigs.value.map(config => config.userSteps.length));
+  chartData.value.labels = Array.from({length: maxLength}, (_, i) => (i + 1).toString());
+  duration.value = maxLength;
+
+  for (let i = 0; i < chartData.value.datasets.length - 1; i++) {
+    console.log(chartData.value.datasets[i + 1].label);
+    chartData.value.datasets[i + 1].data = await calculateTotalUsers(Math.floor(approximateSessionDuration), i);
   }
 
   chartData.value.datasets[0].data = await calculateApproximateRequests();
@@ -96,7 +125,6 @@ async function updateGraph() {
 
 async function calculateTotalUsers(sessionDuration: number, index: number): Promise<number[]> {
   const totalUsers: number[] = [];
-
   gatlingConfigs.value[index].userSteps.forEach((users, time) => {
     for (let i = 0; i < sessionDuration; i++) {
       totalUsers[time + i] = (totalUsers[time + i] || 0) + users;
@@ -108,13 +136,14 @@ async function calculateTotalUsers(sessionDuration: number, index: number): Prom
 
 async function calculateApproximateRequests(): Promise<number[]> {
   const approximateRequests: number[] = [];
-
-  gatlingConfigs.value[currentlyEditing.value].userSteps.forEach((users, time) => {
-    for (let i = 0; i < sessionRequests.length; i++) {
-      const requestIndex = time + i;
-      approximateRequests[requestIndex] = (approximateRequests[requestIndex] || 0) + users * sessionRequests[i];
-    }
-  });
+  for (let i = 0; i < gatlingConfigs.value.length; i++) {
+    gatlingConfigs.value[i].userSteps.forEach((users, time) => {
+      for (let j = 0; j < sessionRequests.length; j++) {
+        const requestIndex = time + j;
+        approximateRequests[requestIndex] = (approximateRequests[requestIndex] || 0) + users * sessionRequests[j];
+      }
+    });
+  }
 
   return approximateRequests;
 }
@@ -140,56 +169,49 @@ async function applyUsers() {
   needsUpdate.value = true
 }
 
-onMounted(async () => {
-  if (testUuid.value != '' || testVersion.value != '') {
-    await updateGraph()
-  }
-})
+watch(gatlingConfigs, async () => {
+      if (gatlingConfigs.value.length + 1 != chartData.value.datasets.length) {
+        const list = []
+        const totalRequests = await createTotalRequestChartData()
+        list.push(totalRequests)
 
-watch(gatlingConfigs, async() =>  {
-  // TODO this does not work properly yet because on the init it is called
-  if (gatlingConfigs.value.length > chartData.value.datasets.length) {
-    chartData.value.datasets.push({
-      label: 'Approx. Total Users - ' + gatlingConfigs.value[length + 1].fileName,
-      data: [0],
-      borderColor: colors[gatlingConfigs.value.length /*+ 1*/ % colors.length].border,
-      backgroundColor: colors[gatlingConfigs.value.length /*+ 1*/ % colors.length].background,
-      borderWidth: 2,
-      dragData: false,
-    });
-    await updateGraph();
-  }
-}, { deep: true })
+        for (let i = 0; i < gatlingConfigs.value.length; i++) {
+          const color = colors[i % colors.length];
+          list.push({
+            label: 'Approx. Total Users - ' + gatlingConfigs.value[i].fileName,
+            data: [0],
+            borderColor: color.border,
+            backgroundColor: color.background,
+            borderWidth: 2,
+            dragData: false,
+          })
+        }
 
-watch(showOverlay, async (newValue, oldValue) => {
-  if (newValue !== oldValue) {
-    while (!gatlingConfigs.value[currentlyEditing.value]) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+        chartData.value.datasets = list;
+        chartKey.value++;
+        needsUpdate.value = true;
+      }
+    },
+    {
+      deep: true
     }
-
-    for (let i = 0; i < gatlingConfigs.value.length; i++) {
-      const color = colors[i % colors.length];
-
-      chartData.value.datasets.push({
-        label: 'Approx. Total Users - ' + gatlingConfigs.value[i].fileName,
-        data: [0],
-        borderColor: color.border,
-        backgroundColor: color.background,
-        borderWidth: 2,
-        dragData: false,
-      });
-    }
-
-    await updateGraph();
-  }
-});
-
+)
 
 watch(needsUpdate, async () => {
   await updateGraph()
   needsUpdate.value = false
 })
 
+async function createTotalRequestChartData() {
+  return {
+    label: 'Approx. Total Requests',
+    data: [0],
+    borderColor: 'rgba(199, 199, 199, 1)',
+    backgroundColor: 'rgba(199, 199, 199, 0.2)',
+    borderWidth: 2,
+    dragData: false,
+  };
+}
 
 async function applyDuration() {
   if (duration.value > gatlingConfigs.value[currentlyEditing.value].userSteps.length) {

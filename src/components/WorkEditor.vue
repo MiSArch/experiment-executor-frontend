@@ -35,13 +35,16 @@ let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
 const loadConfig = async () => {
   const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/gatlingConfig`)
   const dtoList = await response.json()
-  dtoList.forEach((item: { fileName: string, encodedWorkFileContent: string, encodedUserStepsFileContent: string }) => {
-    gatlingConfigs.value.push({
+  const list: Array<{ fileName: string; workFileContent: string; userSteps: number[] }> = []
+  dtoList.forEach((item: { fileName: string,
+    encodedWorkFileContent: string, encodedUserStepsFileContent: string }) => {
+    list.push({
       fileName: item.fileName,
       workFileContent: atob(item.encodedWorkFileContent),
       userSteps: atob(item.encodedUserStepsFileContent).split('\n').map(line => parseInt(line.trim(), 10)).filter(Number.isFinite)
     })
   })
+  gatlingConfigs.value = list
 }
 
 const switchTab = (index: number) => {
