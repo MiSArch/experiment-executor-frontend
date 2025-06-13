@@ -1,10 +1,10 @@
 <template>
-  <div class="flex flex-col w-full md:min-w-2/12 md:max-w-3/12 h-full max-h-full  ">
+  <div class="flex flex-col w-full md:min-w-2/12 md:max-w-3/12 h-full max-h-[512px] overflow-x-hidden">
     <div class="header flex flex-row items-center justify-between p-2">
       <span>Experiment Goals</span>
       <button @click="addLine" class="header-button">+</button>
     </div>
-    <div class="list-container flex flex-col gap-2 p-2 overflow-y-scroll">
+    <div class="list-container flex flex-col gap-2 p-2 max-w-full overflow-y-scroll ">
       <div v-for="(line, index) in lines" :key="index" class="line">
         <select v-model="line.dropdown" class="dropdown">
           <option v-for="option in dropdownOptions" :key="option" :value="option">{{ option }}</option>
@@ -135,13 +135,9 @@ watch(showOverlay, async (newValue, oldValue) => {
     config.value = await fetchConfig();
   }
 });
-// TODO proper resizing of the elmeent, not really responsive rn
 </script>
 
 <style scoped>
-.list-container {
-  overflow-y: auto;
-}
 
 .color-display {
   flex: 1;
@@ -177,14 +173,16 @@ watch(showOverlay, async (newValue, oldValue) => {
 }
 
 .line {
-  position: relative;
   display: flex;
   align-items: center;
   gap: 0.5em;
   flex-wrap: wrap;
   max-width: 100%;
   width: 100%;
-  height: 2.5em;
+}
+
+.dropdown, .number-input, .delete-button, .color-display {
+  min-width: 0;
 }
 
 .line > * {
