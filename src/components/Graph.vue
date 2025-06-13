@@ -227,6 +227,7 @@ async function createTotalRequestChartData() {
   };
 }
 
+// TODO show the correct duration for each scenario
 async function applyDuration() {
   if (duration.value > gatlingConfigs.value[currentlyEditing.value].userSteps.length) {
     for (let i = gatlingConfigs.value[currentlyEditing.value].userSteps.length; i < duration.value; i++) {
