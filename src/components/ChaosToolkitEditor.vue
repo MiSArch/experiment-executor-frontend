@@ -3,22 +3,12 @@
     <div class="flex flex-row items-center justify-between p-2 bg-[#235f43] text-white shadow-md">
       <span class="text-xl font-bold">ChaosToolkit Configuration</span>
       <button
-          class="
-    mr-4 px-4 py-2
-    bg-[#369a6e] rounded
-    text-white cursor-pointer
-    hover:bg-[#2d7a5a]
-    focus:outline-none focus:ring-0 focus:border-transparent
-    appearance-none
-    border-0
-  "
-      >
+          class="mr-4 px-4 py-2 bg-[#369a6e] rounded hover:bg-[#2d7a5a] focus:outline-none focus:ring-0 focus:border-transparent appearance-none border-0">
         Simple View
-      </button>    </div>
-    <div
-        ref="editorElement"
-        class="flex-grow overflow-hidden z-10 shadow-[ -2px_0_5px_rgba(0,0,0,0.1) ] bg-[#1e1e1e] text-left overflow-x-auto"
-    ></div>
+      </button>
+    </div>
+    <div ref="editorElement"
+         class="flex-grow overflow-hidden z-10 shadow-[ -2px_0_5px_rgba(0,0,0,0.1) ] bg-[#1e1e1e] text-left overflow-x-auto"></div>
   </div>
 </template>
 
