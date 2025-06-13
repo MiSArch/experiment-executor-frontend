@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col min-w-[320px] w-full md:w-1/3">
+  <div class="flex flex-col w-full md:w-1/3 overflow-hidden">
     <div class="header flex flex-row p-3">
       <span>Work Configuration</span>
       <button class="header-button">Simple View</button>
@@ -8,13 +8,14 @@
       <button
           v-for="(tab, index) in gatlingConfigs"
           :key="index"
+          :title="tab.fileName"
           :class="['tab-button !rounded-none', { active: activeTabIndex === index }]"
           @click="switchTab(index)"
       >
-        {{ tab.fileName }}
         <span class="close-tab" @click.stop="removeTab(index)">&times;</span>
+        {{ tab.fileName }}
       </button>
-      <button class="add-tab-button !rounded-none" @click="addTab">＋ Add Tab</button>
+      <button class="add-tab-button !rounded-none" @click="addTab">＋</button>
     </div>
     <div class="editor-element h-full" ref="editorElement"></div>
   </div>
@@ -101,7 +102,7 @@ watch(showOverlay, async (newValue, oldValue) => {
         insertSpaces: true,
         theme: 'vs-dark',
         detectIndentation: false,
-        automaticLayout: true,
+        automaticLayout: false,
         formatOnType: true,
         formatOnPaste: true,
         glyphMargin: false,
@@ -166,7 +167,12 @@ onBeforeUnmount(() => {
 }
 
 .tab-button {
-  flex: 1;
+  flex: 1 1 auto;
+  word-break: break-word;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   padding: 0.5em;
   background: none;
   color: white;

@@ -38,7 +38,7 @@ watch(showOverlay, async (newValue, oldValue) => {
         insertSpaces: true,
         theme: 'vs-dark',
         detectIndentation: false,
-        automaticLayout: true,
+        automaticLayout: false,
         formatOnType: true,
         formatOnPaste: true,
         glyphMargin: false,
