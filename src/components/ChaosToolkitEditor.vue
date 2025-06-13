@@ -17,6 +17,7 @@ import {backendUrl, chaostoolkitConfig} from '../util/test-handler.ts'
 
 const editorElement = ref<HTMLElement | null>(null)
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
+let resizeObserver: ResizeObserver | null = null
 
 const loadConfig = async (): Promise<string> => {
   const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/chaosToolkitConfig`)
@@ -51,13 +52,36 @@ watch(showOverlay, async (newValue, oldValue) => {
       editorInstance.onDidChangeModelContent(() => {
         chaostoolkitConfig.value = editorInstance?.getValue() || ''
       })
+
+      // debounce resize layout call to prevent loop
+      const debouncedLayout = debounce(() => {
+        editorInstance?.layout()
+      }, 10)
+
+      resizeObserver = new ResizeObserver(() => {
+        debouncedLayout()
+      })
+
+      resizeObserver.observe(editorElement.value)
     }
   }
 })
 
 onBeforeUnmount(() => {
   editorInstance?.dispose()
+  if (resizeObserver && editorElement.value) {
+    resizeObserver.unobserve(editorElement.value)
+    resizeObserver.disconnect()
+  }
 })
+
+function debounce(func: Function, wait: number) {
+  let timeout: number | undefined
+  return () => {
+    clearTimeout(timeout)
+    timeout = window.setTimeout(() => func(), wait)
+  }
+}
 </script>
 
 <style scoped>
