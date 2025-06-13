@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col w-full md:min-w-2/12 md:max-w-3/12 h-full max-h-1/2">
+  <div class="flex flex-col w-full md:min-w-2/12 md:max-w-3/12 h-full max-h-full  ">
     <div class="header flex flex-row items-center justify-between p-2">
       <span>Experiment Goals</span>
       <button @click="addLine" class="header-button">+</button>
