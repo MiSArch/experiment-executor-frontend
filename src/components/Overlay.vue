@@ -1,22 +1,32 @@
 <template>
-  <div v-if="showOverlay" class="overlay">
-    <div class="overlay-content">
-      <button v-if="testUuid && testVersion" class="close-button" @click="showOverlay = false">&times;</button>
-      <h3>Use Existing Or Create New Experiment</h3>
-      <select v-model="uuidInputValue" @change="fetchVersions" class="dropdown">
+  <div v-if="showOverlay" class="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-[1000] text-black">
+    <div class="relative bg-white p-8 rounded-lg text-center w-[90%] max-w-md">
+      <button v-if="testUuid && testVersion" class="absolute top-2 right-2 text-2xl text-gray-700 hover:text-black" @click="showOverlay = false">
+        &times;
+      </button>
+      <h3 class="text-xl font-semibold mb-4">Use Existing Or Create New Experiment</h3>
+
+      <select v-model="uuidInputValue" @change="fetchVersions"
+              class="w-full my-2 p-2 rounded bg-[#369a6e] text-white text-sm appearance-none cursor-pointer hover:bg-[#42b883] focus:outline-none focus:ring focus:ring-[#369a6e]/50">
         <option v-for="uuid in uuidList" :key="uuid" :value="uuid">{{ uuid }}</option>
       </select>
-      <select v-model="versionInputValue" class="dropdown">
+
+      <select v-model="versionInputValue"
+              class="w-full my-2 p-2 rounded bg-[#369a6e] text-white text-sm appearance-none cursor-pointer hover:bg-[#42b883] focus:outline-none focus:ring focus:ring-[#369a6e]/50">
         <option v-for="version in versionList" :key="version" :value="version">{{ version }}</option>
       </select>
-      <button @click="useExistingTest">Use Existing Experiment</button>
-      <select v-model="loadType" class="dropdown">
+
+      <button @click="useExistingTest" class="w-full my-2 p-2 rounded bg-[#369a6e] text-white hover:bg-[#2d7a5a]">Use Existing Experiment</button>
+
+      <select v-model="loadType"
+              class="w-full my-2 p-2 rounded bg-[#369a6e] text-white text-sm appearance-none cursor-pointer hover:bg-[#42b883] focus:outline-none focus:ring focus:ring-[#369a6e]/50">
         <option value="NormalLoadTest">Realistic Load Test</option>
         <option value="ElasticityLoadTest">Elasticity Load Test</option>
         <option value="ResilienceLoadTest">Resilience Load Test</option>
         <option value="ScalabilityLoadTest">Scalability Load Test</option>
       </select>
-      <button @click="submitRequest">Create New Experiment</button>
+
+      <button @click="submitRequest" class="w-full my-2 p-2 rounded bg-[#369a6e] text-white hover:bg-[#2d7a5a]">Create New Experiment</button>
     </div>
   </div>
 </template>
@@ -96,84 +106,4 @@ watch(showOverlay, async (newValue, oldValue) => {
 })
 </script>
 
-<style scoped>
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: black;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.overlay-content {
-  position: relative;
-  background: white;
-  padding: 2em;
-  border-radius: 8px;
-  text-align: center;
-}
-
-.dropdown {
-  flex: 6;
-  padding: 0.5em;
-  border: 0 solid #ccc;
-  border-radius: 4px;
-  background-color: #369a6e;
-  color: white;
-  font-size: 0.8em;
-  appearance: none;
-  cursor: pointer;
-}
-
-.dropdown:hover {
-  background-color: #42b883;
-}
-
-.dropdown:focus {
-  outline: none;
-  box-shadow: 0 0 5px rgba(54, 154, 110, 0.5);
-}
-
-
-input, select {
-  margin: 1em 0;
-  padding: 0.5em;
-  width: 80%;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-button {
-  padding: 0.5em 1em;
-  background-color: #369a6e;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #2d7a5a;
-}
-
-.close-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 1.5em;
-  cursor: pointer;
-  color: #333;
-}
-
-.close-button:hover {
-  color: #000;
-}
-</style>
+<style/>

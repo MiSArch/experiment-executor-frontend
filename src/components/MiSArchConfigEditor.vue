@@ -1,12 +1,27 @@
 <template>
   <div class="flex flex-col md:min-w-1/3 h-full grow">
-    <div class="header flex flex-row items-center justify-between p-2">
-      <span>MiSArch Experiment Configuration</span>
-      <button class="header-button">Simple View</button>
-    </div>
-    <div class="editor-element flex-grow" ref="editorElement"></div>
+    <div class="flex flex-row items-center justify-between p-2 bg-[#235f43] text-white shadow-md">
+      <span class="text-xl font-bold">MiSArch Experiment Configuration</span>
+      <button
+          class="
+    mr-4 px-4 py-2
+    bg-[#369a6e] rounded
+    text-white cursor-pointer
+    hover:bg-[#2d7a5a]
+    focus:outline-none focus:ring-0 focus:border-transparent
+    appearance-none
+    border-0
+  "
+      >
+        Simple View
+      </button>    </div>
+    <div
+        ref="editorElement"
+        class="flex-grow overflow-hidden z-10 shadow-[ -2px_0_5px_rgba(0,0,0,0.1) ] bg-[#1e1e1e] text-left overflow-x-auto"
+    ></div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
@@ -85,37 +100,4 @@ function debounce(func: Function, wait: number) {
 }
 </script>
 
-<style scoped>
-.header {
-  background-color: #235f43;
-  color: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.header span {
-  font-size: 1.2em;
-  font-weight: bold;
-}
-
-.header-button {
-  padding: 0.5em 1em;
-  background-color: #369a6e;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 1em;
-}
-
-.header-button:hover {
-  background-color: #2d7a5a;
-}
-
-.editor-element {
-  z-index: 10;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-  background-color: #1e1e1e;
-  text-align: left;
-  overflow-x: auto;
-}
-</style>
+<style/>
