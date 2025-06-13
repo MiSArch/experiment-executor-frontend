@@ -1,10 +1,27 @@
 <template>
-  <div class="header">
-    <span>MiSArch Experiment Configuration</span>
-    <button class="header-button">Simple View</button>
+  <div class="flex flex-col md:min-w-1/3 h-full grow">
+    <div class="flex flex-row items-center justify-between p-2 bg-[#235f43] text-white shadow-md">
+      <span class="text-xl font-bold">MiSArch Experiment Configuration</span>
+      <button
+          class="
+    mr-4 px-4 py-2
+    bg-[#369a6e] rounded
+    text-white cursor-pointer
+    hover:bg-[#2d7a5a]
+    focus:outline-none focus:ring-0 focus:border-transparent
+    appearance-none
+    border-0
+  "
+      >
+        Simple View
+      </button>    </div>
+    <div
+        ref="editorElement"
+        class="flex-grow overflow-hidden z-10 shadow-[ -2px_0_5px_rgba(0,0,0,0.1) ] bg-[#1e1e1e] text-left overflow-x-auto"
+    ></div>
   </div>
-  <div class="editor-element" ref="editorElement"></div>
 </template>
+
 
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
@@ -15,6 +32,7 @@ import {backendUrl, misarchExperimentConfig} from '../util/test-handler.ts'
 
 const editorElement = ref<HTMLElement | null>(null)
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
+let resizeObserver: ResizeObserver | null = null
 
 const loadConfig = async (): Promise<string> => {
   const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/misarchExperimentConfig`)
@@ -36,7 +54,7 @@ watch(showOverlay, async (newValue, oldValue) => {
         insertSpaces: true,
         theme: 'vs-dark',
         detectIndentation: false,
-        automaticLayout: true,
+        automaticLayout: false,
         formatOnType: true,
         formatOnPaste: true,
         glyphMargin: false,
@@ -50,61 +68,36 @@ watch(showOverlay, async (newValue, oldValue) => {
       editorInstance.onDidChangeModelContent(() => {
         misarchExperimentConfig.value = editorInstance?.getValue() || ''
       })
+
+      // debounce resize layout call to prevent loop
+      const debouncedLayout = debounce(() => {
+        editorInstance?.layout()
+      }, 10)
+
+      resizeObserver = new ResizeObserver(() => {
+        debouncedLayout()
+      })
+
+      resizeObserver.observe(editorElement.value)
     }
   }
 })
 
-
 onBeforeUnmount(() => {
   editorInstance?.dispose()
+  if (resizeObserver && editorElement.value) {
+    resizeObserver.unobserve(editorElement.value)
+    resizeObserver.disconnect()
+  }
 })
+
+function debounce(func: Function, wait: number) {
+  let timeout: number | undefined
+  return () => {
+    clearTimeout(timeout)
+    timeout = window.setTimeout(() => func(), wait)
+  }
+}
 </script>
 
-<style scoped>
-.header {
-  position: fixed;
-  bottom: 33%;
-  left: 40%;
-  height: 6%;
-  width: 38.5%;
-  background-color: #235f43;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 0 1em;
-}
-
-.header span {
-  font-size: 1.2em;
-  font-weight: bold;
-}
-
-.header-button {
-  padding: 0.5em 1em;
-  background-color: #369a6e;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 1em;
-}
-
-.header-button:hover {
-  background-color: #2d7a5a;
-}
-
-.editor-element {
-  position: fixed;
-  bottom: 0;
-  left: 40%;
-  width: 40%;
-  height: 33vh;
-  z-index: 10;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-  background-color: #1e1e1e;
-  text-align: left;
-  overflow-x: auto;
-}
-</style>
+<style/>

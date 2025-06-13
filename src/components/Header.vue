@@ -1,18 +1,49 @@
 <template>
-  <div class="header">
-    <span>MISARCH EXPERIMENT TOOL</span>
-    <span v-if="testUuid" class="test-uuid">Test UUID: {{ testUuid }}</span>
-    <span v-if="testVersion" class="test-version">Test Version: {{ testVersion }}</span>
-    <div class="button-group">
-      <button v-if="!showOverlay" type="button" class="header-button">{{ 'Help' }}</button>
-      <button v-if="!showOverlay" type="button" @click="persistAll" :disabled="isSaving" class="header-button">{{ isSaving ? 'Saving... ' : 'Save' }}</button>
-      <button v-if="!showOverlay" type="button" @click="loadOrGenerate" :disabled="isSaving" class="header-button">{{ 'Load / Generate' }}</button>
-      <button v-if="!showOverlay" type="button" @click="newVersion" :disabled="isSaving" class="header-button">{{ 'New Version' }}</button>
+  <div class="sticky top-0 left-0 right-0 z-[1000] bg-[#42b883] text-white flex items-center px-4 py-3">
+    <span class="mr-4 text-lg font-bold">MISARCH EXPERIMENT TOOL</span>
+    <span v-if="testUuid" class="mr-4 text-lg font-bold">Test UUID: {{ testUuid }}</span>
+    <span v-if="testVersion" class="mr-4 text-lg font-bold">Test Version: {{ testVersion }}</span>
+    <div class="ml-auto flex gap-4 pr-12">
+      <button
+          v-if="!showOverlay"
+          type="button"
+          class="bg-[#369a6e] text-white hover:bg-[#2d7a5a] rounded px-4 py-2 cursor-pointer"
+      >
+        Help
+      </button>
+      <button
+          v-if="!showOverlay"
+          type="button"
+          @click="persistAll"
+          :disabled="isSaving"
+          class="bg-[#369a6e] text-white hover:bg-[#2d7a5a] rounded px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {{ isSaving ? 'Saving... ' : 'Save' }}
+      </button>
+      <button
+          v-if="!showOverlay"
+          type="button"
+          @click="loadOrGenerate"
+          :disabled="isSaving"
+          class="bg-[#369a6e] text-white hover:bg-[#2d7a5a] rounded px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Load / Generate
+      </button>
+      <button
+          v-if="!showOverlay"
+          type="button"
+          @click="newVersion"
+          :disabled="isSaving"
+          class="bg-[#369a6e] text-white hover:bg-[#2d7a5a] rounded px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        New Version
+      </button>
       <button
           v-if="!showOverlay"
           type="button"
           @click="isRunningExperiment ? stopExperiment() : startExperiment()"
-          class="header-button">
+          class="bg-[#369a6e] text-white hover:bg-[#2d7a5a] rounded px-4 py-2"
+      >
         {{ isRunningExperiment ? 'Stop Experiment' : 'Execute Experiment' }}
       </button>
     </div>
@@ -127,46 +158,4 @@ const stopEventListener = () => {
 }
 </script>
 
-<style scoped>
-.header {
-  width: 100%;
-  background-color: #42b883;
-  color: white;
-  padding: 1em;
-  display: flex;
-  align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-}
-
-.header span {
-  margin-right: 1em;
-  font-size: 1.2em;
-  font-weight: bold;
-  color: #ffffff;
-}
-
-.header-button {
-  padding: 0.5em 1em;
-  margin-left: 1em;
-  background-color: #369a6e;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.header-button:hover {
-  background-color: #2d7a5a;
-}
-
-.header .button-group {
-  margin-left: auto;
-  display: flex;
-  gap: 1em;
-  padding-right: 3em;
-}
-
-</style>
+<style/>

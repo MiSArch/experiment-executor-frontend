@@ -9,12 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.8",
     "@types/node": "^22.15.21",
     "@vueuse/core": "^13.2.0",
     "chartjs-plugin-dragdata": "^2.3.1",
     "monaco-editor": "^0.52.2",
     "monaco-editor-wrapper": "^6.7.0",
     "sprotty": "^1.4.0",
+    "tailwindcss": "^4.1.8",
     "uuid": "^11.1.0",
     "vscode-languageserver-protocol": "^3.17.5",
     "vue": "^3.5.13",

@@ -4,17 +4,15 @@ import {ref} from "vue";
 
 // TODO: move this to a more appropriate place
 export const chaostoolkitConfig = ref('')
-export const userSteps = ref<number[]>([])
 export const misarchExperimentConfig = ref('')
 export const config = ref<TestConfig>(new TestConfig());
-export const gatlingWork = ref('')
+export const gatlingConfigs = ref<{ fileName: string; workFileContent: string; userSteps: number[] }[]>([])
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export class TestHandler {
   async persistAllConfigs(): Promise<void> {
-    await this.persistWork();
+    await this.persistGatlingConfigs();
     await this.persistConfig();
-    await this.persistUserSteps();
     await this.persistChaosToolkitConfig();
     await this.persistMisarchExperimentConfig();
   }
@@ -30,14 +28,6 @@ export class TestHandler {
     })
   }
 
-  async persistUserSteps(): Promise<void> {
-    const csvData = `userSteps\n${userSteps.value.join('\n')}`;
-    await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/gatlingConfig/userSteps`, {
-      method: 'PUT',
-      body: csvData
-    })
-  }
-
   async persistChaosToolkitConfig(): Promise<void> {
     await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/chaosToolkitConfig`, {
       method: 'PUT',
@@ -45,10 +35,18 @@ export class TestHandler {
     })
   }
 
-  async persistWork(): Promise<void> {
-    await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/gatlingConfig/work`, {
+  async persistGatlingConfigs(): Promise<void> {
+    const jsonData = JSON.stringify(gatlingConfigs.value.map(config => ({
+      fileName: config.fileName,
+      encodedWorkFileContent: btoa(config.workFileContent),
+      encodedUserStepsFileContent: btoa(`userSteps\n${config.userSteps.join('\n')}`)
+    })), null, 2);
+    await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/gatlingConfig`, {
       method: 'PUT',
-      body: gatlingWork.value
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: jsonData
     })
   }
 
