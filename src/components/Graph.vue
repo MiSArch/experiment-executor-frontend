@@ -7,46 +7,58 @@
 
     <LineChart :key="chartKey" class="grow" :chart-data="chartData" :chart-options="chartOptions"/>
 
-    <div v-if="isGraphOverlayVisible" class="z-50 absolute w-full h-full top-0 left-0 right-0 bg-[#242424]">
-      <button class="z-50 absolute top-2 right-2 w-10 h-10 flex justify-center items-center border rounded-md bg-gray-800 text-white"
-              @click="toggleGraphOverlay">
+    <div v-if="isGraphOverlayVisible" class="z-50 absolute w-full h-full top-0 left-0 right-0 bg-[#242424] p-6">
+      <button
+          class="z-50 absolute top-2 right-2 w-10 h-10 flex justify-center items-center border rounded-md bg-gray-800 text-white"
+          @click="toggleGraphOverlay">
         X
       </button>
 
-      <div class="flex flex-col gap-2 m-4 justify-start items-start">
-        <div class="flex flex-row gap-2">
-          <span class="box-border min-w-96">Duration in s</span>
-          <input class="min-w-0 box-border" type="number" v-model="duration" placeholder="Duration"/>
-          <button class="min-w-0 box-border p-2 border-0 rounded-xs flex cursor-pointer" @click="applyDuration">Apply</button>
-        </div>
-
-        <div class="flex flex-row gap-2 mt-5">
-          <span class="box-border min-w-96">To second</span>
-          <input class="min-w-0 box-border" type="number" v-model="timeFrom" placeholder="TimeFrom"/>
-        </div>
-        <div class="flex flex-row gap-2">
-          <span class="box-border min-w-96">From second</span>
-          <input class="min-w-0 box-border" type="number" v-model="timeTo" placeholder="TimeTo"/>
-        </div>
-        <div class="flex flex-row gap-2">
-          <span class="box-border min-w-96">Arriving Users / s</span>
-          <input class="min-w-0 box-border" type="number" v-model="arrivingUsers" placeholder="Arriving Users"/>
-        </div>
-        <div class="flex flex-row gap-2">
-          <button class="min-w-0 box-border" @click="applyUsers">Apply</button>
-          <select v-model="currentlyEditing" class="dropdown">
+      <div class="w-1/3">
+        <div class="flex flex-row gap-2 w-full justify-stretched items-center">
+          <select
+              v-model="currentlyEditing"
+              class="p-2 border-0 rounded-md bg-[#42b883] text-white text-sm appearance-none cursor-pointer focus:outline-none grow"
+              style="user-select: none;"
+          >
             <option v-for="(config, idx) in gatlingConfigs" :key="config.fileName" :value="idx">
               {{ config.fileName }}
             </option>
           </select>
         </div>
+
+        <div class="flex flex-row gap-4 mt-5 items-stretch">
+          <div class="flex flex-row gap-2">
+            <span class="box-border min-w-0">Duration in s</span>
+            <input class="min-w-0 box-border" type="number" v-model="duration" placeholder="Duration"/>
+          </div>
+          <button class="min-w-0 box-border p-2 border-0 rounded-xs flex cursor-pointer" @click="applyDuration">Apply</button>
+        </div>
+
+        <div class="flex flex-row gap-4 mt-5 items-stretch">
+          <div class="flex flex-col gap-2">
+            <div class="flex flex-row gap-2 items-center">
+              <span class="box-border min-w-0">To second</span>
+              <input class="min-w-0 box-border" type="number" v-model="timeFrom" placeholder="TimeFrom"/>
+            </div>
+            <div class="flex flex-row gap-2 items-center">
+              <span class="box-border min-w-0">From second</span>
+              <input class="min-w-0 box-border" type="number" v-model="timeTo" placeholder="TimeTo"/>
+            </div>
+            <div class="flex flex-row gap-2 items-center">
+              <span class="box-border min-w-0">Arriving Users / s</span>
+              <input class="min-w-0 box-border" type="number" v-model="arrivingUsers" placeholder="Arriving Users"/>
+            </div>
+          </div>
+          <button class="min-w-0 box-border px-4" @click="applyUsers" style="align-self: stretch;">Apply</button>
+        </div>
+
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// TODO we need a ui element to select the currently edited user step
 import {defineChartComponent} from 'vue-chart-3'
 import dragDataPlugin from 'chartjs-plugin-dragdata'
 import {CategoryScale, Chart as ChartJS, Legend, LinearScale, LineController, LineElement, PointElement, Title, Tooltip} from 'chart.js'
