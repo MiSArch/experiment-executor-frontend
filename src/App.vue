@@ -9,7 +9,7 @@ import Overlay from "./components/Overlay.vue";
 </script>
 
 <template>
-  <div class="flex flex-col w-full h-full justify-stretch">
+  <div class="flex flex-col w-full h-full justify-stretch overflow-hidden">
     <Overlay/>
     <Header/>
     <div class="flex flex-col w-full h-full">
@@ -26,4 +26,15 @@ import Overlay from "./components/Overlay.vue";
   </div>
 </template>
 
-<style/>
+<style>
+@media (orientation: landscape) {
+  html,
+  body {
+    overflow: hidden !important;
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    overscroll-behavior: none;
+  }
+}
+</style>

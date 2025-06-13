@@ -1,11 +1,11 @@
 <template>
-  <div class="m-2 pt-5 w-full md:w-2/3 relative">
+  <div class="m-2 pt-5 w-full max-h-23/24 md:w-2/3 relative">
     <button class="z-50 absolute top-2 right-2 w-10 h-10 flex justify-center items-center border rounded-md bg-gray-800 text-white"
             @click="toggleGraphOverlay">
       ☰
     </button>
 
-    <LineChart :key="chartKey" class="grow" :chart-data="chartData" :chart-options="chartOptions"/>
+    <LineChart :key="chartKey" class="grow h-full" :chart-data="chartData" :chart-options="chartOptions"/>
 
     <div v-if="isGraphOverlayVisible" class="z-50 absolute w-full h-full top-0 left-0 right-0 bg-[#242424] p-6">
       <button
@@ -14,8 +14,8 @@
         X
       </button>
 
-      <div class="w-1/3">
-        <div class="flex flex-row gap-2 w-full justify-stretched items-center">
+      <div class="flex flex-col gap-4 justify-stretched items-center pt-12 min-width-xl max-w-2xl mx-auto">
+        <div class="flex flex-row gap-4 w-full justify-stretched items-center">
           <select
               v-model="currentlyEditing"
               class="p-2 border-0 rounded-md bg-[#42b883] text-white text-sm appearance-none cursor-pointer focus:outline-none grow"
@@ -27,30 +27,31 @@
           </select>
         </div>
 
-        <div class="flex flex-row gap-4 mt-5 items-stretch">
-          <div class="flex flex-row gap-2">
-            <span class="box-border min-w-0">Duration in s</span>
-            <input class="min-w-0 box-border" type="number" v-model="duration" placeholder="Duration"/>
-          </div>
-          <button class="min-w-0 box-border p-2 border-0 rounded-xs flex cursor-pointer" @click="applyDuration">Apply</button>
-        </div>
-
-        <div class="flex flex-row gap-4 mt-5 items-stretch">
-          <div class="flex flex-col gap-2">
+        <div class="flex flex-row gap-4 w-full justify-stretched items-center">
+          <div class="flex flex-col gap-2 w-full">
             <div class="flex flex-row gap-2 items-center">
-              <span class="box-border min-w-0">To second</span>
+              <span class="box-border flex-1 p-2 rounded bg-[#369a6e] text-white text-base text-center appearance-none">Duration</span>
+              <input class="min-w-0 box-border" type="number" v-model="duration" placeholder="Duration"/>
+            </div>
+          </div>
+          <button class="min-w-0 flex justify-center items-center border rounded-md bg-gray-800 text-white" @click="applyDuration" style="align-self: stretch;">Apply</button>
+        </div>
+        <div class="flex flex-row gap-4 w-full justify-stretched items-center">
+          <div class="flex flex-col gap-2 w-full">
+            <div class="flex flex-row gap-2 items-center">
+              <span class="box-border flex-1 p-2 rounded bg-[#369a6e] text-white text-base text-center appearance-none">From Second</span>
               <input class="min-w-0 box-border" type="number" v-model="timeFrom" placeholder="TimeFrom"/>
             </div>
             <div class="flex flex-row gap-2 items-center">
-              <span class="box-border min-w-0">From second</span>
+              <span class="box-border flex-1 p-2 rounded bg-[#369a6e] text-white text-base text-center appearance-none">To Second</span>
               <input class="min-w-0 box-border" type="number" v-model="timeTo" placeholder="TimeTo"/>
             </div>
             <div class="flex flex-row gap-2 items-center">
-              <span class="box-border min-w-0">Arriving Users / s</span>
+              <span class="box-border flex-1 p-2 rounded bg-[#369a6e] text-white text-base text-center appearance-none">Arriving Users / s</span>
               <input class="min-w-0 box-border" type="number" v-model="arrivingUsers" placeholder="Arriving Users"/>
             </div>
           </div>
-          <button class="min-w-0 box-border px-4" @click="applyUsers" style="align-self: stretch;">Apply</button>
+          <button class="min-w-0 flex justify-center items-center border rounded-md bg-gray-800 text-white" @click="applyUsers" style="align-self: stretch;">Apply</button>
         </div>
 
       </div>
@@ -251,18 +252,6 @@ input {
 input:focus {
   outline: none;
   box-shadow: 0 0 5px rgba(54, 154, 110, 0.5);
-}
-
-span {
-  flex: 3;
-  padding: 0.5em;
-  border: 0 solid #ccc;
-  border-radius: 4px;
-  background-color: #369a6e;
-  color: white;
-  font-size: 1em;
-  text-align: center;
-  appearance: none;
 }
 
 button {
