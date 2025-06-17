@@ -130,7 +130,6 @@ async function updateGraph() {
   duration.value = maxLength;
 
   for (let i = 0; i < chartData.value.datasets.length - 1; i++) {
-    console.log(chartData.value.datasets[i + 1].label);
     chartData.value.datasets[i + 1].data = await calculateTotalUsers(Math.floor(approximateSessionDuration), i);
   }
 
