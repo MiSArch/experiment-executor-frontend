@@ -19,6 +19,7 @@ export class KotlinScenarioModel {
     this.steps = steps;
   }
 
+  // TODO verify this is generic enough to handle all Kotlin scenarios
   static parse(kotlinCode: string): KotlinScenarioModel {
     const nameMatch = kotlinCode.match(/val\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=/);
     const scenarioName = nameMatch ? nameMatch[1] : 'Unknown';
@@ -67,7 +68,7 @@ export class KotlinScenarioModel {
       // --- exec(http(...)) block
       if (line.includes('http(')) {
         const blockLines: string[] = [];
-        let parenCount = 0;
+        let parenCount = 1;
 
         do {
           const currentLine = lines[i];
@@ -80,9 +81,10 @@ export class KotlinScenarioModel {
         const block = blockLines.join('\n');
 
         const httpNameMatch = block.match(/http\("([^"]+)"\)/);
+        // TODO Allow for different HTTP methods (GET, PUT, DELETE, etc.)
         const postUrlMatch = block.match(/\.post\("([^"]+)"\)/);
         const bodyMatch = block.match(/\.body\(\s*StringBody\("([^"]+)"\)\s*\)/s);
-        const checkMatches = [...block.matchAll(/\.check\((.*?)\)/gs)].map(m => m[1].trim());
+        const checkMatches = [...block.matchAll(/\.check\(((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*)\)/gs)].map(m => m[1].trim());
 
         steps.push({
           type: 'http',
@@ -104,6 +106,7 @@ export class KotlinScenarioModel {
 
   toKotlin(): string {
     const lines: string[] = [];
+    lines.push("package org.misarch\n\nimport io.gatling.javaapi.core.CoreDsl.*\nimport io.gatling.javaapi.http.HttpDsl.http\nimport java.time.Duration\n");
     lines.push(`val ${this.scenarioName.replace(/\s+/g, '')} = scenario("${this.scenarioName}")`);
 
     for (const step of this.steps) {
@@ -113,7 +116,7 @@ export class KotlinScenarioModel {
         );
       } else if (step.type === 'http') {
         const bodyLine = step.body ? `.body(StringBody("${step.body}"))` : '';
-        const checks = (step.checks || []).map(c => `.check(${c})`).join('');
+        const checks = (step.checks || []).map(c => `\n    .check(${c})`).join('');
         lines.push(
             `.exec(\n  http("${step.name}").post("${step.url}")${bodyLine}${checks}\n)`
         );

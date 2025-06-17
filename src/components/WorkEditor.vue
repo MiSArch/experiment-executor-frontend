@@ -55,6 +55,7 @@ import {ref, watch, onBeforeUnmount} from 'vue'
 import {showOverlay} from "../util/show-overlay.ts";
 import {backendUrl, gatlingConfigs} from '../util/test-handler.ts'
 import {testUuid, testVersion} from "../util/test-uuid.ts";
+import {KotlinScenarioModel} from "../model/gatling-work.ts";
 
 const activeTabIndex = ref(0)
 const editorElement = ref<HTMLElement | null>(null)
@@ -68,9 +69,15 @@ const loadConfig = async () => {
   const list: Array<{ fileName: string; workFileContent: string; userSteps: number[] }> = []
   dtoList.forEach((item: { fileName: string,
     encodedWorkFileContent: string, encodedUserStepsFileContent: string }) => {
+    let wfc = atob(item.encodedWorkFileContent)
+    let model = KotlinScenarioModel.parse(wfc)
+    console.log(JSON.stringify(model))
+    let parsedBack = model.toKotlin()
+    console.log(parsedBack)
+
     list.push({
       fileName: item.fileName,
-      workFileContent: atob(item.encodedWorkFileContent),
+      workFileContent: wfc,
       userSteps: atob(item.encodedUserStepsFileContent).split('\n').map(line => parseInt(line.trim(), 10)).filter(Number.isFinite)
     })
   })
