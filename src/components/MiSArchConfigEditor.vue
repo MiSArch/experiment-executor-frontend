@@ -11,46 +11,50 @@
          class="flex-grow overflow-hidden z-10 shadow-[ -2px_0_5px_rgba(0,0,0,0.1) ] bg-[#1e1e1e] text-left overflow-x-auto"></div>
     <div v-show="!showMisarchEditor" class=" flex-grow flex-shrink h-full overflow-y-auto max-w-full ">
       <div class="flex flex-col gap-4 p-2">
-        <div v-for="(config, configIndex) in misarchExperimentConfig" :key="configIndex" class="rounded p-4 shadow-md border-4 border-[#369a6e]">
+        <div v-for="(config, configIndex) in misarchExperimentConfig" :key="configIndex" class="rounded p-4 shadow-md border-4 border-[#2d7a5a]">
           <div class="flex flex-row flex-nowrap justify-between min-w-0 w-full">
             <h3 class="text-lg font-semibold text-white mt-1">Failure Set {{ configIndex + 1 }}</h3>
             <button @click="removeConfig(configIndex)"
-                    class="bg-[#369a6e] text-white p-2 mb-4 h-full rounded hover:bg-[#2d7a5a] text-xs">&times;
+                    class="bg-[#444] text-white p-2 mb-4 h-full rounded hover:bg-red-900 text-xs">&times;
             </button>
           </div>
-          <div v-for="(failure, failureIndex) in config.failures" :key="failureIndex" class="rounded p-3 mb-2 border-4 border-[#369a6e]">
+          <div v-for="(failure, failureIndex) in config.failures" :key="failureIndex" class="rounded p-3 mb-2 border-4 border-[#42b883]">
             <div class="flex flex-row items-center justify-between">
               <span class="text-lg font-semibold text-white mt-1 mb-2 ">Failure {{ failureIndex + 1 }}</span>
               <div>
-                <button class="bg-[#369a6e] text-white px-2 py-1 mb-2 rounded hover:bg-[#2d7a5a] text-xs ml-2"
+                <button class="bg-[#444] text-white px-2 py-1 mb-2 rounded hover:bg-[#333] text-xs ml-2"
                         @click="minimizedFailures[getFailureKey(configIndex, failureIndex)] = !minimizedFailures[getFailureKey(configIndex, failureIndex)]">
                   {{ minimizedFailures[getFailureKey(configIndex, failureIndex)] ? '+' : '–' }}
                 </button>
-                <button @click="removeFailure(configIndex, failureIndex)" class="bg-[#369a6e] text-white px-2 py-1 mb-2 rounded hover:bg-[#2d7a5a] text-xs ml-2">&times;</button>
+                <button @click="removeFailure(configIndex, failureIndex)"
+                        class="bg-[#444] text-white px-2 py-1 mb-2 rounded hover:bg-red-900 text-xs ml-2">&times;
+                </button>
               </div>
             </div>
             <div v-show="!minimizedFailures[getFailureKey(configIndex, failureIndex)]">
               <div class="flex flex-col gap-2">
-                <input v-model="failure.name" class="p-2 rounded text-m bg-[#369a6e] border-0 focus:outline-none min-w-0" placeholder="Service name"/>
+                <input v-model="failure.name" class="p-2 rounded text-m border-1 border-[#444] focus:outline-none min-w-0"
+                       placeholder="Service name"/>
                 <label class="text-sm font-medium text-white">PubSub Deterioration</label>
+
                 <div class="flex flex-col gap-2 max-w-full w-full">
                   <div v-if="failure.pubSubDeterioration !== null && failure.pubSubDeterioration !== undefined"
-                       class="flex flex-row flex-nowrap justify-evenly gap-2 min-w-0 w-full">
+                       class="flex flex-row flex-nowrap justify-evenly items-center gap-2 min-w-0 w-full">
                     <input v-model="failure.pubSubDeterioration.delay" type="number"
-                           class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0" placeholder="Delay in ms">
+                           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0" placeholder="Delay in ms">
                     <input type="number" min="0.00" max="1.00" step="0.01"
                            v-model="failure.pubSubDeterioration.delayProbability"
-                           class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0" placeholder="Delay probability (0-1)">
+                           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0" placeholder="Delay probability (0-1)">
                     <input type="number" min="0.00" max="1.00" step="0.01"
                            v-model="failure.pubSubDeterioration.errorProbability"
-                           class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0" placeholder="Error probability (0-1)">
+                           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0" placeholder="Error probability (0-1)">
                     <button @click="removePubSubDeterioration(failure)"
-                            class="bg-[#369a6e] text-white px-2 py-2 h-full rounded hover:bg-[#2d7a5a] text-xs">&times;
+                            class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs">&times;
                     </button>
                   </div>
                   <button v-show="failure.pubSubDeterioration === undefined || failure.pubSubDeterioration === null"
                           @click="addPubSubDeterioration(failure)"
-                          class="bg-[#369a6e] text-white px-2 py-1 rounded hover:bg-[#2d7a5a] text-xs">Add PubSub Deterioration
+                          class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">Add PubSub Deterioration
                   </button>
                 </div>
 
@@ -67,25 +71,25 @@
                   </div>
                   <div v-for="(deterioration, index) in failure.serviceInvocationDeterioration" :key="index"
                        class="flex flex-row flex-nowrap items-center gap-2 w-full min-w-0">
-                    <input v-model="deterioration.path" class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0"
+                    <input v-model="deterioration.path" class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
                            placeholder="/*"/>
                     <input type="number" v-model="deterioration.delay"
-                           class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0" placeholder="1000"/>
+                           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0" placeholder="1000"/>
                     <input type="number" min="0.00" max="1.00" step="0.01" v-model="deterioration.delayProbability"
-                           class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0"
+                           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
                            placeholder="0.05"/>
                     <input type="number" min="0.00" max="1.00" step="0.01" v-model="deterioration.errorProbability"
-                           class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0"
+                           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
                            placeholder="0.05"/>
                     <input type="number" v-model="deterioration.errorCode"
-                           class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0"
+                           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
                            placeholder="500"/>
                     <button @click="removeServiceInvocationDeterioration(failure, index)"
-                            class="bg-[#369a6e] text-white px-2 py-2 h-full rounded hover:bg-[#2d7a5a] text-xs">&times;
+                            class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs">&times;
                     </button>
                   </div>
                   <button @click="addServiceInvocationDeterioration(failure)"
-                          class="bg-[#369a6e] text-white px-2 py-1 rounded hover:bg-[#2d7a5a] text-xs">Add Service Invocation Deterioration
+                          class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">Add Service Invocation Deterioration
                   </button>
                 </div>
 
@@ -94,15 +98,15 @@
                   <div class="flex flex-row flex-nowrap items-center gap-2 w-full min-w-0"
                        v-show="failure.artificialMemoryUsage !== null && failure.artificialMemoryUsage !== undefined">
                     <input type="number" v-model="failure.artificialMemoryUsage"
-                           class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0"
+                           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
                            placeholder="Memory Usage in bites (e.g., 1000000000 for 1GB)">
                     <button @click="removeMemoryUsage(failure)"
-                            class="bg-[#369a6e] text-white px-2 py-2 h-full rounded hover:bg-[#2d7a5a] text-xs">&times;
+                            class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs">&times;
                     </button>
                   </div>
                   <button
                       v-show="failure.artificialMemoryUsage === undefined || failure.artificialMemoryUsage === null"
-                      @click="addMemoryUsage(failure)" class="bg-[#369a6e] text-white px-2 py-1 rounded hover:bg-[#2d7a5a] text-xs">Add Artificial
+                      @click="addMemoryUsage(failure)" class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">Add Artificial
                     Memory Usage
                   </button>
                 </div>
@@ -111,14 +115,14 @@
                   <div v-for="(cpuUsage, index) in failure.artificialCPUUsage" :key="index"
                        class="flex flex-row flex-nowrap items-center gap-2 w-full min-w-0">
                     <input type="number" v-model="cpuUsage.usageDuration"
-                           class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0" placeholder="Usage Duration in ms">
+                           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0" placeholder="Usage Duration in ms">
                     <input type="number" v-model="cpuUsage.pauseDuration"
-                           class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0" placeholder="Pause-Duration in ms">
+                           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0" placeholder="Pause-Duration in ms">
                     <button @click="removeCPUUsage(failure, index)"
-                            class="bg-[#369a6e] text-white px-2 py-2 h-full rounded hover:bg-[#2d7a5a] text-xs">&times;
+                            class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs">&times;
                     </button>
                   </div>
-                  <button @click="addCPUUsage(failure)" class="bg-[#369a6e] text-white px-2 py-1 rounded hover:bg-[#2d7a5a] text-xs">Add Artificial
+                  <button @click="addCPUUsage(failure)" class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">Add Artificial
                     CPU
                     Usage
                   </button>
@@ -127,14 +131,14 @@
             </div>
           </div>
           <div class="flex flex-col gap-2">
-            <button @click="addFailure(configIndex)" class="bg-[#369a6e] text-white px-3 py-1 rounded hover:bg-[#2d7a5a] text-sm">Add Failure</button>
+            <button @click="addFailure(configIndex)" class="bg-[#369a6e] text-white px-3 py-1 rounded hover:bg-[#2d7a5a] text-sm">+</button>
             <label class="text-sm font-medium text-white">Pause Duration after Failure Group (ms)</label>
-            <input v-model="config.pause" type="number" class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0"
+            <input v-model="config.pause" type="number" class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
                    placeholder="500"/>
           </div>
         </div>
         <div class="flex flex-col gap-2">
-          <button @click="addConfig()" class="bg-[#369a6e] text-white px-3 py-1 rounded hover:bg-[#2d7a5a] text-sm">Add Failure Set</button>
+          <button @click="addConfig()" class="bg-[#369a6e] text-white px-3 py-1 rounded hover:bg-[#2d7a5a] text-sm">+</button>
         </div>
       </div>
     </div>
