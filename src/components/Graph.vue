@@ -79,10 +79,6 @@ const currentlyEditing = ref<number>(1)
 const isGraphOverlayVisible = ref(false)
 const chartKey = ref(0);
 
-// TODO this must be calculated from the work
-const approximateSessionDuration = 20
-const sessionRequests = [1, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1]
-
 const colors = [
   {border: 'rgba(83, 102, 255, 1)', background: 'rgba(83, 102, 255, 0.2)'},
   {border: 'rgba(60, 179, 113, 1)', background: 'rgba(60, 179, 113, 0.2)'},
@@ -130,14 +126,19 @@ async function updateGraph() {
   duration.value = maxLength;
 
   for (let i = 0; i < chartData.value.datasets.length - 1; i++) {
-    chartData.value.datasets[i + 1].data = await calculateTotalUsers(Math.floor(approximateSessionDuration), i);
+    chartData.value.datasets[i + 1].data = await calculateTotalUsers(i);
   }
 
   chartData.value.datasets[0].data = await calculateApproximateRequests();
 }
 
-async function calculateTotalUsers(sessionDuration: number, index: number): Promise<number[]> {
+async function calculateTotalUsers(index: number): Promise<number[]> {
   const totalUsers: number[] = [];
+  const sessionDuration = Math.floor(gatlingConfigs.value[index].workModel.steps
+  .filter((step): step is typeof step & { durationMin: number, durationMax: number } =>
+      step.type === 'pause' && step.durationMin !== undefined && step.durationMax !== undefined)
+  .reduce((sum, step) => sum + (step.durationMin + step.durationMax) / 2, 0) / 1000);
+
   gatlingConfigs.value[index].userSteps.forEach((users, time) => {
     for (let i = 0; i < sessionDuration; i++) {
       totalUsers[time + i] = (totalUsers[time + i] || 0) + users;
@@ -150,6 +151,12 @@ async function calculateTotalUsers(sessionDuration: number, index: number): Prom
 async function calculateApproximateRequests(): Promise<number[]> {
   const approximateRequests: number[] = [];
   for (let i = 0; i < gatlingConfigs.value.length; i++) {
+    const requestPauses = gatlingConfigs.value[i].workModel.steps
+    .filter((step): step is typeof step & { durationMin: number, durationMax: number } =>
+        step.type === 'pause' && step.durationMin !== undefined && step.durationMax !== undefined)
+    .map(step => Math.floor((step.durationMin + step.durationMax) / 2 / 1000));
+    const sessionRequests = await expandPausesToTimeline(requestPauses);
+
     gatlingConfigs.value[i].userSteps.forEach((users, time) => {
       for (let j = 0; j < sessionRequests.length; j++) {
         const requestIndex = time + j;
@@ -204,6 +211,11 @@ watch(gatlingConfigs, async () => {
         chartKey.value++;
         needsUpdate.value = true;
       }
+
+      clearTimeout((watch as any)._debounceTimeout);
+      (watch as any)._debounceTimeout = setTimeout(() => {
+        needsUpdate.value = true;
+      }, 1000);
     },
     {
       deep: true
@@ -238,6 +250,28 @@ async function applyDuration() {
   needsUpdate.value = true
 }
 
+async function expandPausesToTimeline(pauses: number[]): Promise<number[]> {
+  const timeline: number[] = [];
+  let time = 0;
+
+  for (const pause of pauses) {
+    if (timeline[time] === undefined) {
+      timeline[time] = 0;
+    }
+
+    timeline[time] += 1;
+
+    for (let i = 1; i <= pause; i++) {
+      if (timeline[time + i] === undefined) {
+        timeline[time + i] = 0;
+      }
+    }
+
+    time += pause;
+  }
+
+  return timeline;
+}
 </script>
 
 <style/>

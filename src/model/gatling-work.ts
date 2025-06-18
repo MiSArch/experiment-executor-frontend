@@ -81,16 +81,17 @@ export class KotlinScenarioModel {
         const block = blockLines.join('\n');
 
         const httpNameMatch = block.match(/http\("([^"]+)"\)/);
-        // TODO Allow for different HTTP methods (GET, PUT, DELETE, etc.)
-        const postUrlMatch = block.match(/\.post\("([^"]+)"\)/);
+        const methodUrlMatch = block.match(/\.(get|post|put|delete|patch|head|options)\("([^"]+)"\)/i);
+        const method = methodUrlMatch ? methodUrlMatch[1].toUpperCase() : undefined;
+        const url = methodUrlMatch ? methodUrlMatch[2] : undefined;
         const bodyMatch = block.match(/\.body\(\s*StringBody\("([^"]+)"\)\s*\)/s);
         const checkMatches = [...block.matchAll(/\.check\(((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*)\)/gs)].map(m => m[1].trim());
 
         steps.push({
           type: 'http',
           name: httpNameMatch?.[1],
-          method: 'POST',
-          url: postUrlMatch?.[1],
+          method: method,
+          url: url,
           body: bodyMatch?.[1],
           checks: checkMatches,
         });

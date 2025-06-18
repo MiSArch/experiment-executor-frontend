@@ -63,24 +63,24 @@ const newTabCounter = ref(0)
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
 let resizeObserver: ResizeObserver | null = null
 
+// TODO if a ui is implemented -> make a note that when switching back from the editor information can be lost due to parsing
+
 const loadConfig = async () => {
   const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/gatlingConfig`)
   const dtoList = await response.json()
-  const list: Array<{ fileName: string; workFileContent: string; userSteps: number[] }> = []
+  const list: Array<{ fileName: string; workFileContent: string; workModel: KotlinScenarioModel, userSteps: number[] }> = []
+
   dtoList.forEach((item: { fileName: string,
     encodedWorkFileContent: string, encodedUserStepsFileContent: string }) => {
-    let wfc = atob(item.encodedWorkFileContent)
-    let model = KotlinScenarioModel.parse(wfc)
-    console.log(JSON.stringify(model))
-    let parsedBack = model.toKotlin()
-    console.log(parsedBack)
-
+    let work = atob(item.encodedWorkFileContent)
     list.push({
       fileName: item.fileName,
-      workFileContent: wfc,
+      workFileContent: work,
+      workModel: KotlinScenarioModel.parse(work),
       userSteps: atob(item.encodedUserStepsFileContent).split('\n').map(line => parseInt(line.trim(), 10)).filter(Number.isFinite)
     })
   })
+
   gatlingConfigs.value = list
 }
 
@@ -93,13 +93,16 @@ const switchTab = (index: number) => {
 
 const addTab = () => {
   newTabCounter.value += 1
+  const workFileContent = 'package org.misarch\n\n' +
+      'import io.gatling.javaapi.core.CoreDsl.*\n' +
+      'import io.gatling.javaapi.http.HttpDsl.http\n' +
+      'import java.time.Duration\n\n' +
+      `val newScenario${newTabCounter.value} = scenario("My Custom Scenario ${newTabCounter.value}")\n`
+
   const newTab = {
     fileName: `newScenario${newTabCounter.value}`,
-    workFileContent: 'package org.misarch\n\n' +
-        'import io.gatling.javaapi.core.CoreDsl.*\n' +
-        'import io.gatling.javaapi.http.HttpDsl.http\n' +
-        'import java.time.Duration\n\n' +
-        `val newScenario${newTabCounter.value} = scenario("My Custom Scenario ${newTabCounter.value}")\n`,
+    workFileContent: workFileContent,
+    workModel: KotlinScenarioModel.parse(workFileContent),
     // TODO this should add some usersteps
     userSteps: [1,2,3,4,5,6,7,8,9,10],
   }
@@ -148,7 +151,9 @@ watch(showOverlay, async (newValue, oldValue) => {
       })
 
       editorInstance.onDidChangeModelContent(() => {
-        gatlingConfigs.value[activeTabIndex.value].workFileContent = editorInstance?.getValue() || ''
+        let content = editorInstance?.getValue() || ''
+        gatlingConfigs.value[activeTabIndex.value].workFileContent = content
+        gatlingConfigs.value[activeTabIndex.value].workModel = KotlinScenarioModel.parse(content)
       })
 
       // debounce resize layout call to prevent loop

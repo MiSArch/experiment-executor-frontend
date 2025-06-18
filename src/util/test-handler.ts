@@ -1,12 +1,13 @@
 import {TestConfig} from '../model/test-config.ts';
 import {testUuid, testVersion} from "./test-uuid.ts";
 import {ref} from "vue";
+import {KotlinScenarioModel} from "../model/gatling-work.ts";
 
 // TODO: move this to a more appropriate place
 export const chaostoolkitConfig = ref('')
 export const misarchExperimentConfig = ref('')
 export const config = ref<TestConfig>(new TestConfig());
-export const gatlingConfigs = ref<{ fileName: string; workFileContent: string; userSteps: number[] }[]>([])
+export const gatlingConfigs = ref<{ fileName: string; workFileContent: string; workModel: KotlinScenarioModel, userSteps: number[] }[]>([])
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export class TestHandler {
