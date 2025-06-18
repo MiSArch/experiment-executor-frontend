@@ -11,76 +11,50 @@
     focus:outline-none focus:ring-0 focus:border-transparent
     appearance-none
     border-0
-  "
+  " @click="showMisarchEditor = !showMisarchEditor"
       >
-        Simple View
+        {{ showMisarchEditor ? 'Simple View' : 'Editor View' }}
       </button>
     </div>
     <div
         ref="editorElement"
+        v-show="showMisarchEditor"
         class="flex-grow overflow-hidden z-10 shadow-[ -2px_0_5px_rgba(0,0,0,0.1) ] bg-[#1e1e1e] text-left overflow-x-auto"
     ></div>
+    <div v-show="!showMisarchEditor">
+      <span>HELLO</span>
+    </div>
   </div>
 </template>
 
 
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import {ref, onBeforeUnmount, watch} from 'vue'
-import {backendUrl, misarchExperimentConfig, testUuid, testVersion, showOverlay} from '../util/global-state-handler.ts'
+import {onBeforeUnmount, ref, watch} from 'vue'
+import {backendUrl, misarchExperimentConfig, showMisarchEditor, showOverlay, testUuid, testVersion} from '../util/global-state-handler.ts'
 
 const editorElement = ref<HTMLElement | null>(null)
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
 let resizeObserver: ResizeObserver | null = null
 
-const loadConfig = async (): Promise<string> => {
-  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/misarchExperimentConfig`)
-  const text = await response.text()
-  return JSON.stringify(JSON.parse(text), null, 2)
-}
-
 watch(showOverlay, async (newValue, oldValue) => {
-  if (newValue !== oldValue && editorElement.value) {
-    const config = await loadConfig()
-    misarchExperimentConfig.value = config
-    if (editorInstance?.getEditorType() != undefined) {
-      editorInstance?.setValue(config)
-    } else {
-      editorInstance = monaco.editor.create(editorElement.value, {
-        value: misarchExperimentConfig.value,
-        language: 'json',
-        tabSize: 2,
-        insertSpaces: true,
-        theme: 'vs-dark',
-        detectIndentation: false,
-        automaticLayout: false,
-        formatOnType: true,
-        formatOnPaste: true,
-        glyphMargin: false,
-        lineDecorationsWidth: 0,
-        lineNumbersMinChars: 2,
-        wordWrap: 'on',
-        wordWrapColumn: 80,
-        wrappingIndent: 'same',
-      })
-
-      editorInstance.onDidChangeModelContent(() => {
-        misarchExperimentConfig.value = editorInstance?.getValue() || ''
-      })
-
-      // debounce resize layout call to prevent loop
-      const debouncedLayout = debounce(() => {
-        editorInstance?.layout()
-      }, 10)
-
-      resizeObserver = new ResizeObserver(() => {
-        debouncedLayout()
-      })
-
-      resizeObserver.observe(editorElement.value)
-    }
+  if (newValue !== oldValue) {
+    await loadConfig()
+    await watcher()
   }
 })
+
+watch(showMisarchEditor, async () => {
+  await watcher()
+})
+
+async function watcher() {
+  if (showMisarchEditor.value && !editorInstance) {
+    await initEditor()
+  } else if (!showMisarchEditor.value) {
+    // TODO init simple view
+  }
+}
 
 onBeforeUnmount(() => {
   editorInstance?.dispose()
@@ -90,12 +64,58 @@ onBeforeUnmount(() => {
   }
 })
 
+const loadConfig = async () => {
+  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/misarchExperimentConfig`)
+  const text = await response.text()
+  misarchExperimentConfig.value = JSON.stringify(JSON.parse(text), null, 2)
+}
+
 function debounce(func: Function, wait: number) {
   let timeout: number | undefined
   return () => {
     clearTimeout(timeout)
     timeout = window.setTimeout(() => func(), wait)
   }
+}
+
+async function initEditor() {
+  if (!editorElement.value) return;
+
+  if (editorInstance) {
+    editorInstance.setValue(misarchExperimentConfig.value)
+    return
+  }
+
+  editorInstance = monaco.editor.create(editorElement.value, {
+    value: misarchExperimentConfig.value,
+    language: 'json',
+    tabSize: 2,
+    insertSpaces: true,
+    theme: 'vs-dark',
+    detectIndentation: false,
+    automaticLayout: false,
+    formatOnType: true,
+    formatOnPaste: true,
+    glyphMargin: false,
+    lineDecorationsWidth: 0,
+    lineNumbersMinChars: 2,
+    wordWrap: 'on',
+    wordWrapColumn: 80,
+    wrappingIndent: 'same',
+  })
+
+  editorInstance.onDidChangeModelContent(() => {
+    misarchExperimentConfig.value = editorInstance?.getValue() || ''
+  })
+
+  const debouncedLayout = debounce(() => {
+    editorInstance?.layout()
+  }, 10)
+
+  resizeObserver = new ResizeObserver(() => {
+    debouncedLayout()
+  })
+  resizeObserver.observe(editorElement.value)
 }
 </script>
 
