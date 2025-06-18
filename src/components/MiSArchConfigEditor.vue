@@ -101,7 +101,7 @@
             <div class="flex flex-col gap-2 max-w-full w-full">
               <div v-for="(cpuUsage, index) in failure.artificialCPUUsage" :key="index"
                    class="flex flex-row flex-nowrap items-center gap-2 w-full min-w-0">
-              <input type="number" :value="cpuUsage.usageDuration ? JSON.stringify(cpuUsage.usageDuration, null, 2) : ''"
+                <input type="number" :value="cpuUsage.usageDuration ? JSON.stringify(cpuUsage.usageDuration, null, 2) : ''"
                        class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0" placeholder="Usage Duration in ms">
                 <input type="number" :value="cpuUsage.pauseDuration ? JSON.stringify(cpuUsage.pauseDuration, null, 2) : ''"
                        class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0" placeholder="Pause-Duration in ms">
@@ -123,7 +123,8 @@
         <div class="flex flex-col gap-2">
           <button @click="addFailure(configIndex)" class="bg-[#369a6e] text-white px-3 py-1 rounded hover:bg-[#2d7a5a] text-sm">Add Failure</button>
           <label class="text-sm font-medium text-white">Pause Duration after Failure Group (ms)</label>
-          <input v-model="config.pause" class="p-2 rounded border text-sm" placeholder="500"/>
+          <input v-model="config.pause" type="number" class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0"
+                 placeholder="500"/>
         </div>
       </div>
     </div>
