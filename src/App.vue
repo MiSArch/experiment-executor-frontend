@@ -15,11 +15,11 @@ import Overlay from "./components/Overlay.vue";
       <Header/>
     </div>
     <div class="flex flex-col w-full h-full">
-      <div class="flex flex-col md:flex-row items-stretch w-full h-15/32 max-h-15/32">
+      <div class="flex flex-col md:flex-row items-stretch w-full min-h-15/32 h-15/32 max-h-15/32">
         <Graph/>
         <WorkEditor/>
       </div>
-      <div class="flex flex-col md:flex-row items-stretch w-full h-15/32 max-h-15/32" >
+      <div class="flex flex-col md:flex-row items-stretch w-full min-h-15/32 h-15/32 max-h-15/32" >
         <ChaosToolkitEditor/>
         <MiSArchConfigEditor/>
         <GoalEditor/>

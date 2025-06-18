@@ -3,7 +3,7 @@
     <div class="flex flex-row items-center justify-between p-2 bg-[#235f43] text-white shadow-md">
       <span class="text-lg font-bold py-1.5">Experiment Goals</span>
     </div>
-    <div class="flex flex-col gap-2 p-2 max-w-full overflow-y-scroll min-w-0">
+    <div class="flex flex-col gap-2 p-2 max-w-full overflow-y-auto min-w-0">
       <div v-for="(line, index) in lines" :key="index" class="flex flex-wrap items-center gap-2 w-full relative">
         <select v-model="line.dropdown"
                 class="flex-6 min-w-0 h-full text-sm p-2 rounded border-1 border-[#444] text-white appearance-none cursor-pointer hover:bg-[#333] focus:outline-none">

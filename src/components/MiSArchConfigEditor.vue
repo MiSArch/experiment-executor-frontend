@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col md:min-w-1/3 md:max-w-3/8 h-full grow">
+  <div class="flex flex-col max-h-full min-h-0 h-full grow md:min-w-1/3 md:max-w-3/8">
     <div class="flex flex-row items-center justify-between p-2 bg-[#235f43] text-white shadow-md">
       <span class="text-xl font-bold">MiSArch Experiment Configuration</span>
       <button
@@ -7,9 +7,8 @@
           @click="showMisarchEditor = !showMisarchEditor">{{ showMisarchEditor ? 'Simple View' : 'Editor View' }}
       </button>
     </div>
-    <div ref="editorElement" v-show="showMisarchEditor"
-         class="flex-grow overflow-hidden z-10 shadow-[ -2px_0_5px_rgba(0,0,0,0.1) ] bg-[#1e1e1e] text-left overflow-x-auto"></div>
-    <div v-show="!showMisarchEditor" class=" flex-grow flex-shrink h-full overflow-y-auto max-w-full ">
+    <div v-show="showMisarchEditor" ref="editorElement" class="flex-1 min-h-0 max-w-full overflow-y-hidden"></div>
+    <div v-show="!showMisarchEditor" class="flex-1 min-h-0 h-full max-w-full overflow-y-auto">
       <div class="flex flex-col gap-4 p-2">
         <div v-for="(config, configIndex) in misarchExperimentConfig" :key="configIndex" class="rounded p-4 shadow-md border-4 border-[#2d7a5a]">
           <div class="flex flex-row flex-nowrap justify-between min-w-0 w-full">
