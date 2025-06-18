@@ -14,7 +14,8 @@
   "
       >
         Simple View
-      </button>    </div>
+      </button>
+    </div>
     <div
         ref="editorElement"
         class="flex-grow overflow-hidden z-10 shadow-[ -2px_0_5px_rgba(0,0,0,0.1) ] bg-[#1e1e1e] text-left overflow-x-auto"
@@ -26,9 +27,7 @@
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import {ref, onBeforeUnmount, watch} from 'vue'
-import {testUuid, testVersion} from "../util/test-uuid.ts";
-import {showOverlay} from '../util/show-overlay.ts'
-import {backendUrl, misarchExperimentConfig} from '../util/test-handler.ts'
+import {backendUrl, misarchExperimentConfig, testUuid, testVersion, showOverlay} from '../util/global-state-handler.ts'
 
 const editorElement = ref<HTMLElement | null>(null)
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null

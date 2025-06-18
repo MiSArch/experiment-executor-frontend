@@ -52,9 +52,8 @@
 
 <script setup lang="ts">
 import {ref} from 'vue'
-import {testUuid, testVersion} from '../util/test-uuid.ts'
-import {backendUrl, testHandler} from '../util/test-handler.ts'
-import {showOverlay} from "../util/show-overlay.ts";
+import {backendUrl, testUuid, testVersion, showOverlay} from "../util/global-state-handler.ts";
+import {testHandler} from "../util/test-handler.ts";
 
 const isRunningExperiment = ref(false)
 const isSaving = ref(false)

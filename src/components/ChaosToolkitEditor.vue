@@ -15,9 +15,7 @@
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import {ref, onBeforeUnmount, watch} from 'vue'
-import {testUuid, testVersion} from "../util/test-uuid.ts";
-import {showOverlay} from '../util/show-overlay.ts'
-import {backendUrl, chaostoolkitConfig} from '../util/test-handler.ts'
+import {showOverlay, testUuid, testVersion, backendUrl, chaostoolkitConfig} from '../util/global-state-handler.ts'
 
 const editorElement = ref<HTMLElement | null>(null)
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null

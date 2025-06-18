@@ -52,9 +52,7 @@
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import {ref, watch, onBeforeUnmount} from 'vue'
-import {showOverlay} from "../util/show-overlay.ts";
-import {backendUrl, gatlingConfigs} from '../util/test-handler.ts'
-import {testUuid, testVersion} from "../util/test-uuid.ts";
+import {backendUrl, gatlingConfigs, testUuid, testVersion, showOverlay} from '../util/global-state-handler.ts'
 import {KotlinScenarioModel} from "../model/gatling-work.ts";
 
 const activeTabIndex = ref(0)

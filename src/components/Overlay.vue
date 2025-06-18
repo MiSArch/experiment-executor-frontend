@@ -33,9 +33,7 @@
 
 <script setup lang="ts">
 import {onMounted, ref, watch} from 'vue'
-import {testUuid, testVersion} from '../util/test-uuid.ts'
-import {showOverlay} from '../util/show-overlay.ts'
-import {backendUrl} from "../util/test-handler.ts";
+import {backendUrl, testUuid, testVersion, showOverlay} from '../util/global-state-handler.ts'
 
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 

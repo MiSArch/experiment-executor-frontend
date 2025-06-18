@@ -25,9 +25,7 @@
 <script setup lang="ts">
 import {ref, watch} from 'vue'
 import type {TestConfig} from "../model/test-config.ts";
-import {backendUrl, config} from "../util/test-handler.ts";
-import {testUuid, testVersion} from "../util/test-uuid.ts";
-import {showOverlay} from "../util/show-overlay.ts";
+import {showOverlay, testUuid, testVersion, backendUrl, config} from "../util/global-state-handler.ts";
 
 interface Line {
   dropdown: string;
