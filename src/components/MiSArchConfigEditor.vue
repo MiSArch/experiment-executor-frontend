@@ -3,13 +3,13 @@
     <div class="flex flex-row items-center justify-between p-2 bg-[#235f43] text-white shadow-md">
       <span class="text-xl font-bold">MiSArch Experiment Configuration</span>
       <button
-          class="  mr-4 px-4 py-2  bg-[#369a6e] rounded text-white cursor-pointer hover:bg-[#2d7a5a] focus:outline-none focus:ring-0 focus:border-transparent appearance-none border-0"
+          class="mr-4 px-4 py-2  bg-[#369a6e] rounded text-white cursor-pointer hover:bg-[#2d7a5a] focus:outline-none focus:ring-0 focus:border-transparent appearance-none border-0"
           @click="showMisarchEditor = !showMisarchEditor">{{ showMisarchEditor ? 'Simple View' : 'Editor View' }}
       </button>
     </div>
     <div ref="editorElement" v-show="showMisarchEditor"
          class="flex-grow overflow-hidden z-10 shadow-[ -2px_0_5px_rgba(0,0,0,0.1) ] bg-[#1e1e1e] text-left overflow-x-auto"></div>
-    <div v-show="!showMisarchEditor" class=" flex-grow flex-shrink h-full overflow-y-auto max-w-full">
+    <div v-show="!showMisarchEditor" class=" flex-grow flex-shrink h-full overflow-y-auto max-w-full ">
       <div class="flex flex-col gap-4 p-2">
         <div v-for="(config, configIndex) in misarchExperimentConfig" :key="configIndex" class="rounded p-4 shadow-md border-4 border-[#369a6e]">
           <div class="flex flex-row flex-nowrap justify-between min-w-0 w-full">
@@ -21,19 +21,21 @@
           <div v-for="(failure, failureIndex) in config.failures" :key="failureIndex" class="rounded p-3 mb-2 border-4 border-[#369a6e]">
             <div class="flex flex-row items-center justify-between">
               <span class="text-lg font-semibold text-white mt-1 mb-2 ">Failure {{ failureIndex + 1 }}</span>
-              <button class="bg-[#369a6e] text-white px-2 py-1 mb-2 rounded hover:bg-[#2d7a5a] text-xs ml-2"
-                      @click="minimizedFailures[getFailureKey(configIndex, failureIndex)] = !minimizedFailures[getFailureKey(configIndex, failureIndex)]">
-                {{ minimizedFailures[getFailureKey(configIndex, failureIndex)] ? '+' : '–' }}
-              </button>
+              <div>
+                <button class="bg-[#369a6e] text-white px-2 py-1 mb-2 rounded hover:bg-[#2d7a5a] text-xs ml-2"
+                        @click="minimizedFailures[getFailureKey(configIndex, failureIndex)] = !minimizedFailures[getFailureKey(configIndex, failureIndex)]">
+                  {{ minimizedFailures[getFailureKey(configIndex, failureIndex)] ? '+' : '–' }}
+                </button>
+                <button @click="removeFailure(configIndex, failureIndex)" class="bg-[#369a6e] text-white px-2 py-1 mb-2 rounded hover:bg-[#2d7a5a] text-xs ml-2">&times;</button>
+              </div>
             </div>
             <div v-show="!minimizedFailures[getFailureKey(configIndex, failureIndex)]">
               <div class="flex flex-col gap-2">
                 <input v-model="failure.name" class="p-2 rounded text-m bg-[#369a6e] border-0 focus:outline-none min-w-0" placeholder="Service name"/>
                 <label class="text-sm font-medium text-white">PubSub Deterioration</label>
                 <div class="flex flex-col gap-2 max-w-full w-full">
-                  <div v-show="failure.pubSubDeterioration !== null && failure.pubSubDeterioration !== undefined"
+                  <div v-if="failure.pubSubDeterioration !== null && failure.pubSubDeterioration !== undefined"
                        class="flex flex-row flex-nowrap justify-evenly gap-2 min-w-0 w-full">
-                    <!-- TODO this does not work yet with this v-models nothing loads-->
                     <input v-model="failure.pubSubDeterioration.delay" type="number"
                            class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0" placeholder="Delay in ms">
                     <input type="number" min="0.00" max="1.00" step="0.01"
@@ -108,9 +110,9 @@
                 <div class="flex flex-col gap-2 max-w-full w-full">
                   <div v-for="(cpuUsage, index) in failure.artificialCPUUsage" :key="index"
                        class="flex flex-row flex-nowrap items-center gap-2 w-full min-w-0">
-                    <input type="number" :value="cpuUsage.usageDuration ? JSON.stringify(cpuUsage.usageDuration, null, 2) : ''"
+                    <input type="number" v-model="cpuUsage.usageDuration"
                            class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0" placeholder="Usage Duration in ms">
-                    <input type="number" :value="cpuUsage.pauseDuration ? JSON.stringify(cpuUsage.pauseDuration, null, 2) : ''"
+                    <input type="number" v-model="cpuUsage.pauseDuration"
                            class="p-2 rounded bg-[#369a6e] border-0 focus:outline-none text-sm flex-1 min-w-0" placeholder="Pause-Duration in ms">
                     <button @click="removeCPUUsage(failure, index)"
                             class="bg-[#369a6e] text-white px-2 py-2 h-full rounded hover:bg-[#2d7a5a] text-xs">&times;
@@ -119,12 +121,6 @@
                   <button @click="addCPUUsage(failure)" class="bg-[#369a6e] text-white px-2 py-1 rounded hover:bg-[#2d7a5a] text-xs">Add Artificial
                     CPU
                     Usage
-                  </button>
-                </div>
-                <div class="flex flex-col gap-2">
-                  <button @click="removeFailure(configIndex, failureIndex)"
-                          class="bg-[#369a6e] text-white px-3 py-1 rounded hover:bg-[#2d7a5a] text-sm">
-                    Remove Failure
                   </button>
                 </div>
               </div>
@@ -158,17 +154,93 @@ let resizeObserver: ResizeObserver | null = null
 const minimizedFailures = ref<{ [key: string]: boolean }>({})
 const getFailureKey = (configIndex: number, failureIndex: number) => `${configIndex}-${failureIndex}`;
 
-async function handleJsonInput(event, key) {
-  console.log("hello")
-  if (!event || !event.target) return;
-
-  const value = event.target.value;
-  try {
-    failure[key] = value.trim() ? JSON.parse(value) : null;
-  } catch (e) {
-    // Optional: show error UI or console warning
-    console.warn(`Invalid JSON in ${key}:`, e);
+watch(showOverlay, async (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    await loadConfig()
+    await watcher()
   }
+})
+
+watch(showMisarchEditor, async () => {
+  await watcher()
+})
+
+async function watcher() {
+  if (showMisarchEditor.value && !editorInstance) {
+    await initEditor()
+  }
+}
+
+watch(misarchExperimentConfig, async (newValue) => {
+  if (!showMisarchEditor.value) {
+    if (editorInstance) {
+      editorInstance.setValue(JSON.stringify(newValue, null, 2))
+    }
+  }
+}, {deep: true})
+
+onBeforeUnmount(() => {
+  editorInstance?.dispose()
+  if (resizeObserver && editorElement.value) {
+    resizeObserver.unobserve(editorElement.value)
+    resizeObserver.disconnect()
+  }
+})
+
+const loadConfig = async () => {
+  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/misarchExperimentConfig`)
+  const text = await response.text()
+  misarchExperimentConfig.value = JSON.parse(text) as [MiSArchConfig]
+}
+
+function debounce(func: Function, wait: number) {
+  let timeout: number | undefined
+  return () => {
+    clearTimeout(timeout)
+    timeout = window.setTimeout(() => func(), wait)
+  }
+}
+
+async function initEditor() {
+  if (!editorElement.value) return;
+
+  if (editorInstance) {
+    editorInstance.setValue(JSON.stringify(misarchExperimentConfig.value, null, 2))
+    return
+  }
+
+  editorInstance = monaco.editor.create(editorElement.value, {
+    value: JSON.stringify(misarchExperimentConfig.value, null, 2),
+    language: 'json',
+    tabSize: 2,
+    insertSpaces: true,
+    theme: 'vs-dark',
+    detectIndentation: false,
+    automaticLayout: false,
+    formatOnType: true,
+    formatOnPaste: true,
+    glyphMargin: false,
+    lineDecorationsWidth: 0,
+    lineNumbersMinChars: 2,
+    wordWrap: 'on',
+    wordWrapColumn: 80,
+    wrappingIndent: 'same',
+  })
+
+  editorInstance.onDidChangeModelContent(() => {
+    if (showMisarchEditor.value) {
+      misarchExperimentConfig.value = JSON.parse(editorInstance?.getValue() || '') as [MiSArchConfig]
+    }
+  })
+
+  const debouncedLayout = debounce(() => {
+    editorInstance?.layout()
+  }, 10)
+
+  resizeObserver = new ResizeObserver(() => {
+    debouncedLayout()
+  })
+  resizeObserver.observe(editorElement.value)
 }
 
 function addServiceInvocationDeterioration(failure: any) {
@@ -265,87 +337,6 @@ function removeConfig(configIndex: number) {
   });
 }
 
-
-watch(showOverlay, async (newValue, oldValue) => {
-  if (newValue !== oldValue) {
-    await loadConfig()
-    await watcher()
-  }
-})
-
-watch(showMisarchEditor, async () => {
-  await watcher()
-})
-
-async function watcher() {
-  if (showMisarchEditor.value && !editorInstance) {
-    await initEditor()
-  } else if (!showMisarchEditor.value) {
-    // TODO init simple view
-  }
-}
-
-onBeforeUnmount(() => {
-  editorInstance?.dispose()
-  if (resizeObserver && editorElement.value) {
-    resizeObserver.unobserve(editorElement.value)
-    resizeObserver.disconnect()
-  }
-})
-
-const loadConfig = async () => {
-  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/misarchExperimentConfig`)
-  const text = await response.text()
-  misarchExperimentConfig.value = JSON.parse(text) as [MiSArchConfig]
-}
-
-function debounce(func: Function, wait: number) {
-  let timeout: number | undefined
-  return () => {
-    clearTimeout(timeout)
-    timeout = window.setTimeout(() => func(), wait)
-  }
-}
-
-async function initEditor() {
-  if (!editorElement.value) return;
-
-  if (editorInstance) {
-    editorInstance.setValue(JSON.stringify(misarchExperimentConfig.value, null, 2))
-    return
-  }
-
-  editorInstance = monaco.editor.create(editorElement.value, {
-    value: JSON.stringify(misarchExperimentConfig.value, null, 2),
-    language: 'json',
-    tabSize: 2,
-    insertSpaces: true,
-    theme: 'vs-dark',
-    detectIndentation: false,
-    automaticLayout: false,
-    formatOnType: true,
-    formatOnPaste: true,
-    glyphMargin: false,
-    lineDecorationsWidth: 0,
-    lineNumbersMinChars: 2,
-    wordWrap: 'on',
-    wordWrapColumn: 80,
-    wrappingIndent: 'same',
-  })
-
-  editorInstance.onDidChangeModelContent(() => {
-    misarchExperimentConfig.value = JSON.parse(editorInstance?.getValue() || '') as [MiSArchConfig]
-  })
-
-  const debouncedLayout = debounce(() => {
-    editorInstance?.layout()
-  }, 10)
-
-  resizeObserver = new ResizeObserver(() => {
-    debouncedLayout()
-  })
-  resizeObserver.observe(editorElement.value)
-}
 </script>
 
 <style/>
