@@ -6,7 +6,7 @@
     </div>
     <div class="flex flex-col gap-2 p-2 max-w-full overflow-y-scroll">
       <div v-for="(line, index) in lines" :key="index" class="flex flex-wrap items-center gap-2 w-full relative">
-        <select v-model="line.dropdown" class="flex-6 min-w-0 h-full text-sm p-2 rounded bg-[#369a6e] text-white appearance-none cursor-pointer hover:bg-[#42b883] focus:outline-none focus:ring focus:ring-[#369a6e]/50">
+        <select v-model="line.dropdown" class="flex-6 min-w-0 h-full text-sm p-2 rounded bg-[#369a6e] text-white appearance-none cursor-pointer hover:bg-[#2d7a5a] focus:outline-none focus:ring focus:ring-[#369a6e]/50">
           <option v-for="option in dropdownOptions" :key="option" :value="option">{{ option }}</option>
         </select>
 
@@ -16,7 +16,7 @@
         </div>
 
         <input type="number" v-model="line.value" class="flex-[1.5] min-w-0 h-10 p-2 rounded bg-[#369a6e] text-white focus:outline-none focus:ring focus:ring-[#369a6e] appearance-none"/>
-        <button @click="removeLine(index)" class="flex-1 min-w-0 px-2 py-1 bg-[#369a6e] text-white rounded hover:bg-[#42b883] h-full">&times;</button>
+        <button @click="removeLine(index)" class="flex-1 min-w-0 px-2 py-1 bg-[#369a6e] text-white rounded hover:bg-[#2d7a5a] h-full">&times;</button>
       </div>
     </div>
   </div>
