@@ -1,4 +1,4 @@
-export class TestConfig {
+export class ExperimentConfig {
   testUUID!: string;
   testVersion!: string;
   workLoad!: WorkLoad;

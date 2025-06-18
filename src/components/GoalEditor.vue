@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import {ref, watch} from 'vue'
-import type {TestConfig} from "../model/test-config.ts";
+import type {ExperimentConfig} from "../model/experiment-config.ts";
 import {showOverlay, testUuid, testVersion, backendUrl, config} from "../util/global-state-handler.ts";
 
 interface Line {
@@ -92,7 +92,7 @@ const fetchConfig = async () => {
       'Content-Type': 'application/json'
     }
   })
-  const data: TestConfig = await response.json()
+  const data: ExperimentConfig = await response.json()
   lines.value = data.goals.map(goal => ({
     dropdown: goal.metric,
     color: reverseColorMap[goal.color] || goal.color,

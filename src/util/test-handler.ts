@@ -47,7 +47,7 @@ export class TestHandler {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: misarchExperimentConfig.value
+      body: JSON.stringify(misarchExperimentConfig.value, null, 2)
     })
   }
 }
