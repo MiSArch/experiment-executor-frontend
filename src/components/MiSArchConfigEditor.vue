@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col md:min-w-1/3 h-full grow">
+  <div class="flex flex-col md:min-w-1/3 md:max-w-3/8 h-full grow">
     <div class="flex flex-row items-center justify-between p-2 bg-[#235f43] text-white shadow-md">
       <span class="text-xl font-bold">MiSArch Experiment Configuration</span>
       <button
@@ -21,128 +21,142 @@
         v-show="showMisarchEditor"
         class="flex-grow overflow-hidden z-10 shadow-[ -2px_0_5px_rgba(0,0,0,0.1) ] bg-[#1e1e1e] text-left overflow-x-auto"
     ></div>
-    <div v-show="!showMisarchEditor" class="overflow-y-scroll">
-      <div class="flex flex-col gap-4 p-4 max-w-full">
+    <div v-show="!showMisarchEditor" class="overflow-y-scroll flex flex-col gap-4 p-4 max-w-full">
+      <div
+          v-for="(config, configIndex) in misarchExperimentConfig"
+          :key="configIndex"
+          class="border rounded p-4 shadow-md"
+      >
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">Failure Set {{ configIndex + 1 }}</h3>
+
         <div
-            v-for="(config, configIndex) in misarchExperimentConfig"
-            :key="configIndex"
-            class="border rounded p-4 shadow-md"
+            v-for="(failure, failureIndex) in config.failures"
+            :key="failureIndex"
+            class="border rounded p-3 mb-2"
         >
-          <h3 class="text-lg font-semibold text-gray-700 mb-2">Failure Set {{ configIndex + 1 }}</h3>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-gray-600">Service Name</label>
+            <input
+                v-model="failure.name"
+                class="p-2 rounded border text-sm"
+                placeholder="Service name (e.g., catalog)"
+            />
 
-          <div
-              v-for="(failure, failureIndex) in config.failures"
-              :key="failureIndex"
-              class="border rounded p-3 mb-2"
-          >
-            <div class="flex flex-col gap-2">
-              <label class="text-sm font-medium text-gray-600">Service Name</label>
+            <label class="text-sm font-medium text-gray-600">PubSub Deterioration</label>
+            <div>
               <input
-                  v-model="failure.name"
+                  type="number"
+                  :value="failure.pubSubDeterioration?.delay ? JSON.stringify(failure.pubSubDeterioration.delay, null, 2) : ''"
                   class="p-2 rounded border text-sm"
-                  placeholder="Failure name (e.g., catalog)"
-              />
-
-              <label class="text-sm font-medium text-gray-600">PubSub Deterioration</label>
-              <div>
-                  <textarea
-                      :value="failure.pubSubDeterioration?.delay ? JSON.stringify(failure.pubSubDeterioration.delay, null, 2) : ''"
-                      class="p-2 rounded border text-sm"
-                      placeholder="Delay in ms"
-                      @input="handleJsonInput($event, failure, 'pubSubDeterioration')"
-                  ></textarea>
-                <textarea
-                    :value="failure.pubSubDeterioration?.delayProbability ? JSON.stringify(failure.pubSubDeterioration.delayProbability, null, 2) : ''"
-                    class="p-2 rounded border text-sm"
-                    placeholder="Delay probability (0-1)"
-                    @input="handleJsonInput($event, failure, 'pubSubDeterioration')"
-                ></textarea>
-                <textarea
-                    :value="failure.pubSubDeterioration?.errorProbability ? JSON.stringify(failure.pubSubDeterioration.errorProbability, null, 2) : ''"
-                    class="p-2 rounded border text-sm"
-                    placeholder="Error probability (0-1)"
-                    @input="handleJsonInput($event, failure, 'pubSubDeterioration')"
-                ></textarea>
-              </div>
-
-              <label class="text-sm font-medium text-gray-600">Service Invocation Deterioration</label>
-              <div v-for="(deterioration, index) in failure.serviceInvocationDeterioration" :key="index" class="mb-2">
-                <textarea
-                    v-model="deterioration.path"
-                    class="p-2 rounded border text-sm"
-                    placeholder="HTTP path to fail"
-                    @input="handleJsonInput($event, deterioration, 'path')"
-                ></textarea>
-                <textarea
-                    v-model="deterioration.delay"
-                    class="p-2 rounded border text-sm"
-                    placeholder="Delay in ms"
-                    @input="handleJsonInput($event, deterioration, 'delay')"
-                ></textarea>
-                <textarea
-                    v-model="deterioration.delayProbability"
-                    class="p-2 rounded border text-sm"
-                    placeholder="Delay probability (0-1)"
-                    @input="handleJsonInput($event, deterioration, 'delayProbability')"
-                ></textarea>
-                <textarea
-                    v-model="deterioration.errorProbability"
-                    class="p-2 rounded border text-sm"
-                    placeholder="Error probability (0-1)"
-                    @input="handleJsonInput($event, deterioration, 'errorProbability')"
-                ></textarea>
-                <textarea
-                    v-model="deterioration.errorCode"
-                    class="p-2 rounded border text-sm"
-                    placeholder="Error Code (e.g., 500)"
-                    @input="handleJsonInput($event, deterioration, 'errorCode')"
-                ></textarea>
-              </div>
-
-              <label class="text-sm font-medium text-gray-600">Artificial Memory Usage</label>
-              <textarea
-                  v-model="failure.artificialMemoryUsage"
+                  placeholder="Delay in ms"
+                  @input="handleJsonInput($event, failure, 'pubSubDeterioration')"
+              >
+              <input
+                  type="number" min="0.00" max="1.00" step="0.01"
+                  :value="failure.pubSubDeterioration?.delayProbability ? JSON.stringify(failure.pubSubDeterioration.delayProbability, null, 2) : ''"
                   class="p-2 rounded border text-sm"
-                  placeholder="Memory Usage in bites (e.g., 1000000000 for 1GB)"
-              ></textarea>
+                  placeholder="Delay probability (0-1)"
+                  @input="handleJsonInput($event, failure, 'pubSubDeterioration')"
+              >
+              <input
+                  type="number" min="0.00" max="1.00" step="0.01"
+                  :value="failure.pubSubDeterioration?.errorProbability ? JSON.stringify(failure.pubSubDeterioration.errorProbability, null, 2) : ''"
+                  class="p-2 rounded border text-sm"
+                  placeholder="Error probability (0-1)"
+                  @input="handleJsonInput($event, failure, 'pubSubDeterioration')"
+              >
+            </div>
 
-              <label class="text-sm font-medium text-gray-600">Artificial CPU Usage</label>
+            <label class="text-sm font-medium text-gray-600">Service Invocation Deterioration</label>
+            <div class="flex flex-col gap-2 max-w-full w-full">
+              <div v-show="failure.serviceInvocationDeterioration?.length ? failure.serviceInvocationDeterioration.length : 0 > 0"
+                   class="flex flex-row flex-nowrap justify-evenly gap-2 min-w-0">
+                <label class="text-xs font-medium text-[#369a6e] min-w-0">HTTP Path to Fail</label>
+                <label class="text-xs font-medium text-[#369a6e] min-w-0">Delay in ms</label>
+                <label class="text-xs font-medium text-[#369a6e] min-w-0">Delay Probability</label>
+                <label class="text-xs font-medium text-[#369a6e] min-w-0">Error Probability</label>
+                <label class="text-xs font-medium text-[#369a6e] min-w-0">HTTP Error Code</label>
+              </div>
+              <div v-for="(deterioration, index) in failure.serviceInvocationDeterioration" :key="index"
+                   class="flex flex-row flex-nowrap items-center gap-2 w-full min-w-0">
+                <input v-model="deterioration.path" class="p-2 rounded border text-sm flex-1 min-w-0" placeholder="/*"/>
+                <input type="number" v-model="deterioration.delay" class="p-2 rounded border text-sm flex-1 min-w-0" placeholder=""/>
+                <input type="number" min="0.00" max="1.00" step="0.01" v-model="deterioration.delayProbability"
+                       class="p-2 rounded border text-sm flex-1 min-w-0"
+                       placeholder="0.05"/>
+                <input type="number" min="0.00" max="1.00" step="0.01" v-model="deterioration.errorProbability" class="p-2 rounded border text-sm flex-1 min-w-0"
+                       placeholder="0.05"/>
+                <input type="number" v-model="deterioration.errorCode" class="p-2 rounded border text-sm flex-1 min-w-0"
+                       placeholder="500"/>
+                <button @click="removeServiceInvocationDeterioration(failure, index)"
+                        class="bg-red-500 text-white px-2 py-2 h-full rounded hover:bg-red-600 text-xs">&times;
+                </button>
+              </div>
+              <button
+                  @click="addServiceInvocationDeterioration(failure)"
+                  class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 text-xs"
+              >Add Service Invocation Deterioration
+              </button>
+            </div>
+
+            <label class="text-sm font-medium text-gray-600">Artificial Memory Usage</label>
+            <input
+                type="number"
+                v-model="failure.artificialMemoryUsage"
+                class="p-2 rounded border text-sm"
+                placeholder="Memory Usage in bites (e.g., 1000000000 for 1GB)"
+            >
+
+            <label class="text-sm font-medium text-gray-600">Artificial CPU Usage</label>
+            <div>
               <div v-for="(cpuUsage, index) in failure.artificialCPUUsage" :key="index" class="mb-2">
-                <textarea
+                <input
+                    type="number"
                     :value="cpuUsage.usageDuration ? JSON.stringify(cpuUsage.usageDuration, null, 2) : ''"
                     class="p-2 rounded border text-sm"
                     placeholder="Usage Duration in ms"
-                ></textarea>
-                <textarea
+                >
+                <input
+                    type="number"
                     :value="cpuUsage.pauseDuration ? JSON.stringify(cpuUsage.pauseDuration, null, 2) : ''"
                     class="p-2 rounded border text-sm"
                     placeholder="Pause-Duration in ms"
-                ></textarea>
+                >
+                <button
+                    @click="removeCPUUsage(failure, index)"
+                    class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 text-xs"
+                >&times;
+                </button>
               </div>
-
               <button
-                  @click="removeFailure(configIndex, failureIndex)"
-                  class="mt-2 self-start bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
-              >
-                Remove Failure
+                  @click="addCPUUsage(failure)"
+                  class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 text-xs"
+              >Add CPU Usage
               </button>
             </div>
+
+            <button
+                @click="removeFailure(configIndex, failureIndex)"
+                class="mt-2 self-start bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+            >
+              Remove Failure
+            </button>
           </div>
-
-          <button
-              @click="addFailure(configIndex)"
-              class="mb-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm"
-          >
-            Add Failure
-          </button>
-
-          <label class="text-sm font-medium text-gray-600">Pause (ms)</label>
-          <input
-              v-model="config.pause"
-              class="p-2 rounded border text-sm"
-              placeholder="Pause duration in ms"
-          />
         </div>
+
+        <button
+            @click="addFailure(configIndex)"
+            class="mb-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm"
+        >
+          Add Failure
+        </button>
+
+        <label class="text-sm font-medium text-gray-600">Pause (ms)</label>
+        <input
+            v-model="config.pause"
+            class="p-2 rounded border text-sm"
+            placeholder="Pause duration in ms"
+        />
       </div>
     </div>
   </div>
@@ -173,8 +187,35 @@ async function handleJsonInput(event, failure, key) {
   }
 }
 
-async function stringify(input: any) {
-  return JSON.stringify(input, null, 2);
+function addServiceInvocationDeterioration(failure: any) {
+  if (!failure.serviceInvocationDeterioration) failure.serviceInvocationDeterioration = [];
+  failure.serviceInvocationDeterioration.push({
+    path: '',
+    delay: '',
+    delayProbability: '',
+    errorProbability: '',
+    errorCode: ''
+  });
+}
+
+function removeServiceInvocationDeterioration(failure: any, index: number) {
+  if (failure.serviceInvocationDeterioration) {
+    failure.serviceInvocationDeterioration.splice(index, 1);
+  }
+}
+
+function addCPUUsage(failure: any) {
+  if (!failure.artificialCPUUsage) failure.artificialCPUUsage = [];
+  failure.artificialCPUUsage.push({
+    usageDuration: '',
+    pauseDuration: ''
+  });
+}
+
+function removeCPUUsage(failure: any, index: number) {
+  if (failure.artificialCPUUsage) {
+    failure.artificialCPUUsage.splice(index, 1);
+  }
 }
 
 

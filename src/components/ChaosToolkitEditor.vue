@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col md:min-w-1/3 h-full grow">
+  <div class="flex flex-col md:min-w-1/3 md:max-w-3/8 h-full grow">
     <div class="flex flex-row items-center justify-between p-2 bg-[#235f43] text-white shadow-md">
       <span class="text-xl font-bold">ChaosToolkit Configuration</span>
       <button
