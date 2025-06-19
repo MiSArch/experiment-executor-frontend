@@ -21,12 +21,15 @@
     <input v-model="probeOrAction.name" class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
            placeholder="Name of the Probe">
     <label v-if="isSteadyState" class="text-sm font-medium text-white">Tolerance</label>
-    <textarea v-if="isSteadyState" v-model="probeOrAction.tolerance"
-              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-              placeholder="Tolerance of the Probe"></textarea>
+    <textarea v-if="isSteadyState"
+              ref="toleranceTextarea"
+              v-model="toleranceInput"
+              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
+              placeholder="Tolerance (JSON)"></textarea>
     <ChaosToolkitConfiguratorProvider :probeOrAction="probeOrAction"></ChaosToolkitConfiguratorProvider>
-    <label v-if="!isSteadyState" class="text-sm font-medium text-white">Pauses</label>
-    <div v-if="!isSteadyState && probeOrAction.pauses !== null && probeOrAction.pauses !== undefined"
+    <!-- TODO fix pauses are still there on probes-->
+    <label v-if="!isSteadyState && probeOrAction.type === 'action'" class="text-sm font-medium text-white">Pauses</label>
+    <div v-if="!isSteadyState && probeOrAction.type === 'action' && probeOrAction.pauses !== null && probeOrAction.pauses !== undefined"
          class="flex flex-row gap-2 w-full justify-between items-center">
       <input v-model.number="probeOrAction.pauses.before" type="number"
              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
@@ -39,12 +42,53 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+import {useTextareaAutosize} from "@vueuse/core";
+
+const props = defineProps<{
   probeOrAction: any,
   probeOrActionIndex: number,
   totalProbesOrActions: Array<Probe | Action>
   isSteadyState: boolean
 }>()
 import ChaosToolkitConfiguratorProvider from "./ChaosToolkitConfiguratorProvider.vue";
-import {Action, METHOD_OPTIONS, Probe} from "../model/chaostoolkit-config.ts";
+import {Action, METHOD_OPTIONS, Probe,} from "../model/chaostoolkit-config.ts";
+import {ref, watch} from "vue";
+import {showChaostoolkitEditor} from "../util/global-state-handler.ts";
+
+const toleranceInput = ref<string>('');
+const toleranceTextarea = ref<HTMLTextAreaElement | null>(null);
+const initialized = ref(false);
+
+useTextareaAutosize({element: toleranceTextarea, input: toleranceInput})
+
+watch(toleranceInput, async (newValue, oldValue) => {
+  if (newValue === oldValue || showChaostoolkitEditor.value) return
+  try {
+    props.probeOrAction.tolerance = JSON.parse(newValue);
+  } catch (e) {
+  }
+}, {deep: true, immediate: true});
+
+watch(() => props.probeOrAction, async (newValue, oldValue) => {
+  if (initialized.value === false) {
+    initialized.value = true;
+    console.log(newValue)
+    await parseJsonToModels(newValue)
+  }
+
+  if (newValue === oldValue || !showChaostoolkitEditor.value) return
+  await parseJsonToModels(newValue)
+}, {deep: true, immediate: true});
+
+
+async function parseJsonToModels(probeOrAction: Probe | Action) {
+  if (probeOrAction.type === "probe" && probeOrAction.tolerance !== undefined) {
+    try {
+      toleranceInput.value = JSON.stringify(probeOrAction.tolerance, null, 2)
+    } catch (e) {
+    }
+  } else {
+    toleranceInput.value = '';
+  }
+}
 </script>

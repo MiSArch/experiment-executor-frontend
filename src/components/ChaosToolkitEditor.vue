@@ -21,12 +21,12 @@
                class="flex flex-col gap-2 w-full">
             <div class="flex flex-row items-center justify-between">
               <h3 class="text-lg font-semibold text-white">Steady State Hypothesis</h3>
-              <button @click="chaostoolkitConfig['steady-state-hypothesis'] = null"
+              <button @click="chaostoolkitConfig['steady-state-hypothesis'] = undefined"
                       class="bg-[#444] text-white p-2 h-full rounded hover:bg-red-900 text-xs">&times;
               </button>
             </div>
             <input v-model="chaostoolkitConfig['steady-state-hypothesis'].title"
-                   class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
+                   class="p-2 mt-2 mb-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
                    placeholder="Name of the Steady State Hypothesis">
             <div v-for="(probeOrAction, probeOrActionIndex) in chaostoolkitConfig['steady-state-hypothesis'].probes" :key="probeOrActionIndex"
                  class="flex flex-col gap-2 w-full">

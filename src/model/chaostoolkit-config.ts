@@ -25,7 +25,6 @@ export class Probe {
   name!: string;
   provider!: Provider;
   tolerance?: Tolerance;
-  pauses?: Pause;
   configuration?: string[];
   background?: boolean;
   controls?: Control[];

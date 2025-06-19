@@ -8,20 +8,23 @@
       }}
     </option>
   </select>
-  <label class="text-sm font-medium text-white">Provider Details</label>
 
   <!-- Python Provider -->
   <div v-if="probeOrAction.provider.type === 'python'" class="flex flex-col gap-2">
+    <label class="text-sm font-medium text-white">Python Module</label>
     <input v-model="probeOrAction.provider.module"
            class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-           placeholder="Python Module">
+           placeholder="Module Name">
+    <label class="text-sm font-medium text-white">Python Function</label>
     <input v-model="probeOrAction.provider.func"
            class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
            placeholder="Function Name">
+    <label class="text-sm font-medium text-white">Python Function Arguments</label>
     <textarea ref="argumentsTextarea"
               v-model="argumentsInput"
               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
               placeholder="Arguments (JSON)"></textarea>
+    <label class="text-sm font-medium text-white">ChaosToolkit Secrets</label>
     <textarea ref="secretsTextarea"
               v-model="secretsInput"
               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
@@ -30,14 +33,15 @@
 
   <!-- HTTP Provider -->
   <div v-else-if="probeOrAction.provider.type === 'http'" class="flex flex-col gap-2">
+    <label class="text-sm font-medium text-white">HTTP URL</label>
     <input v-model="probeOrAction.provider.url"
            class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-           placeholder="HTTP URL">
+           placeholder="https://example.com">
+    <label class="text-sm font-medium text-white">HTTP Method</label>
     <input v-model="probeOrAction.provider.method"
            class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-           placeholder="HTTP Method">
-
-    <label class="text-sm font-medium text-white">Headers</label>
+           placeholder="POST">
+    <label class="text-sm font-medium text-white">HTTP Headers</label>
     <div class="flex flex-col gap-2 max-w-full w-full">
       <div v-for="(header, index) in headersRef" class="flex flex-row gap-2 w-full">
         <input v-model="header.key"
@@ -54,16 +58,20 @@
       </button>
 
     </div>
+    <label class="text-sm font-medium text-white">Expected HTTP Status Code</label>
     <input v-model="probeOrAction.provider.expected_status"
            class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-           placeholder="Expected Status Code">
+           placeholder="404">
+    <label class="text-sm font-medium text-white">Timeout (s)</label>
     <input v-model="probeOrAction.provider.timeout"
            class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-           placeholder="Timeout (seconds)">
+           placeholder="30">
+    <label class="text-sm font-medium text-white">Request Args / Body</label>
     <textarea ref="argumentsTextarea"
               v-model="argumentsInput"
               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
               placeholder="Arguments (JSON)"></textarea>
+    <label class="text-sm font-medium text-white">ChaosToolkit Secrets</label>
     <textarea ref="secretsTextarea"
               v-model="secretsInput"
               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
@@ -72,17 +80,21 @@
 
   <!-- Process Provider -->
   <div v-else-if="probeOrAction.provider.type === 'process'" class="flex flex-col gap-2">
+    <label class="text-sm font-medium text-white">Process Path</label>
     <input v-model="probeOrAction.provider.path"
            class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-           placeholder="Fully Qualified Path">
+           placeholder="/bin/bash">
+    <label class="text-sm font-medium text-white">Timeout (s)</label>
     <input v-model="probeOrAction.provider.timeout"
            type="number"
            class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-           placeholder="Timeout (seconds)">
+           placeholder="30">
+    <label class="text-sm font-medium text-white">Process Arguments</label>
     <textarea ref="argumentsTextarea"
               v-model="argumentsInput"
               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
-              placeholder="Arguments (JSON)"></textarea>
+              placeholder="Arguments List (JSON)"></textarea>
+    <label class="text-sm font-medium text-white">ChaosToolkit Secrets</label>
     <textarea ref="secretsTextarea"
               v-model="secretsInput"
               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
@@ -92,7 +104,7 @@
 
 <script setup lang="ts">
 import {HttpProvider, type Provider, PROVIDER_OPTIONS} from "../model/chaostoolkit-config.ts";
-import {onMounted, ref, watch, watchEffect} from "vue";
+import {ref, watch} from "vue";
 import {showChaostoolkitEditor} from "../util/global-state-handler.ts";
 
 import {useTextareaAutosize} from "@vueuse/core";
