@@ -66,7 +66,7 @@ export class HttpProvider {
   type: 'http' = 'http';
   url!: string;
   method?: string;
-  headers?: {key: string, value: string}[];
+  headers?: Record<string, string>;
   expected_status?: number;
   arguments?: Record<string, any>;
   timeout?: number;

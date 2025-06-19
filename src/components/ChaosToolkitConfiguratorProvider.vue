@@ -18,15 +18,14 @@
     <input v-model="probeOrAction.provider.func"
            class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
            placeholder="Function Name">
-    <!-- Optional: arguments and secrets as JSON -->
     <textarea ref="argumentsTextarea"
-              v-model="argumentsJson"
-              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 grow shrink overflow-hidden"
+              v-model="argumentsInput"
+              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
               placeholder="Arguments (JSON)"></textarea>
-    <textarea v-model="secretsJson"
-              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 grow shrink overflow-hidden"
-              placeholder="Secrets (JSON)"
-              rows="3"></textarea>
+    <textarea ref="secretsTextarea"
+              v-model="secretsInput"
+              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
+              placeholder="Secrets (JSON)"></textarea>
   </div>
 
   <!-- HTTP Provider -->
@@ -37,60 +36,66 @@
     <input v-model="probeOrAction.provider.method"
            class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
            placeholder="HTTP Method">
-    <div class="flex flex-row gap-2 w-full justify-between items-center">
-      <button @click="addHeader(probeOrAction.provider)" class="bg-[#444] text-white p-2 h-full rounded hover:bg-[#369a6e] text-xs">Add Header
+
+    <label class="text-sm font-medium text-white">Headers</label>
+    <div class="flex flex-col gap-2 max-w-full w-full">
+      <div v-for="(header, index) in headersRef" class="flex flex-row gap-2 w-full">
+        <input v-model="header.key"
+               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
+               placeholder="Header Key">
+        <input v-model="header.value"
+               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
+               placeholder="Header Value">
+        <button @click="headersRef.splice(index, 1)"
+                class="bg-[#444] text-white p-2 h-full rounded hover:bg-red-900 text-xs">&times;
+        </button>
+      </div>
+      <button @click="headersRef.push({key: '', value: ''})" class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+
       </button>
-    </div>
-    <!-- TODO FINALIZE HEADERS -->
-    <div v-for="(header, index) in probeOrAction.provider.headers" class="flex flex-row gap-2 w-full">
-      <input v-model="header.key"
-             class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-             placeholder="Header Key">
-      <input v-model="header.value"
-             class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-             placeholder="Header Value">
-      <button v-if="probeOrAction.provider.headers !== undefined"
-              @click="probeOrAction.provider.headers.splice(index, 1)"
-              class="bg-[#444] text-white p-2 h-full rounded hover:bg-red-900 text-xs">&times;
-      </button>
+
     </div>
     <input v-model="probeOrAction.provider.expected_status"
            class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
            placeholder="Expected Status Code">
-    <textarea v-model="argumentsJson"
-              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 grow shrink overflow-hidden"
-              placeholder="Arguments (JSON)"></textarea>
-    <textarea v-model="secretsJson"
-              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 grow shrink overflow-hidden"
-              placeholder="Secrets (JSON)"></textarea>
     <input v-model="probeOrAction.provider.timeout"
            class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
            placeholder="Timeout (seconds)">
+    <textarea ref="argumentsTextarea"
+              v-model="argumentsInput"
+              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
+              placeholder="Arguments (JSON)"></textarea>
+    <textarea ref="secretsTextarea"
+              v-model="secretsInput"
+              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
+              placeholder="Secrets (JSON)"></textarea>
   </div>
 
   <!-- Process Provider -->
   <div v-else-if="probeOrAction.provider.type === 'process'" class="flex flex-col gap-2">
     <input v-model="probeOrAction.provider.path"
            class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-           placeholder="HTTP URL">
+           placeholder="Fully Qualified Path">
     <input v-model="probeOrAction.provider.timeout"
            type="number"
            class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
            placeholder="Timeout (seconds)">
     <textarea ref="argumentsTextarea"
-              v-model="argumentsJson"
-              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 grow shrink overflow-hidden"
+              v-model="argumentsInput"
+              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
               placeholder="Arguments (JSON)"></textarea>
-    <textarea v-model="secretsJson"
-              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 grow shrink overflow-hidden"
-              placeholder="Secrets (JSON)"
-              rows="3"></textarea>
+    <textarea ref="secretsTextarea"
+              v-model="secretsInput"
+              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
+              placeholder="Secrets (JSON)"></textarea>
   </div>
 </template>
 
 <script setup lang="ts">
-import {type Provider, HttpProvider, PROVIDER_OPTIONS} from "../model/chaostoolkit-config.ts";
-import {computed} from "vue";
+import {HttpProvider, type Provider, PROVIDER_OPTIONS} from "../model/chaostoolkit-config.ts";
+import {onMounted, ref, watch, watchEffect} from "vue";
+import {showChaostoolkitEditor} from "../util/global-state-handler.ts";
+
+import {useTextareaAutosize} from "@vueuse/core";
 
 const props = defineProps<{
   probeOrAction: {
@@ -98,52 +103,99 @@ const props = defineProps<{
   }
 }>()
 
+const headersRef = ref<{ key: string, value: string }[]>([]);
+const argumentsTextarea = ref<HTMLTextAreaElement | null>(null);
+const argumentsInput = ref<string>('');
+const secretsTextarea = ref<HTMLTextAreaElement | null>(null);
+const secretsInput = ref<string>('');
 
-function addHeader(provider: HttpProvider) {
-  if (provider.headers === undefined) {
-    provider.headers = [{key: '', value: ''}]
-  } else {
-    provider.headers.push({key: '', value: ''})
-  }
-  console.log(provider.headers)
-}
+const initialized = ref(false);
 
-function safeStringify(obj: any) {
+useTextareaAutosize({element: argumentsTextarea, input: argumentsInput})
+useTextareaAutosize({element: secretsTextarea, input: secretsInput})
+
+watch(headersRef, async () => {
+  if (props.probeOrAction.provider.type !== "http" || showChaostoolkitEditor.value) return
   try {
-    return obj ? JSON.stringify(obj, null, 2) : ''
-  } catch {
-    return ''
+    props.probeOrAction.provider.headers = mapHeadersArrayToObject(headersRef.value);
+  } catch (e) {
+  }
+}, {deep: true, immediate: true});
+
+watch(argumentsInput, async (newValue, oldValue) => {
+  if (newValue === oldValue || showChaostoolkitEditor.value) return
+  try {
+    props.probeOrAction.provider.arguments = JSON.parse(newValue);
+  } catch (e) {
+  }
+}, {deep: true, immediate: true});
+
+watch(secretsInput, async (newValue, oldValue) => {
+  if (newValue === oldValue || showChaostoolkitEditor.value) return
+  try {
+    props.probeOrAction.provider.secrets = JSON.parse(newValue);
+  } catch (e) {
+  }
+}, {deep: true, immediate: true});
+
+watch(() => props.probeOrAction, async (newValue, oldValue) => {
+  if (initialized.value === false) {
+    initialized.value = true;
+    await parseJsonToModels(newValue.provider)
+  }
+
+  if (newValue === oldValue || !showChaostoolkitEditor.value) return
+  await parseJsonToModels(newValue.provider)
+}, {deep: true, immediate: true});
+
+async function parseJsonToModels(provider: Provider) {
+  // headers
+  if (provider.type === "http") {
+    let httpProvider = provider as HttpProvider;
+    if (!httpProvider.headers || typeof httpProvider.headers !== 'object') {
+      httpProvider.headers = {};
+    }
+    try {
+      headersRef.value = Object.entries(httpProvider.headers || {}).map(([key, value]) => ({key, value}));
+    } catch (e) {
+    }
+  }
+
+  // arguments
+  if (provider.arguments && typeof provider.arguments === 'object') {
+    try {
+      argumentsInput.value = JSON.stringify(provider.arguments, null, 2)
+    } catch (e) {
+    }
+  } else {
+    argumentsInput.value = '';
+  }
+
+  // secrets
+  if (provider.secrets && typeof provider.secrets === 'object') {
+    try {
+      secretsInput.value = JSON.stringify(provider.secrets, null, 2)
+    } catch (e) {
+    }
+  } else {
+    secretsInput.value = '';
   }
 }
 
-const argumentsJson = computed({
-  get() {
-    return safeStringify(props.probeOrAction.provider.arguments)
-  },
-  set(val: string) {
-    try {
-      props.probeOrAction.provider.arguments = val ? JSON.parse(val) : undefined
-    } catch {
-      // Optionally handle parse error
-    }
-  }
-})
-
-const secretsJson = computed({
-  get() {
-    return safeStringify(props.probeOrAction.provider.secrets)
-  },
-  set(val: string) {
-    try {
-      props.probeOrAction.provider.secrets = val ? JSON.parse(val) : undefined
-    } catch {
-      // Optionally handle parse error
-    }
-  }
-})
+function mapHeadersArrayToObject(headers: { key: string, value: string }[] | undefined) {
+  if (!headers) return undefined;
+  return headers.reduce((acc, {key, value}) => {
+    if (key) acc[key] = value;
+    return acc;
+  }, {} as Record<string, string>);
+}
 
 // This nasty function helps to really reset the provider object when changing types
 function onProviderTypeChange(provider: Provider) {
+  headersRef.value = []
+  argumentsInput.value = ''
+  secretsInput.value = ''
+
   if (provider.type === 'python') {
     Object.assign(provider, {
       type: 'python',
