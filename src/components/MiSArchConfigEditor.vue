@@ -53,7 +53,7 @@
                   </div>
                   <button v-show="failure.pubSubDeterioration === undefined || failure.pubSubDeterioration === null"
                           @click="addPubSubDeterioration(failure)"
-                          class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">Add PubSub Deterioration
+                          class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+
                   </button>
                 </div>
 
@@ -87,8 +87,8 @@
                             class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs">&times;
                     </button>
                   </div>
-                  <button @click="addServiceInvocationDeterioration(failure)"
-                          class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">Add Service Invocation Deterioration
+                  <button @click="addServiceInvocationDeterioration(failure)" class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">
+                    +
                   </button>
                 </div>
 
@@ -105,8 +105,7 @@
                   </div>
                   <button
                       v-show="failure.artificialMemoryUsage === undefined || failure.artificialMemoryUsage === null"
-                      @click="addMemoryUsage(failure)" class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">Add Artificial
-                    Memory Usage
+                      @click="addMemoryUsage(failure)" class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+
                   </button>
                 </div>
                 <label class="text-sm font-medium text-white">Artificial CPU Usage</label>
@@ -121,10 +120,7 @@
                             class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs">&times;
                     </button>
                   </div>
-                  <button @click="addCPUUsage(failure)" class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">Add Artificial
-                    CPU
-                    Usage
-                  </button>
+                  <button @click="addCPUUsage(failure)" class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+</button>
                 </div>
               </div>
             </div>
