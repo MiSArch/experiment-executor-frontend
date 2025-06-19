@@ -46,7 +46,7 @@ export const METHOD_OPTIONS = [
   { label: 'Probe', value: 'probe' },
 ];
 
-type Provider = PythonProvider | ProcessProvider | HttpProvider;
+export type Provider = PythonProvider | ProcessProvider | HttpProvider;
 
 export const PROVIDER_OPTIONS = [
   { label: 'Python', value: 'python' },
@@ -62,11 +62,11 @@ class PythonProvider {
   secrets?: Record<string, Record<string, any>>;
 }
 
-class HttpProvider {
+export class HttpProvider {
   type: 'http' = 'http';
   url!: string;
   method?: string;
-  headers?: Record<string, string>;
+  headers?: {key: string, value: string}[];
   expected_status?: number;
   arguments?: Record<string, any>;
   timeout?: number;

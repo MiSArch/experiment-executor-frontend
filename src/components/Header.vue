@@ -1,5 +1,5 @@
 <template>
-  <div class="sticky top-0 left-0 right-0 z-[1000] bg-[#42b883] text-white flex items-center px-4 py-3">
+  <div class="sticky top-0 left-0 right-0 z-[1000] bg-[#1a4a34] text-white flex items-center px-4 py-3">
     <span class="mr-4 text-lg font-bold">MISARCH EXPERIMENT TOOL</span>
     <span v-if="testUuid" class="mr-4 text-lg font-bold">Test UUID: {{ testUuid }}</span>
     <span v-if="testVersion" class="mr-4 text-lg font-bold">Test Version: {{ testVersion }}</span>

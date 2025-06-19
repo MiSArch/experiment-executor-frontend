@@ -109,7 +109,6 @@ const loadConfig = async () => {
   const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/chaosToolkitConfig`)
   const text = await response.text()
   chaostoolkitConfig.value = JSON.parse(text) as ChaostoolkitConfig
-  console.log(chaostoolkitConfig.value)
 }
 
 function debounce(func: Function, wait: number) {
