@@ -2,6 +2,7 @@ import {ref} from "vue";
 import {ExperimentConfig} from "../model/experiment-config.ts";
 import {KotlinScenarioModel} from "../model/gatling-work.ts";
 import {MiSArchConfig} from "../model/misarch-config.ts";
+import {ChaostoolkitConfig} from "../model/chaostoolkit-config.ts";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -16,6 +17,6 @@ export const config = ref<ExperimentConfig>(new ExperimentConfig());
 
 export const misarchExperimentConfig = ref<MiSArchConfig[]>([new MiSArchConfig()])
 
-export const gatlingConfigs = ref<{ fileName: string; workFileContent: string; workModel: KotlinScenarioModel, userSteps: number[] }[]>([])
+export const chaostoolkitConfig = ref<ChaostoolkitConfig>(new ChaostoolkitConfig())
 
-export const chaostoolkitConfig = ref('')
+export const gatlingConfigs = ref<{ fileName: string; workFileContent: string; workModel: KotlinScenarioModel, userSteps: number[] }[]>([])

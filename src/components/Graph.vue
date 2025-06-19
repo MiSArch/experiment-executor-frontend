@@ -15,8 +15,7 @@
       <div class="flex flex-col gap-4 items-center pt-12 max-w-2xl mx-auto min-width-xl">
         <div class="flex flex-row gap-4 w-full items-center">
           <select v-model="currentlyEditing"
-                  class="p-2 rounded-md border-[#444] border-1 text-white text-sm appearance-none cursor-pointer focus:outline-none grow font-bold"
-                  style="user-select: none;">
+                  class="p-2 rounded-md border-[#444] border-1 text-white text-sm appearance-none cursor-pointer focus:outline-none hover:bg-[#333] grow font-bold">
             <option v-for="(config, idx) in gatlingConfigs" :key="config.fileName" :value="idx" style="text-align: center;">{{
                 config.fileName
               }}

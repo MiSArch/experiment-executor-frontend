@@ -7,12 +7,12 @@
       <h3 class="text-xl font-semibold mb-4">Use Existing Or Create New Experiment</h3>
 
       <select v-model="uuidInputValue" @change="fetchVersions"
-              class="w-full my-2 p-2 rounded bg-[#369a6e] text-white text-sm appearance-none cursor-pointer hover:bg-[#42b883] focus:outline-none focus:ring focus:ring-[#369a6e]/50">
+              class="w-full my-2 p-2 rounded bg-[#369a6e] text-white text-sm appearance-none cursor-pointer hover:bg-[#42b883] focus:outline-none">
         <option v-for="uuid in uuidList" :key="uuid" :value="uuid">{{ uuid }}</option>
       </select>
 
       <select v-model="versionInputValue"
-              class="w-full my-2 p-2 rounded bg-[#369a6e] text-white text-sm appearance-none cursor-pointer hover:bg-[#42b883] focus:outline-none focus:ring focus:ring-[#369a6e]/50">
+              class="w-full my-2 p-2 rounded bg-[#369a6e] text-white text-sm appearance-none cursor-pointer hover:bg-[#42b883] focus:outline-none">
         <option v-for="version in versionList" :key="version" :value="version">{{ version }}</option>
       </select>
 

@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col max-h-full min-h-0 h-full grow md:min-w-1/3 md:max-w-3/8">
-    <div class="flex flex-row items-center justify-between p-2 bg-[#235f43] text-white shadow-md">
-      <span class="text-xl font-bold">MiSArch Experiment Configuration</span>
+    <div class="flex flex-row items-center justify-between p-2 bg-[#235f43] text-white">
+      <span class="text-xl font-bold px-3 py-1">MiSArch Experiment Configuration</span>
       <button
           class="mr-4 px-4 py-2  bg-[#369a6e] rounded text-white cursor-pointer hover:bg-[#2d7a5a] focus:outline-none focus:ring-0 focus:border-transparent appearance-none border-0"
           @click="showMisarchEditor = !showMisarchEditor">{{ showMisarchEditor ? 'Simple View' : 'Editor View' }}
@@ -10,7 +10,7 @@
     <div v-show="showMisarchEditor" ref="editorElement" class="flex-1 min-h-0 max-w-full overflow-y-hidden"></div>
     <div v-show="!showMisarchEditor" class="flex-1 min-h-0 h-full max-w-full overflow-y-auto">
       <div class="flex flex-col gap-4 p-2">
-        <div v-for="(config, configIndex) in misarchExperimentConfig" :key="configIndex" class="rounded p-4 shadow-md border-4 border-[#2d7a5a]">
+        <div v-for="(config, configIndex) in misarchExperimentConfig" :key="configIndex" class="rounded p-4 border-4 border-[#2d7a5a]">
           <div class="flex flex-row flex-nowrap justify-between min-w-0 w-full">
             <h3 class="text-lg font-semibold text-white mt-1">Failure Set {{ configIndex + 1 }}</h3>
             <button @click="removeConfig(configIndex)"
