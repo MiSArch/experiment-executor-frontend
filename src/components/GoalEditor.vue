@@ -2,6 +2,10 @@
   <div class="flex flex-col w-full md:min-w-2/12 md:max-w-3/12 h-full max-h-[512px] overflow-x-hidden">
     <div class="flex flex-row items-center justify-between p-2 bg-[#235f43] text-white shadow-md">
       <span class="text-xl font-bold px-3 py-1.5">Experiment Goals</span>
+      <button
+          class="mr-2 px-4 py-2  bg-[#369a6e] rounded text-white cursor-pointer hover:bg-[#2d7a5a] focus:outline-none focus:ring-0 focus:border-transparent appearance-none border-0">
+        ?
+      </button>
     </div>
     <div class="flex flex-col gap-2 p-2 max-w-full overflow-y-auto min-w-0">
       <div v-for="(line, index) in lines" :key="index" class="flex flex-wrap items-center gap-2 w-full relative">

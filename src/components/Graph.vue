@@ -1,6 +1,10 @@
 <template>
   <div class="m-2 pt-5 w-full max-h-[95vh] md:w-2/3 relative">
     <button
+        class="z-50 absolute top-2 right-14 w-10 h-10 flex justify-center items-center rounded-md bg-[#369a6e] text-white hover:bg-[#2d7a5a] border-0">
+      ?
+    </button>
+    <button
         class="z-50 absolute top-2 right-2 w-10 h-10 flex justify-center items-center rounded-md bg-[#369a6e] text-white hover:bg-[#2d7a5a] border-0"
         @click="toggleGraphOverlay">☰
     </button>

@@ -2,10 +2,16 @@
   <div class="flex flex-col max-h-full min-h-0 h-full grow md:min-w-1/3 md:max-w-3/8">
     <div class="flex flex-row items-center justify-between p-2 bg-[#235f43] text-white">
       <span class="text-xl font-bold px-3 py-1">MiSArch Experiment Configuration</span>
-      <button
-          class="mr-4 px-4 py-2  bg-[#369a6e] rounded text-white cursor-pointer hover:bg-[#2d7a5a] focus:outline-none focus:ring-0 focus:border-transparent appearance-none border-0"
-          @click="showMisarchEditor = !showMisarchEditor">{{ showMisarchEditor ? 'Simple View' : 'Editor View' }}
-      </button>
+      <div>
+        <button
+            class="mr-2 px-4 py-2  bg-[#369a6e] rounded text-white cursor-pointer hover:bg-[#2d7a5a] focus:outline-none focus:ring-0 focus:border-transparent appearance-none border-0">
+          ?
+        </button>
+        <button
+            class="mr-4 px-4 py-2  bg-[#369a6e] rounded text-white cursor-pointer hover:bg-[#2d7a5a] focus:outline-none focus:ring-0 focus:border-transparent appearance-none border-0"
+            @click="showMisarchEditor = !showMisarchEditor">{{ showMisarchEditor ? 'Simple View' : 'Editor View' }}
+        </button>
+      </div>
     </div>
     <div v-show="showMisarchEditor" ref="editorElement" class="flex-1 min-h-0 max-w-full overflow-y-hidden"></div>
     <div v-show="!showMisarchEditor" class="flex-1 min-h-0 h-full max-w-full overflow-y-auto">
@@ -144,7 +150,14 @@
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import {onBeforeUnmount, ref, watch} from 'vue'
-import {backendUrl, misarchExperimentConfig, showMisarchEditor, showOverlay, testUuid, testVersion} from '../util/global-state-handler.ts'
+import {
+  backendUrl,
+  misarchExperimentConfig,
+  showMisarchEditor,
+  showOverlay,
+  testUuid,
+  testVersion
+} from '../util/global-state-handler.ts'
 import type {MiSArchConfig} from "../model/misarch-config.ts";
 
 const editorElement = ref<HTMLElement | null>(null)
