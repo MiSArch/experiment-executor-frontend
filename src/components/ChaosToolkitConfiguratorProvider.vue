@@ -78,7 +78,8 @@
     <div class="flex flex-col w-full">
       <div class="flex flex-row gap-2 w-full items-center">
         <input v-if="probeOrAction.provider.timeout !== undefined" v-model="probeOrAction.provider.timeout" class="input-default" placeholder="30">
-        <button v-if="probeOrAction.provider.timeout !== undefined" @click="removeTimeout(probeOrAction.provider)" class="btn-gray-close">&times;</button>
+        <button v-if="probeOrAction.provider.timeout !== undefined" @click="removeTimeout(probeOrAction.provider)" class="btn-gray-close">&times;
+        </button>
       </div>
       <button v-if="probeOrAction.provider.timeout === undefined" @click="addTimeout(probeOrAction.provider)" class="btn-gray-add">+</button>
     </div>

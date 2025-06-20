@@ -6,25 +6,25 @@
           <span></span>
           <button v-if="testUuid && testVersion" class="btn-gray-close" @click="showOverlay = false">&times;</button>
         </div>
-      <span class="span-header">Experiment Configuration</span>
-      <span class="span-header">Use Existing Or Create New Experiment</span>
-      <select v-model="uuidInputValue" @change="fetchVersions" class="select-default bg-[#444]">
-        <option v-for="uuid in uuidList" :key="uuid" :value="uuid">{{ uuid }}</option>
-      </select>
+        <span class="span-header">Experiment Configuration</span>
+        <span class="span-header">Use Existing Or Create New Experiment</span>
+        <select v-model="uuidInputValue" @change="fetchVersions" class="select-default bg-[#444]">
+          <option v-for="uuid in uuidList" :key="uuid" :value="uuid">{{ uuid }}</option>
+        </select>
 
-      <select v-model="versionInputValue"
-              class="select-default bg-[#444]">
-        <option v-for="version in versionList" :key="version" :value="version">{{ version }}</option>
-      </select>
+        <select v-model="versionInputValue"
+                class="select-default bg-[#444]">
+          <option v-for="version in versionList" :key="version" :value="version">{{ version }}</option>
+        </select>
 
-      <button @click="useExistingTest" class="btn-header !mr-0">Use Existing Experiment</button>
-      <select v-model="loadType" class="select-default bg-[#444]">
-        <option value="NormalLoadTest">Realistic Load Test</option>
-        <option value="ElasticityLoadTest">Elasticity Load Test</option>
-        <option value="ResilienceLoadTest">Resilience Load Test</option>
-        <option value="ScalabilityLoadTest">Scalability Load Test</option>
-      </select>
-      <button @click="submitRequest" class="btn-header !mr-0">Create New Experiment</button>
+        <button @click="useExistingTest" class="btn-header !mr-0">Use Existing Experiment</button>
+        <select v-model="loadType" class="select-default bg-[#444]">
+          <option value="NormalLoadTest">Realistic Load Test</option>
+          <option value="ElasticityLoadTest">Elasticity Load Test</option>
+          <option value="ResilienceLoadTest">Resilience Load Test</option>
+          <option value="ScalabilityLoadTest">Scalability Load Test</option>
+        </select>
+        <button @click="submitRequest" class="btn-header !mr-0">Create New Experiment</button>
       </div>
     </div>
   </div>

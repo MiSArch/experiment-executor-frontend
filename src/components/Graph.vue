@@ -13,7 +13,10 @@
       <div class="flex flex-col gap-4 items-center pt-12 max-w-2xl mx-auto min-width-xl">
         <div class="flex flex-row gap-4 w-full items-center">
           <select v-model="currentlyEditing" class="select-default">
-            <option v-for="(config, idx) in gatlingConfigs" :key="config.fileName" :value="idx" style="text-align: center;">{{config.fileName }}</option>
+            <option v-for="(config, idx) in gatlingConfigs" :key="config.fileName" :value="idx" style="text-align: center;">{{
+                config.fileName
+              }}
+            </option>
           </select>
         </div>
 
