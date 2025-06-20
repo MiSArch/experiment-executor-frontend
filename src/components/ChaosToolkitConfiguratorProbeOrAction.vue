@@ -4,53 +4,60 @@
       <span class="text-lg font-semibold text-white mt-1 mb-2">
         {{ probeOrAction.type === 'action' ? 'Action' : 'Probe' }} {{ probeOrActionIndex + 1 }}
       </span>
-      <button v-if="totalProbesOrActions.length > 1"
-              @click="totalProbesOrActions.splice(probeOrActionIndex, 1)"
-              class="bg-[#444] text-white px-2 py-1 mb-2 rounded hover:bg-red-900 text-xs ml-2">&times;
-      </button>
-    </div>
-    <label v-if="!isSteadyState" class="text-sm font-medium text-white">Type</label>
-    <select v-if="!isSteadyState" v-model="probeOrAction.type"
-            @change="probeOrAction.pauses = undefined"
-            class="pw-full my-2 p-2 rounded border-1 border-[#444] text-white text-sm appearance-none cursor-pointer hover:bg-[#333] focus:outline-none">
-      <option v-for="(method) in METHOD_OPTIONS" :key="method.label" :value="method.value" style="text-align: center;">{{
-          method.label
-        }}
-      </option>
-
-    </select>
-    <label class="text-sm font-medium text-white">Name</label>
-    <input v-model="probeOrAction.name" class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-           placeholder="Name of the Probe">
-    <label v-if="isSteadyState" class="text-sm font-medium text-white">Tolerance</label>
-    <div class="flex flex-col gap-2 w-full">
-      <div class="flex flex-row flex-nowrap gap-2 min-w-0 w-full">
-      <textarea v-if="isSteadyState && probeOrAction.tolerance !== undefined"
-                ref="toleranceTextarea"
-                v-model="toleranceInput"
-                class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm overflow-hidden resize-none flex-1"
-                placeholder="Tolerance (JSON)"></textarea>
-      </div>
-    </div>
-    <ChaosToolkitConfiguratorProvider :probeOrAction="probeOrAction"></ChaosToolkitConfiguratorProvider>
-    <label v-if="!isSteadyState && probeOrAction.type === 'action'" class="text-sm font-medium text-white">Pause Durations Before and After
-      Execution (s)</label>
-    <div v-if="!isSteadyState && probeOrAction.type === 'action'" class="flex flex-col w-full gap-2">
-      <div v-if="probeOrAction.pauses !== null && probeOrAction.pauses !== undefined"
-           class="flex flex-row gap-2 w-full justify-between items-center">
-        <input v-model.number="probeOrAction.pauses.before" type="number"
-               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-               placeholder="Pause Before Execution (s)" min="0">
-        <input v-model.number="probeOrAction.pauses.after" type="number"
-               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-               placeholder="Pause After Execution (s)" min="0">
-        <button @click="probeOrAction.pauses = undefined"
-                class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs min-h-full">&times;
+      <div>
+        <button class="bg-[#444] text-white px-2 py-1 mb-2 rounded hover:bg-[#333] text-xs ml-2" @click="minimized = !minimized">
+          {{ minimized ? '+' : '–' }}
+        </button>
+        <button v-if="totalProbesOrActions.length > 1"
+                @click="totalProbesOrActions.splice(probeOrActionIndex, 1)"
+                class="bg-[#444] text-white px-2 py-1 mb-2 rounded hover:bg-red-900 text-xs ml-2">&times;
         </button>
       </div>
-      <button v-if="probeOrAction.pauses === undefined" @click="probeOrAction.pauses = {before: 0, after: 0}"
-              class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+
-      </button>
+    </div>
+    <div v-if="!minimized" class="flex flex-col gap-2">
+      <label v-if="!isSteadyState" class="text-sm font-medium text-white">Type</label>
+      <select v-if="!isSteadyState" v-model="probeOrAction.type"
+              @change="probeOrAction.pauses = undefined"
+              class="pw-full p-2 rounded border-1 border-[#444] text-white text-sm appearance-none cursor-pointer hover:bg-[#333] focus:outline-none">
+        <option v-for="(method) in METHOD_OPTIONS" :key="method.label" :value="method.value" style="text-align: center;">{{
+            method.label
+          }}
+        </option>
+
+      </select>
+      <label class="text-sm font-medium text-white">Name</label>
+      <input v-model="probeOrAction.name" class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
+             placeholder="Name of the Probe">
+      <label v-if="isSteadyState" class="text-sm font-medium text-white">Tolerance</label>
+      <div v-if="isSteadyState" class="flex flex-col w-full">
+        <div class="flex flex-row flex-nowrap gap-2 min-w-0 w-full">
+          <textarea v-if="probeOrAction.tolerance !== undefined"
+                    ref="toleranceTextarea"
+                    v-model="toleranceInput"
+                    class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm overflow-hidden resize-none flex-1"
+                    placeholder="Tolerance (JSON)"></textarea>
+        </div>
+      </div>
+      <ChaosToolkitConfiguratorProvider :probeOrAction="probeOrAction"></ChaosToolkitConfiguratorProvider>
+      <label v-if="!isSteadyState && probeOrAction.type === 'action'" class="text-sm font-medium text-white">Pause Durations Before and After
+        Execution (s)</label>
+      <div v-if="!isSteadyState && probeOrAction.type === 'action'" class="flex flex-col w-full gap-2">
+        <div v-if="probeOrAction.pauses !== null && probeOrAction.pauses !== undefined"
+             class="flex flex-row gap-2 w-full justify-between items-center">
+          <input v-model.number="probeOrAction.pauses.before" type="number"
+                 class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
+                 placeholder="Pause Before Execution (s)" min="0">
+          <input v-model.number="probeOrAction.pauses.after" type="number"
+                 class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
+                 placeholder="Pause After Execution (s)" min="0">
+          <button @click="probeOrAction.pauses = undefined"
+                  class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs min-h-full">&times;
+          </button>
+        </div>
+        <button v-if="probeOrAction.pauses === undefined" @click="probeOrAction.pauses = {before: 0, after: 0}"
+                class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -72,6 +79,7 @@ import {showChaostoolkitEditor} from "../util/global-state-handler.ts";
 const toleranceInput = ref<string>('');
 const toleranceTextarea = ref<HTMLTextAreaElement | null>(null);
 const initialized = ref(false);
+const minimized = ref(false);
 
 useTextareaAutosize({element: toleranceTextarea, input: toleranceInput})
 
