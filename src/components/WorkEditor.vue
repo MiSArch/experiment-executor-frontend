@@ -1,11 +1,8 @@
 <template>
   <div class="flex flex-col w-full md:w-1/3 overflow-hidden">
-    <div class="flex flex-row items-center justify-between p-3 pt-4 pb-2 bg-[#235f43] text-white">
-      <span class="text-xl font-bold px-3 py-1.5">Work Configuration</span>
-      <button
-          class="mr-2 px-4 py-2  bg-[#369a6e] rounded text-white cursor-pointer hover:bg-[#2d7a5a] focus:outline-none focus:ring-0 focus:border-transparent appearance-none border-0">
-        ?
-      </button>
+    <div class="div-subheader !pt-4">
+      <span class="span-subheader">Work Configuration</span>
+      <button class="btn-header">?</button>
     </div>
     <div class="flex flex-row w-full justify-evenly bg-[#2c2c2c] border-b border-[#444] z-10">
       <button v-for="(tab, index) in gatlingConfigs" :key="index" :title="tab.fileName" @click="switchTab(index)"
@@ -16,7 +13,7 @@
       <button class="px-4 py-1 bg-[#369a6e] text-white cursor-pointer text-sm rounded-none hover:bg-[#2d7a5a] focus:outline-none" @click="addTab">＋
       </button>
     </div>
-    <div ref="editorElement" class="h-full z-10 shadow-[ -2px_0_5px_rgba(0,0,0,0.1) ] bg-[#1e1e1e] text-left overflow-x-auto"></div>
+    <div ref="editorElement" class="h-full overflow-x-auto"></div>
   </div>
 </template>
 

@@ -19,13 +19,6 @@ export class TestHandler {
     })
   }
 
-  async persistChaosToolkitConfig(): Promise<void> {
-    await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/chaosToolkitConfig`, {
-      method: 'PUT',
-      body: chaostoolkitConfig.value
-    })
-  }
-
   async persistGatlingConfigs(): Promise<void> {
     const jsonData = JSON.stringify(gatlingConfigs.value.map(config => ({
       fileName: config.fileName,
@@ -50,6 +43,17 @@ export class TestHandler {
       body: JSON.stringify(misarchExperimentConfig.value, null, 2)
     })
   }
+
+  async persistChaosToolkitConfig(): Promise<void> {
+    await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/chaosToolkitConfig`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(chaostoolkitConfig.value, null, 2)
+    })
+  }
+
 }
 
 export const testHandler = new TestHandler();

@@ -1,49 +1,14 @@
 <template>
   <div class="sticky top-0 left-0 right-0 z-[1000] bg-[#1a4a34] text-white flex items-center px-4 py-3">
-    <span class="mr-4 text-lg font-bold">MISARCH EXPERIMENT TOOL</span>
-    <span v-if="testUuid" class="mr-4 text-lg font-bold">Test UUID: {{ testUuid }}</span>
-    <span v-if="testVersion" class="mr-4 text-lg font-bold">Test Version: {{ testVersion }}</span>
-    <div class="ml-auto flex gap-4 pr-12">
-      <button
-          v-if="!showOverlay"
-          type="button"
-          class="bg-[#369a6e] text-white hover:bg-[#2d7a5a] rounded px-4 py-2 cursor-pointer"
-      >
-        Help
-      </button>
-      <button
-          v-if="!showOverlay"
-          type="button"
-          @click="persistAll"
-          :disabled="isSaving"
-          class="bg-[#369a6e] text-white hover:bg-[#2d7a5a] rounded px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {{ isSaving ? 'Saving... ' : 'Save' }}
-      </button>
-      <button
-          v-if="!showOverlay"
-          type="button"
-          @click="loadOrGenerate"
-          :disabled="isSaving"
-          class="bg-[#369a6e] text-white hover:bg-[#2d7a5a] rounded px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Load / Generate
-      </button>
-      <button
-          v-if="!showOverlay"
-          type="button"
-          @click="newVersion"
-          :disabled="isSaving"
-          class="bg-[#369a6e] text-white hover:bg-[#2d7a5a] rounded px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        New Version
-      </button>
-      <button
-          v-if="!showOverlay"
-          type="button"
-          @click="isRunningExperiment ? stopExperiment() : startExperiment()"
-          class="bg-[#369a6e] text-white hover:bg-[#2d7a5a] rounded px-4 py-2"
-      >
+    <span class="span-header">MISARCH EXPERIMENT TOOL</span>
+    <span v-if="testUuid" class="span-header">Test UUID: {{ testUuid }}</span>
+    <span v-if="testVersion" class="span-header">Test Version: {{ testVersion }}</span>
+    <div class="ml-auto flex gap-2">
+      <button v-if="!showOverlay" class="btn-header">Help</button>
+      <button v-if="!showOverlay" @click="persistAll" :disabled="isSaving" class="btn-header">{{ isSaving ? 'Saving... ' : 'Save' }}</button>
+      <button v-if="!showOverlay" @click="loadOrGenerate" :disabled="isSaving" class="btn-header">Load / Generate</button>
+      <button v-if="!showOverlay" @click="newVersion" :disabled="isSaving" class="btn-header">New Version</button>
+      <button v-if="!showOverlay" type="button" @click="isRunningExperiment ? stopExperiment() : startExperiment()" class="btn-header">
         {{ isRunningExperiment ? 'Stop Experiment' : 'Execute Experiment' }}
       </button>
     </div>

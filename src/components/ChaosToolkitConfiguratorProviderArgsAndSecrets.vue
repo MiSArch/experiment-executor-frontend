@@ -1,34 +1,22 @@
 <template>
   <div class="flex flex-col w-full">
     <div class="flex flex-row gap-2 w-full items-center">
-        <textarea ref="argumentsTextarea"
-                  v-if="probeOrAction.provider.arguments !== undefined"
-                  v-model="argumentsInput"
-                  class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none flex-1"
-                  placeholder="Arguments (JSON)"></textarea>
-      <button v-if="probeOrAction.provider.arguments !== undefined" @click="removeArguments(probeOrAction.provider)"
-              class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs min-h-full">&times;
+      <textarea ref="argumentsTextarea" v-if="probeOrAction.provider.arguments !== undefined" v-model="argumentsInput" class="textarea-default"
+                placeholder="Arguments (JSON)"></textarea>
+      <button v-if="probeOrAction.provider.arguments !== undefined" @click="removeArguments(probeOrAction.provider)" class="btn-gray-close">&times;
       </button>
     </div>
-    <button v-if="probeOrAction.provider.arguments === undefined" @click="addArguments(probeOrAction.provider)"
-            class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+
-    </button>
+    <button v-if="probeOrAction.provider.arguments === undefined" @click="addArguments(probeOrAction.provider)" class="btn-gray-add">+</button>
   </div>
-  <label class="text-sm font-medium text-white">ChaosToolkit Secrets</label>
+  <label class="label-small">ChaosToolkit Secrets</label>
   <div class="flex flex-col w-full">
     <div class="flex flex-row gap-2 w-full items-center">
-         <textarea ref="secretsTextarea"
-                   v-if="probeOrAction.provider.secrets !== undefined"
-                   v-model="secretsInput"
-                   class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none flex-1"
-                   placeholder="Secrets (JSON)"></textarea>
-      <button v-if="probeOrAction.provider.secrets !== undefined" @click="removeSecrets(probeOrAction.provider)"
-              class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs min-h-full">&times;
+      <textarea ref="secretsTextarea" v-if="probeOrAction.provider.secrets !== undefined" v-model="secretsInput" class="textarea-default"
+                placeholder="Secrets (JSON)"></textarea>
+      <button v-if="probeOrAction.provider.secrets !== undefined" @click="removeSecrets(probeOrAction.provider)" class="btn-gray-close">&times;
       </button>
     </div>
-    <button v-if="probeOrAction.provider.secrets === undefined" @click="addSecrets(probeOrAction.provider)"
-            class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+
-    </button>
+    <button v-if="probeOrAction.provider.secrets === undefined" @click="addSecrets(probeOrAction.provider)" class="btn-gray-add">+</button>
   </div>
 </template>
 

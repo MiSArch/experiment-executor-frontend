@@ -1,29 +1,24 @@
 <template>
   <div class="flex flex-col w-full md:min-w-2/12 md:max-w-3/12 h-full max-h-[512px] overflow-x-hidden">
-    <div class="flex flex-row items-center justify-between p-2 bg-[#235f43] text-white shadow-md">
-      <span class="text-xl font-bold px-3 py-1.5">Experiment Goals</span>
-      <button
-          class="mr-2 px-4 py-2  bg-[#369a6e] rounded text-white cursor-pointer hover:bg-[#2d7a5a] focus:outline-none focus:ring-0 focus:border-transparent appearance-none border-0">
-        ?
-      </button>
+    <div class="div-subheader">
+      <span class="span-subheader">Experiment Goals</span>
+      <button class="btn-header">?</button>
     </div>
-    <div class="flex flex-col gap-2 p-2 max-w-full overflow-y-auto min-w-0">
-      <div v-for="(line, index) in lines" :key="index" class="flex flex-wrap items-center gap-2 w-full relative">
-        <select v-model="line.dropdown"
-                class="flex-6 min-w-0 h-full text-sm p-2 rounded border-1 border-[#444] text-white appearance-none cursor-pointer hover:bg-[#333] focus:outline-none">
+    <div class="flex flex-col gap-2 p-2 max-w-full overflow-y-scroll min-w-0">
+      <div v-for="(line, index) in lines" :key="index" class="flex items-center gap-2 w-full relative">
+        <select v-model="line.dropdown" class="select-default !min-w-0 !flex-6">
           <option v-for="option in dropdownOptions" :key="option" :value="option">{{ option }}</option>
         </select>
-
-        <input type="number" v-model="line.value"
-               class="flex-[1.5] min-w-0 h-10 p-2 rounded border-1 border-[#444] text-white focus:outline-none focus:ring focus:ring-[#444] appearance-none"/>
+        <input type="number" v-model="line.value" class="input-default !flex-[1.5]"/>
         <div class="flex-1 rounded cursor-pointer min-w-0 h-full" :style="{ backgroundColor: line.color }" @click="toggleColorOptions(index)"></div>
-        <div v-if="line.showDropdown" class="absolute top-0 left-0 z-10 flex flex-wrap gap-2 bg-gray-100 p-2 rounded shadow-md w-1/2 max-w-full overflow-auto">
-          <div v-for="(hex, color) in reverseColorMap" :key="color" class="h-5 w-[12%] rounded cursor-pointer" :style="{ backgroundColor: hex }" @click="selectColor(index, hex)"></div>
+        <div v-if="line.showDropdown"
+             class="absolute top-0 left-0 z-10 flex gap-2 bg-gray-100 p-2 rounded shadow-md w-1/2 max-w-full overflow-auto">
+          <div v-for="(hex, color) in reverseColorMap" :key="color" class="h-5 w-[12%] rounded cursor-pointer" :style="{ backgroundColor: hex }"
+               @click="selectColor(index, hex)"></div>
         </div>
-
-        <button @click="removeLine(index)" class="flex-1 min-w-0 px-2 py-1 bg-[#444] text-white rounded hover:bg-red-900 h-full">&times;</button>
+        <button @click="removeLine(index)" class="btn-gray-close">&times;</button>
       </div>
-      <button @click="addLine" class="py-1 bg-[#369a6e] text-white rounded hover:bg-[#2d7a5a]">+</button>
+      <button @click="addLine" class="btn-green-add">+</button>
     </div>
   </div>
 </template>

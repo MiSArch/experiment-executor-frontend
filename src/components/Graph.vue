@@ -1,62 +1,48 @@
 <template>
   <div class="m-2 pt-5 w-full max-h-[95vh] md:w-2/3 relative">
-    <button
-        class="z-50 absolute top-2 right-14 w-10 h-10 flex justify-center items-center rounded-md bg-[#369a6e] text-white hover:bg-[#2d7a5a] border-0">
-      ?
-    </button>
-    <button
-        class="z-50 absolute top-2 right-2 w-10 h-10 flex justify-center items-center rounded-md bg-[#369a6e] text-white hover:bg-[#2d7a5a] border-0"
-        @click="toggleGraphOverlay">☰
-    </button>
+    <button class="btn-graph-hover right-14">?</button>
+    <button class="btn-graph-hover right-2" @click="toggleGraphOverlay">☰</button>
 
     <LineChart :key="chartKey" class="grow h-full" :chart-data="chartData" :chart-options="chartOptions"/>
 
     <div v-if="isGraphOverlayVisible" class="z-50 absolute w-full h-full top-0 left-0 right-0 bg-[#242424] p-6">
       <button
-          class="z-50 absolute top-2 right-2 w-10 h-10 flex justify-center items-center rounded-md bg-[#369a6e] text-white hover:bg-[#2d7a5a] border-0"
+          class="btn-graph-hover right-2"
           @click="toggleGraphOverlay">&times;
       </button>
       <div class="flex flex-col gap-4 items-center pt-12 max-w-2xl mx-auto min-width-xl">
         <div class="flex flex-row gap-4 w-full items-center">
-          <select v-model="currentlyEditing"
-                  class="p-2 rounded-md border-[#444] border-1 text-white text-sm appearance-none cursor-pointer focus:outline-none hover:bg-[#333] grow font-bold">
-            <option v-for="(config, idx) in gatlingConfigs" :key="config.fileName" :value="idx" style="text-align: center;">{{
-                config.fileName
-              }}
-            </option>
+          <select v-model="currentlyEditing" class="select-default">
+            <option v-for="(config, idx) in gatlingConfigs" :key="config.fileName" :value="idx" style="text-align: center;">{{config.fileName }}</option>
           </select>
         </div>
 
         <div class="flex flex-row gap-4 w-full items-center">
           <div class="flex flex-col gap-2 w-full">
             <div class="flex flex-row gap-2 items-center">
-              <span class="flex-1 p-2 rounded bg-[#444] text-white text-base text-center">Duration</span>
-              <input class="min-w-0 p-2 rounded border-[#444] border-1 text-white flex-1" type="number" v-model="duration" placeholder="Duration"/>
+              <span class="span-label">Duration</span>
+              <input class="input-default" v-model="duration" placeholder="Duration"/>
             </div>
           </div>
-          <button class="min-w-0 w-auto px-4 flex justify-center items-center rounded-md bg-[#369a6e] text-white hover:bg-[#2d7a5a] border-0"
-                  @click="applyDuration" style="align-self: stretch;">Apply
-          </button>
+          <button class="btn-apply" @click="applyDuration" style="align-self: stretch;">Apply</button>
         </div>
 
         <div class="flex flex-row gap-4 w-full items-center">
           <div class="flex flex-col gap-2 w-full">
             <div class="flex flex-row gap-2 items-center">
-              <span class="flex-1 p-2 rounded bg-[#444] text-white text-base text-center">From Second</span>
-              <input class="min-w-0 p-2 rounded border-[#444] border-1 text-white flex-1" type="number" v-model="timeFrom" placeholder="TimeFrom"/>
+              <span class="span-label">From Second</span>
+              <input class="input-default" type="number" v-model="timeFrom" placeholder="TimeFrom"/>
             </div>
             <div class="flex flex-row gap-2 items-center">
-              <span class="flex-1 p-2 rounded bg-[#444] text-white text-base text-center">To Second</span>
-              <input class="min-w-0 p-2 rounded border-[#444] border-1 text-white flex-1" type="number" v-model="timeTo" placeholder="TimeTo"/>
+              <span class="span-label">To Second</span>
+              <input class="input-default" type="number" v-model="timeTo" placeholder="TimeTo"/>
             </div>
             <div class="flex flex-row gap-2 items-center">
-              <span class="flex-1 p-2 rounded bg-[#444] text-white text-base text-center">Arriving Users / s</span>
-              <input class="min-w-0 p-2 rounded border-[#444] border-1 text-white flex-1" type="number" v-model="arrivingUsers" placeholder="Arriving Users"/>
+              <span class="span-label">Arriving Users / s</span>
+              <input class="input-default" type="number" v-model="arrivingUsers" placeholder="Arriving Users"/>
             </div>
           </div>
-          <button class="min-w-0 w-auto px-4 flex justify-center items-center rounded-md bg-[#369a6e] text-white hover:bg-[#2d7a5a] border-0"
-                  @click="applyUsers" style="align-self: stretch;">Apply
-          </button>
+          <button class="btn-apply" @click="applyUsers" style="align-self: stretch;">Apply</button>
         </div>
       </div>
     </div>

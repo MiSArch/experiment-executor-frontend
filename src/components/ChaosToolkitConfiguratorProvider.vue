@@ -1,8 +1,8 @@
 <template>
-  <label class="text-sm font-medium text-white">Provider Type</label>
+  <label class="label-small">Provider Type</label>
   <select v-model="probeOrAction.provider.type"
           @change="onProviderTypeChange(probeOrAction.provider)"
-          class="pw-full  p-2 rounded border-1 border-[#444] text-white text-sm appearance-none cursor-pointer hover:bg-[#333] focus:outline-none">
+          class="select-default">
     <option v-for="(provider) in PROVIDER_OPTIONS" :key="provider.label" :value="provider.value" style="text-align: center;">{{
         provider.label
       }}
@@ -11,116 +11,79 @@
 
   <!-- Python Provider -->
   <div v-if="probeOrAction.provider.type === 'python'" class="flex flex-col gap-2">
-    <label class="text-sm font-medium text-white">Python Module</label>
-    <input v-model="probeOrAction.provider.module"
-           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-           placeholder="Module Name">
-    <label class="text-sm font-medium text-white">Python Function</label>
-    <input v-model="probeOrAction.provider.func"
-           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-           placeholder="Function Name">
-    <label class="text-sm font-medium text-white">Python Function Arguments</label>
+    <label class="label-small">Python Module</label>
+    <input v-model="probeOrAction.provider.module" class="input-default" placeholder="Module Name">
+    <label class="label-small">Python Function</label>
+    <input v-model="probeOrAction.provider.func" class="input-default" placeholder="Function Name">
+    <label class="label-small">Python Function Arguments</label>
     <ChaosToolkitConfiguratorProviderArgsAndSecrets :probeOrAction="probeOrAction"></ChaosToolkitConfiguratorProviderArgsAndSecrets>
   </div>
 
   <!-- HTTP Provider -->
   <div v-else-if="probeOrAction.provider.type === 'http'" class="flex flex-col gap-2">
-    <label class="text-sm font-medium text-white">HTTP URL</label>
-    <input v-model="probeOrAction.provider.url"
-           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-           placeholder="https://example.com">
+    <label class="label-small">HTTP URL</label>
+    <input v-model="probeOrAction.provider.url" class="input-default" placeholder="https://example.com">
 
-    <label class="text-sm font-medium text-white">HTTP Method</label>
+    <label class="label-small">HTTP Method</label>
     <div class="flex flex-col w-full">
       <div class="flex flex-row gap-2 w-full items-center">
-        <input v-if="probeOrAction.provider.method !== undefined"
-               v-model="probeOrAction.provider.method"
-               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-               placeholder="POST">
-        <button v-if="probeOrAction.provider.method !== undefined" @click="removeMethod(probeOrAction.provider)"
-                class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs min-h-full">&times;
+        <input v-if="probeOrAction.provider.method !== undefined" v-model="probeOrAction.provider.method" class="input-default" placeholder="POST">
+        <button v-if="probeOrAction.provider.method !== undefined" @click="removeMethod(probeOrAction.provider)" class="btn-gray-close">&times;
         </button>
       </div>
-      <button v-if="probeOrAction.provider.method === undefined" @click="addMethod(probeOrAction.provider)"
-              class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+
-      </button>
+      <button v-if="probeOrAction.provider.method === undefined" @click="addMethod(probeOrAction.provider)" class="btn-gray-add">+</button>
     </div>
 
-    <label class="text-sm font-medium text-white">HTTP Headers</label>
+    <label class="label-small">HTTP Headers</label>
     <div class="flex flex-col gap-2 max-w-full w-full">
       <div v-for="(header, index) in headersRef" class="flex flex-row gap-2 w-full">
-        <input v-model="header.key"
-               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-               placeholder="Header Key">
-        <input v-model="header.value"
-               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-               placeholder="Header Value">
-        <button @click="headersRef.splice(index, 1)"
-                class="bg-[#444] text-white p-2 h-full rounded hover:bg-red-900 text-xs">&times;
-        </button>
+        <input v-model="header.key" class="input-default" placeholder="Header Key">
+        <input v-model="header.value" class="input-default" placeholder="Header Value">
+        <button @click="headersRef.splice(index, 1)" class="btn-gray-close">&times;</button>
       </div>
-      <button @click="headersRef.push({key: '', value: ''})" class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+
-      </button>
+      <button @click="headersRef.push({key: '', value: ''})" class="btn-gray-add">+</button>
     </div>
 
-    <label class="text-sm font-medium text-white">Expected HTTP Status Code</label>
+    <label class="label-small">Expected HTTP Status Code</label>
     <div class="flex flex-col max-w-full w-full">
       <div class="flex flex-row gap-2 w-full items-center">
-        <input v-if="probeOrAction.provider.expected_status !== undefined"
-               v-model="probeOrAction.provider.expected_status"
-               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
+        <input v-if="probeOrAction.provider.expected_status !== undefined" v-model="probeOrAction.provider.expected_status" class="input-default"
                placeholder="404">
         <button v-if="probeOrAction.provider.expected_status !== undefined" @click="removeExpectedStatus(probeOrAction.provider)"
-                class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs min-h-full">&times;
+                class="btn-gray-close">&times;
         </button>
       </div>
-      <button v-if="probeOrAction.provider.expected_status === undefined" @click="addExpectedStatus(probeOrAction.provider)"
-              class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+
+      <button v-if="probeOrAction.provider.expected_status === undefined" @click="addExpectedStatus(probeOrAction.provider)" class="btn-gray-add">+
       </button>
     </div>
 
-    <label class="text-sm font-medium text-white">Timeout (s)</label>
+    <label class="label-small">Timeout (s)</label>
     <div class="flex flex-col w-full">
       <div class="flex flex-row gap-2 w-full items-center">
-        <input v-if="probeOrAction.provider.timeout !== undefined"
-               v-model="probeOrAction.provider.timeout"
-               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-               placeholder="30">
-        <button v-if="probeOrAction.provider.timeout !== undefined" @click="removeTimeout(probeOrAction.provider)"
-                class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs min-h-full">&times;
+        <input v-if="probeOrAction.provider.timeout !== undefined" v-model="probeOrAction.provider.timeout" class="input-default" placeholder="30">
+        <button v-if="probeOrAction.provider.timeout !== undefined" @click="removeTimeout(probeOrAction.provider)" class="btn-gray-close">&times;
         </button>
       </div>
-      <button v-if="probeOrAction.provider.timeout === undefined" @click="addTimeout(probeOrAction.provider)"
-              class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+
-      </button>
+      <button v-if="probeOrAction.provider.timeout === undefined" @click="addTimeout(probeOrAction.provider)" class="btn-gray-add">+</button>
     </div>
-    <label class="text-sm font-medium text-white">Request Args / Body</label>
+    <label class="label-small">Request Args / Body</label>
     <ChaosToolkitConfiguratorProviderArgsAndSecrets :probeOrAction="probeOrAction"></ChaosToolkitConfiguratorProviderArgsAndSecrets>
   </div>
 
   <!-- Process Provider -->
   <div v-else-if="probeOrAction.provider.type === 'process'" class="flex flex-col gap-2">
-    <label class="text-sm font-medium text-white">Process Path</label>
-    <input v-model="probeOrAction.provider.path"
-           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-           placeholder="/bin/bash">
-    <label class="text-sm font-medium text-white">Timeout (s)</label>
+    <label class="label-small">Process Path</label>
+    <input v-model="probeOrAction.provider.path" class="input-default" placeholder="/bin/bash">
+    <label class="label-small">Timeout (s)</label>
     <div class="flex flex-col w-full">
       <div class="flex flex-row gap-2 w-full items-center">
-        <input v-if="probeOrAction.provider.timeout !== undefined"
-               v-model="probeOrAction.provider.timeout"
-               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-               placeholder="30">
-        <button v-if="probeOrAction.provider.timeout !== undefined" @click="removeTimeout(probeOrAction.provider)"
-                class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs min-h-full">&times;
-        </button>
+        <input v-if="probeOrAction.provider.timeout !== undefined" v-model="probeOrAction.provider.timeout" class="input-default" placeholder="30">
+        <button v-if="probeOrAction.provider.timeout !== undefined" @click="removeTimeout(probeOrAction.provider)" class="btn-gray-close">&times;</button>
       </div>
-      <button v-if="probeOrAction.provider.timeout === undefined" @click="addTimeout(probeOrAction.provider)"
-              class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+
-      </button>
+      <button v-if="probeOrAction.provider.timeout === undefined" @click="addTimeout(probeOrAction.provider)" class="btn-gray-add">+</button>
     </div>
 
-    <label class="text-sm font-medium text-white">Process Arguments</label>
+    <label class="label-small">Process Arguments</label>
     <ChaosToolkitConfiguratorProviderArgsAndSecrets :probeOrAction="probeOrAction"></ChaosToolkitConfiguratorProviderArgsAndSecrets>
   </div>
 </template>
