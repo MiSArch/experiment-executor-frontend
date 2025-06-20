@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-col gap-2 w-full rounded p-3 mb-2 border-4 border-[#42b883] relative">
-    <div class="flex flex-row gap-2 justify-between items-center">
+  <div class="flex flex-col  w-full rounded p-3 mb-2 border-4 border-[#42b883] relative">
+    <div class="flex flex-row justify-between items-center">
       <span class="text-lg font-semibold text-white mt-1 mb-2">
         {{ probeOrAction.type === 'action' ? 'Action' : 'Probe' }} {{ probeOrActionIndex + 1 }}
       </span>

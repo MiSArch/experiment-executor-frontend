@@ -38,11 +38,11 @@
             </div>
             <div v-show="!minimizedFailures[getFailureKey(configIndex, failureIndex)]">
               <div class="flex flex-col gap-2">
-                <input v-model="failure.name" class="p-2 rounded text-m border-1 border-[#444] focus:outline-none min-w-0"
-                       placeholder="Service name"/>
-                <label class="text-sm font-medium text-white">PubSub Deterioration</label>
-
                 <div class="flex flex-col gap-2 max-w-full w-full">
+                  <label class="text-sm font-medium text-white">Service Name</label>
+                  <input v-model="failure.name" class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
+                         placeholder="catalog"/>
+                  <label class="text-sm font-medium text-white">PubSub Deterioration</label>
                   <div v-if="failure.pubSubDeterioration !== null && failure.pubSubDeterioration !== undefined"
                        class="flex flex-row flex-nowrap justify-evenly items-center gap-2 min-w-0 w-full">
                     <input v-model="failure.pubSubDeterioration.delay" type="number"
