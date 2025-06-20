@@ -1,12 +1,13 @@
 <template>
   <div class="flex flex-col gap-2 w-full rounded p-3 mb-2 border-4 border-[#42b883] relative">
     <div class="flex flex-row gap-2 justify-between items-center">
+      <!-- TODO when selecting it needs to reset everything correctly -->
       <span class="text-lg font-semibold text-white mt-1 mb-2">
         {{ probeOrAction.type === 'action' ? 'Action' : 'Probe' }} {{ probeOrActionIndex + 1 }}
       </span>
       <button v-if="totalProbesOrActions.length > 1"
               @click="totalProbesOrActions.splice(probeOrActionIndex, 1)"
-              class="bg-[#444] text-white p-2 h-full rounded hover:bg-red-900 text-xs">&times;
+              class="bg-[#444] text-white px-2 py-1 mb-2 rounded hover:bg-red-900 text-xs ml-2">&times;
       </button>
     </div>
     <label v-if="!isSteadyState" class="text-sm font-medium text-white">Type</label>
@@ -16,27 +17,39 @@
           method.label
         }}
       </option>
+
     </select>
     <label class="text-sm font-medium text-white">Name</label>
     <input v-model="probeOrAction.name" class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
            placeholder="Name of the Probe">
-    <label v-if="isSteadyState" class="text-sm font-medium text-white">Tolerance</label>
-    <textarea v-if="isSteadyState"
-              ref="toleranceTextarea"
-              v-model="toleranceInput"
-              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
-              placeholder="Tolerance (JSON)"></textarea>
+    <div class="flex flex-col gap-2 w-full">
+      <label v-if="isSteadyState" class="text-sm font-medium text-white">Tolerance</label>
+      <div class="flex flex-row flex-nowrap gap-2 min-w-0 w-full">
+        <textarea v-if="isSteadyState && probeOrAction.tolerance !== undefined"
+                  ref="toleranceTextarea"
+                  v-model="toleranceInput"
+                  class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm overflow-hidden resize-none flex-1"
+                  placeholder="Tolerance (JSON)"></textarea>
+        <button v-if="isSteadyState && probeOrAction.tolerance !== undefined" @click="removeTolerance(probeOrAction)"
+                class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs">&times;
+        </button>
+      </div>
+      <button v-if="isSteadyState && probeOrAction.tolerance === undefined" @click="addTolerance(probeOrAction)"
+              class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+</button>
+    </div>
     <ChaosToolkitConfiguratorProvider :probeOrAction="probeOrAction"></ChaosToolkitConfiguratorProvider>
     <!-- TODO fix pauses are still there on probes-->
-    <label v-if="!isSteadyState && probeOrAction.type === 'action'" class="text-sm font-medium text-white">Pauses</label>
+    <label v-if="!isSteadyState && probeOrAction.type === 'action'" class="text-sm font-medium text-white">Pause Durations Before and After
+      Execution (s)</label>
     <div v-if="!isSteadyState && probeOrAction.type === 'action' && probeOrAction.pauses !== null && probeOrAction.pauses !== undefined"
          class="flex flex-row gap-2 w-full justify-between items-center">
       <input v-model.number="probeOrAction.pauses.before" type="number"
              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-             placeholder="Pause before Execution in seconds" min="0">
+             placeholder="Pause Before Execution (s)" min="0">
       <input v-model.number="probeOrAction.pauses.after" type="number"
              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-             placeholder="Pause after Execution in seconds" min="0">
+             placeholder="Pause After Execution (s)" min="0">
+
     </div>
   </div>
 </template>
@@ -91,4 +104,15 @@ async function parseJsonToModels(probeOrAction: Probe | Action) {
     toleranceInput.value = '';
   }
 }
+
+function addTolerance(probeOrAction: Probe) {
+  probeOrAction.tolerance = {};
+  parseJsonToModels(probeOrAction);
+}
+
+function removeTolerance(probeOrAction: Probe) {
+  probeOrAction.tolerance = undefined;
+  toleranceInput.value = '';
+}
+
 </script>

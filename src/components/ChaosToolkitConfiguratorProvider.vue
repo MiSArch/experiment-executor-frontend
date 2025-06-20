@@ -2,7 +2,7 @@
   <label class="text-sm font-medium text-white">Provider Type</label>
   <select v-model="probeOrAction.provider.type"
           @change="onProviderTypeChange(probeOrAction.provider)"
-          class="pw-full my-2 p-2 rounded border-1 border-[#444] text-white text-sm appearance-none cursor-pointer hover:bg-[#333] focus:outline-none">
+          class="pw-full  p-2 rounded border-1 border-[#444] text-white text-sm appearance-none cursor-pointer hover:bg-[#333] focus:outline-none">
     <option v-for="(provider) in PROVIDER_OPTIONS" :key="provider.label" :value="provider.value" style="text-align: center;">{{
         provider.label
       }}
@@ -20,15 +20,7 @@
            class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
            placeholder="Function Name">
     <label class="text-sm font-medium text-white">Python Function Arguments</label>
-    <textarea ref="argumentsTextarea"
-              v-model="argumentsInput"
-              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
-              placeholder="Arguments (JSON)"></textarea>
-    <label class="text-sm font-medium text-white">ChaosToolkit Secrets</label>
-    <textarea ref="secretsTextarea"
-              v-model="secretsInput"
-              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
-              placeholder="Secrets (JSON)"></textarea>
+    <ChaosToolkitConfiguratorProviderArgsAndSecrets :probeOrAction="probeOrAction"></ChaosToolkitConfiguratorProviderArgsAndSecrets>
   </div>
 
   <!-- HTTP Provider -->
@@ -37,10 +29,23 @@
     <input v-model="probeOrAction.provider.url"
            class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
            placeholder="https://example.com">
+
     <label class="text-sm font-medium text-white">HTTP Method</label>
-    <input v-model="probeOrAction.provider.method"
-           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-           placeholder="POST">
+    <div class="flex flex-col w-full">
+      <div class="flex flex-row gap-2 w-full items-center">
+        <input v-if="probeOrAction.provider.method !== undefined"
+               v-model="probeOrAction.provider.method"
+               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
+               placeholder="POST">
+        <button v-if="probeOrAction.provider.method !== undefined" @click="removeMethod(probeOrAction.provider)"
+                class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs min-h-full">&times;
+        </button>
+      </div>
+      <button v-if="probeOrAction.provider.method === undefined" @click="addMethod(probeOrAction.provider)"
+              class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+
+      </button>
+    </div>
+
     <label class="text-sm font-medium text-white">HTTP Headers</label>
     <div class="flex flex-col gap-2 max-w-full w-full">
       <div v-for="(header, index) in headersRef" class="flex flex-row gap-2 w-full">
@@ -56,26 +61,41 @@
       </div>
       <button @click="headersRef.push({key: '', value: ''})" class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+
       </button>
-
     </div>
+
     <label class="text-sm font-medium text-white">Expected HTTP Status Code</label>
-    <input v-model="probeOrAction.provider.expected_status"
-           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-           placeholder="404">
+    <div class="flex flex-col max-w-full w-full">
+      <div class="flex flex-row gap-2 w-full items-center">
+        <input v-if="probeOrAction.provider.expected_status !== undefined"
+               v-model="probeOrAction.provider.expected_status"
+               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
+               placeholder="404">
+        <button v-if="probeOrAction.provider.expected_status !== undefined" @click="removeExpectedStatus(probeOrAction.provider)"
+                class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs min-h-full">&times;
+        </button>
+      </div>
+      <button v-if="probeOrAction.provider.expected_status === undefined" @click="addExpectedStatus(probeOrAction.provider)"
+              class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+
+      </button>
+    </div>
+
     <label class="text-sm font-medium text-white">Timeout (s)</label>
-    <input v-model="probeOrAction.provider.timeout"
-           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-           placeholder="30">
+    <div class="flex flex-col w-full">
+      <div class="flex flex-row gap-2 w-full items-center">
+        <input v-if="probeOrAction.provider.timeout !== undefined"
+               v-model="probeOrAction.provider.timeout"
+               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
+               placeholder="30">
+        <button v-if="probeOrAction.provider.timeout !== undefined" @click="removeTimeout(probeOrAction.provider)"
+                class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs min-h-full">&times;
+        </button>
+      </div>
+      <button v-if="probeOrAction.provider.timeout === undefined" @click="addTimeout(probeOrAction.provider)"
+              class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+
+      </button>
+    </div>
     <label class="text-sm font-medium text-white">Request Args / Body</label>
-    <textarea ref="argumentsTextarea"
-              v-model="argumentsInput"
-              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
-              placeholder="Arguments (JSON)"></textarea>
-    <label class="text-sm font-medium text-white">ChaosToolkit Secrets</label>
-    <textarea ref="secretsTextarea"
-              v-model="secretsInput"
-              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
-              placeholder="Secrets (JSON)"></textarea>
+    <ChaosToolkitConfiguratorProviderArgsAndSecrets :probeOrAction="probeOrAction"></ChaosToolkitConfiguratorProviderArgsAndSecrets>
   </div>
 
   <!-- Process Provider -->
@@ -85,20 +105,23 @@
            class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
            placeholder="/bin/bash">
     <label class="text-sm font-medium text-white">Timeout (s)</label>
-    <input v-model="probeOrAction.provider.timeout"
-           type="number"
-           class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
-           placeholder="30">
+    <div class="flex flex-col w-full">
+      <div class="flex flex-row gap-2 w-full items-center">
+        <input v-if="probeOrAction.provider.timeout !== undefined"
+               v-model="probeOrAction.provider.timeout"
+               class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0"
+               placeholder="30">
+        <button v-if="probeOrAction.provider.timeout !== undefined" @click="removeTimeout(probeOrAction.provider)"
+                class="bg-[#444] text-white px-2 py-2 h-full rounded hover:bg-red-900 text-xs min-h-full">&times;
+        </button>
+      </div>
+      <button v-if="probeOrAction.provider.timeout === undefined" @click="addTimeout(probeOrAction.provider)"
+              class="bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs">+
+      </button>
+    </div>
+
     <label class="text-sm font-medium text-white">Process Arguments</label>
-    <textarea ref="argumentsTextarea"
-              v-model="argumentsInput"
-              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
-              placeholder="Arguments List (JSON)"></textarea>
-    <label class="text-sm font-medium text-white">ChaosToolkit Secrets</label>
-    <textarea ref="secretsTextarea"
-              v-model="secretsInput"
-              class="p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none"
-              placeholder="Secrets (JSON)"></textarea>
+    <ChaosToolkitConfiguratorProviderArgsAndSecrets :probeOrAction="probeOrAction"></ChaosToolkitConfiguratorProviderArgsAndSecrets>
   </div>
 </template>
 
@@ -106,8 +129,7 @@
 import {HttpProvider, type Provider, PROVIDER_OPTIONS} from "../model/chaostoolkit-config.ts";
 import {ref, watch} from "vue";
 import {showChaostoolkitEditor} from "../util/global-state-handler.ts";
-
-import {useTextareaAutosize} from "@vueuse/core";
+import ChaosToolkitConfiguratorProviderArgsAndSecrets from "./ChaosToolkitConfiguratorProviderArgsAndSecrets.vue";
 
 const props = defineProps<{
   probeOrAction: {
@@ -116,36 +138,12 @@ const props = defineProps<{
 }>()
 
 const headersRef = ref<{ key: string, value: string }[]>([]);
-const argumentsTextarea = ref<HTMLTextAreaElement | null>(null);
-const argumentsInput = ref<string>('');
-const secretsTextarea = ref<HTMLTextAreaElement | null>(null);
-const secretsInput = ref<string>('');
-
 const initialized = ref(false);
-
-useTextareaAutosize({element: argumentsTextarea, input: argumentsInput})
-useTextareaAutosize({element: secretsTextarea, input: secretsInput})
 
 watch(headersRef, async () => {
   if (props.probeOrAction.provider.type !== "http" || showChaostoolkitEditor.value) return
   try {
     props.probeOrAction.provider.headers = mapHeadersArrayToObject(headersRef.value);
-  } catch (e) {
-  }
-}, {deep: true, immediate: true});
-
-watch(argumentsInput, async (newValue, oldValue) => {
-  if (newValue === oldValue || showChaostoolkitEditor.value) return
-  try {
-    props.probeOrAction.provider.arguments = JSON.parse(newValue);
-  } catch (e) {
-  }
-}, {deep: true, immediate: true});
-
-watch(secretsInput, async (newValue, oldValue) => {
-  if (newValue === oldValue || showChaostoolkitEditor.value) return
-  try {
-    props.probeOrAction.provider.secrets = JSON.parse(newValue);
   } catch (e) {
   }
 }, {deep: true, immediate: true});
@@ -161,7 +159,6 @@ watch(() => props.probeOrAction, async (newValue, oldValue) => {
 }, {deep: true, immediate: true});
 
 async function parseJsonToModels(provider: Provider) {
-  // headers
   if (provider.type === "http") {
     let httpProvider = provider as HttpProvider;
     if (!httpProvider.headers || typeof httpProvider.headers !== 'object') {
@@ -171,26 +168,6 @@ async function parseJsonToModels(provider: Provider) {
       headersRef.value = Object.entries(httpProvider.headers || {}).map(([key, value]) => ({key, value}));
     } catch (e) {
     }
-  }
-
-  // arguments
-  if (provider.arguments && typeof provider.arguments === 'object') {
-    try {
-      argumentsInput.value = JSON.stringify(provider.arguments, null, 2)
-    } catch (e) {
-    }
-  } else {
-    argumentsInput.value = '';
-  }
-
-  // secrets
-  if (provider.secrets && typeof provider.secrets === 'object') {
-    try {
-      secretsInput.value = JSON.stringify(provider.secrets, null, 2)
-    } catch (e) {
-    }
-  } else {
-    secretsInput.value = '';
   }
 }
 
@@ -205,8 +182,6 @@ function mapHeadersArrayToObject(headers: { key: string, value: string }[] | und
 // This nasty function helps to really reset the provider object when changing types
 function onProviderTypeChange(provider: Provider) {
   headersRef.value = []
-  argumentsInput.value = ''
-  secretsInput.value = ''
 
   if (provider.type === 'python') {
     Object.assign(provider, {
@@ -226,7 +201,7 @@ function onProviderTypeChange(provider: Provider) {
     Object.assign(provider, {
       type: 'http',
       url: '',
-      method: '',
+      method: undefined,
       headers: undefined,
       expected_status: undefined,
       arguments: undefined,
@@ -251,6 +226,39 @@ function onProviderTypeChange(provider: Provider) {
       func: undefined,
     })
   }
+}
+
+function addExpectedStatus(provider: Provider) {
+  if (provider.type !== 'http') return
+  provider.expected_status = 200;
+  parseJsonToModels(provider)
+}
+
+function removeExpectedStatus(provider: Provider) {
+  if (provider.type !== 'http') return
+  provider.expected_status = undefined
+}
+
+function addMethod(provider: Provider) {
+  if (provider.type !== 'http') return
+  provider.method = "GET";
+  parseJsonToModels(provider)
+}
+
+function removeMethod(provider: Provider) {
+  if (provider.type !== 'http') return
+  provider.method = undefined
+}
+
+function addTimeout(provider: Provider) {
+  if (provider.type === 'python') return
+  provider.timeout = 0;
+  parseJsonToModels(provider)
+}
+
+function removeTimeout(provider: Provider) {
+  if (provider.type === 'python') return
+  provider.timeout = undefined
 }
 </script>
 

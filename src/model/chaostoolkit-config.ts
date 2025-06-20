@@ -24,7 +24,7 @@ export class Probe {
   type!: 'probe';
   name!: string;
   provider!: Provider;
-  tolerance?: Tolerance;
+  tolerance?: Record<string, any>;
   configuration?: string[];
   background?: boolean;
   controls?: Control[];
@@ -83,38 +83,6 @@ class ProcessProvider {
 class Pause {
  before!: number;
  after!: number
-}
-
-// Tolerance variations
-type Scalar = string | number | boolean;
-type Tolerance = Scalar
-    | Scalar[]
-    | RegexTolerance
-    | JsonPathTolerance
-    | RangeTolerance
-    | ProbeTolerance;
-
-class RegexTolerance {
-  type: 'regex' = 'regex';
-  pattern!: string;
-  target?: string;
-}
-
-class JsonPathTolerance {
-  type: 'jsonpath' = 'jsonpath';
-  path!: string;
-  expect?: Scalar;
-}
-
-class RangeTolerance {
-  type: 'range' = 'range';
-  range!: [number, number];
-}
-
-class ProbeTolerance {
-  type: 'probe' = 'probe';
-  name!: string;
-  provider!: Provider;
 }
 
 class Control {
