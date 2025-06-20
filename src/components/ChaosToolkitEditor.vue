@@ -21,7 +21,6 @@
                class="flex flex-col gap-2 w-full">
             <div class="flex flex-row items-center justify-between">
               <h3 class="text-lg font-semibold text-white">Steady State Hypothesis</h3>
-              <!-- TODO there is no re-add button, also the border should be gone -->
               <button @click="chaostoolkitConfig['steady-state-hypothesis'] = undefined"
                       class="bg-[#444] text-white p-2 h-full rounded hover:bg-red-900 text-xs">&times;
               </button>
@@ -41,10 +40,10 @@
             </button>
           </div>
 
-            <button v-if="chaostoolkitConfig['steady-state-hypothesis'] === null || chaostoolkitConfig['steady-state-hypothesis'] === undefined"
-                    @click="chaostoolkitConfig['steady-state-hypothesis'] = {title: '', probes: [{type: 'probe', name: '', provider: {type: 'http'}}]}"
-                    class="bg-[#369a6e] text-white px-3 py-1 rounded hover:bg-[#2d7a5a] text-sm w-full">Add Steady State Hypotheses
-            </button>
+          <button v-if="chaostoolkitConfig['steady-state-hypothesis'] === null || chaostoolkitConfig['steady-state-hypothesis'] === undefined"
+                  @click="chaostoolkitConfig['steady-state-hypothesis'] = {title: '', probes: [{type: 'probe', name: '', provider: {type: 'http'}}]}"
+                  class="bg-[#369a6e] text-white px-3 py-1 rounded hover:bg-[#2d7a5a] text-sm w-full">Add Steady State Hypotheses
+          </button>
 
         </div>
         <div class="flex flex-row flex-nowrap min-w-0 w-full rounded p-4 border-4 border-[#2d7a5a]">

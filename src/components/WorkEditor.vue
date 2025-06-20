@@ -32,8 +32,6 @@ const newTabCounter = ref(0)
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
 let resizeObserver: ResizeObserver | null = null
 
-// TODO if a ui is implemented -> make a note that when switching back from the editor information can be lost due to parsing
-
 const loadConfig = async () => {
   const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/gatlingConfig`)
   const dtoList = await response.json()
