@@ -3,7 +3,7 @@
     <div class="flex flex-row justify-between items-center">
       <span class="span-ui-header">{{ probeOrAction.type === 'action' ? 'Action' : 'Probe' }} {{ probeOrActionIndex + 1 }}</span>
       <div>
-        <button class="btn-gray-close-small" @click="minimized = !minimized">{{ minimized ? '+' : '–' }}</button>
+        <button class="btn-gray-minimize-small" @click="minimized = !minimized">{{ minimized ? '+' : '–' }}</button>
         <button v-if="totalProbesOrActions.length > 1" @click="totalProbesOrActions.splice(probeOrActionIndex, 1)" class="btn-gray-close-small">
           &times;
         </button>

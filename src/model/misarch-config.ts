@@ -3,7 +3,7 @@ export class MiSArchConfig {
   pause!: number;
 }
 
-class MisArchFailure {
+export class MisArchFailure {
   name!: string;
   pubSubDeterioration!: PubSubDeterioration | null;
   serviceInvocationDeterioration!: ServiceInvocationDeterioration[] | null;

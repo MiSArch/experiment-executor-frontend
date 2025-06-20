@@ -67,6 +67,10 @@ body {
   @apply bg-[#444] text-white px-2 py-1 mb-2 ml-2 rounded hover:bg-red-900 text-xs
 }
 
+.btn-gray-minimize-small {
+  @apply bg-[#444] text-white px-2 py-1 mb-2 ml-2 rounded hover:bg-[#333] text-xs
+}
+
 .btn-header {
   @apply mr-2 px-4 py-2  bg-[#369a6e] rounded text-white cursor-pointer hover:bg-[#2d7a5a] focus:outline-none focus:ring-0 focus:border-transparent appearance-none border-0
 }
