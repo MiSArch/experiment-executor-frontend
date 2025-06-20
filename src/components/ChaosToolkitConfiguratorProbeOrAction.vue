@@ -71,7 +71,6 @@ watch(toleranceInput, async (newValue, oldValue) => {
 watch(() => props.probeOrAction, async (newValue, oldValue) => {
   if (initialized.value === false) {
     initialized.value = true;
-    console.log(newValue)
     await parseJsonToModels(newValue)
   }
 
