@@ -13,7 +13,10 @@
         </button>
       </div>
     </div>
-    <div v-show="showMisarchEditor" ref="editorElement" class="flex-1 min-h-0 max-w-full overflow-y-hidden"></div>
+    <div v-show="showMisarchEditor" class="flex flex-1">
+      <JsonEditor :config="misarchExperimentConfig" @update:config="onConfigUpdate" :showEditor="showMisarchEditor"
+                  :endpoint="'misarchExperimentConfig'"></JsonEditor>
+    </div>
     <div v-show="!showMisarchEditor" class="flex-1 min-h-0 h-full max-w-full overflow-y-auto">
       <div class="flex flex-col gap-4 p-2">
         <div v-for="(config, configIndex) in misarchExperimentConfig" :key="configIndex" class="rounded p-4 border-4 border-[#2d7a5a]">
@@ -148,112 +151,21 @@
 
 
 <script setup lang="ts">
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import {onBeforeUnmount, ref, watch} from 'vue'
-import {
-  backendUrl,
-  misarchExperimentConfig,
-  showMisarchEditor,
-  showOverlay,
-  testUuid,
-  testVersion
-} from '../util/global-state-handler.ts'
+import {ref} from 'vue'
+import {misarchExperimentConfig, showMisarchEditor} from '../util/global-state-handler.ts'
+import JsonEditor from "./JsonEditor.vue";
+import type {ChaostoolkitConfig} from "../model/chaostoolkit-config.ts";
 import type {MiSArchConfig} from "../model/misarch-config.ts";
 
-const editorElement = ref<HTMLElement | null>(null)
-let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
-let resizeObserver: ResizeObserver | null = null
+function onConfigUpdate(newConfig: ChaostoolkitConfig | MiSArchConfig[]) {
+  if (showMisarchEditor.value) {
+    if (!Array.isArray(newConfig)) return;
+    misarchExperimentConfig.value = newConfig;
+  }
+}
+
 const minimizedFailures = ref<{ [key: string]: boolean }>({})
 const getFailureKey = (configIndex: number, failureIndex: number) => `${configIndex}-${failureIndex}`;
-
-watch(showOverlay, async (newValue, oldValue) => {
-  if (newValue !== oldValue) {
-    await loadConfig()
-    await watcher()
-  }
-})
-
-watch(showMisarchEditor, async () => {
-  await watcher()
-})
-
-async function watcher() {
-  if (showMisarchEditor.value && !editorInstance) {
-    await initEditor()
-  }
-}
-
-watch(misarchExperimentConfig, async (newValue) => {
-  if (!showMisarchEditor.value) {
-    if (editorInstance) {
-      editorInstance.setValue(JSON.stringify(newValue, null, 2))
-    }
-  }
-}, {deep: true})
-
-onBeforeUnmount(() => {
-  editorInstance?.dispose()
-  if (resizeObserver && editorElement.value) {
-    resizeObserver.unobserve(editorElement.value)
-    resizeObserver.disconnect()
-  }
-})
-
-const loadConfig = async () => {
-  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/misarchExperimentConfig`)
-  const text = await response.text()
-  misarchExperimentConfig.value = JSON.parse(text) as [MiSArchConfig]
-}
-
-function debounce(func: Function, wait: number) {
-  let timeout: number | undefined
-  return () => {
-    clearTimeout(timeout)
-    timeout = window.setTimeout(() => func(), wait)
-  }
-}
-
-async function initEditor() {
-  if (!editorElement.value) return;
-
-  if (editorInstance) {
-    editorInstance.setValue(JSON.stringify(misarchExperimentConfig.value, null, 2))
-    return
-  }
-
-  editorInstance = monaco.editor.create(editorElement.value, {
-    value: JSON.stringify(misarchExperimentConfig.value, null, 2),
-    language: 'json',
-    tabSize: 2,
-    insertSpaces: true,
-    theme: 'vs-dark',
-    detectIndentation: false,
-    automaticLayout: false,
-    formatOnType: true,
-    formatOnPaste: true,
-    glyphMargin: false,
-    lineDecorationsWidth: 0,
-    lineNumbersMinChars: 2,
-    wordWrap: 'on',
-    wordWrapColumn: 80,
-    wrappingIndent: 'same',
-  })
-
-  editorInstance.onDidChangeModelContent(() => {
-    if (showMisarchEditor.value) {
-      misarchExperimentConfig.value = JSON.parse(editorInstance?.getValue() || '') as [MiSArchConfig]
-    }
-  })
-
-  const debouncedLayout = debounce(() => {
-    editorInstance?.layout()
-  }, 10)
-
-  resizeObserver = new ResizeObserver(() => {
-    debouncedLayout()
-  })
-  resizeObserver.observe(editorElement.value)
-}
 
 function addServiceInvocationDeterioration(failure: any) {
   if (!failure.serviceInvocationDeterioration) failure.serviceInvocationDeterioration = [];

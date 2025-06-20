@@ -15,7 +15,7 @@ export const showChaostoolkitEditor = ref(false)
 
 export const config = ref<ExperimentConfig>(new ExperimentConfig());
 
-export const misarchExperimentConfig = ref<MiSArchConfig[]>([new MiSArchConfig()])
+export const misarchExperimentConfig = ref<MiSArchConfig[]>([])
 
 export const chaostoolkitConfig = ref<ChaostoolkitConfig>(new ChaostoolkitConfig())
 

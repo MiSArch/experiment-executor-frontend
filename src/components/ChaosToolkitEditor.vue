@@ -13,7 +13,10 @@
         </button>
       </div>
     </div>
-    <div v-show="showChaostoolkitEditor" ref="editorElement" class="flex-1 min-h-0 max-w-full overflow-y-hidden"></div>
+    <div v-show="showChaostoolkitEditor" class="flex flex-1">
+      <JsonEditor :config="chaostoolkitConfig" @update:config="onConfigUpdate" :showEditor="showChaostoolkitEditor"
+                  :endpoint="'chaosToolkitConfig'"></JsonEditor>
+    </div>
     <div v-show="!showChaostoolkitEditor" class="flex-1 min-h-0 h-full max-w-full overflow-y-auto">
       <div class="flex flex-col gap-4 p-2">
         <div class="flex flex-row flex-nowrap justify-between min-w-0 w-full rounded p-4 border-4 border-[#2d7a5a]">
@@ -35,13 +38,13 @@
                                                      :totalProbesOrActions="chaostoolkitConfig['steady-state-hypothesis'].probes"
                                                      :isSteadyState="true"/>
             </div>
-            <button @click="chaostoolkitConfig['steady-state-hypothesis'].probes.push({type: 'probe', name: '', provider: {type: 'http'}})"
+            <button @click="chaostoolkitConfig['steady-state-hypothesis'].probes.push({type: 'probe', name: '', provider: {type: 'http', url: ''}})"
                     class="bg-[#369a6e] text-white px-3 py-1 rounded hover:bg-[#2d7a5a] text-sm">+
             </button>
           </div>
 
           <button v-if="chaostoolkitConfig['steady-state-hypothesis'] === null || chaostoolkitConfig['steady-state-hypothesis'] === undefined"
-                  @click="chaostoolkitConfig['steady-state-hypothesis'] = {title: '', probes: [{type: 'probe', name: '', provider: {type: 'http'}}]}"
+                  @click="chaostoolkitConfig['steady-state-hypothesis'] = {title: '', probes: [{type: 'probe', name: '', provider: {type: 'http', url: ''}}]}"
                   class="bg-[#369a6e] text-white px-3 py-1 rounded hover:bg-[#2d7a5a] text-sm w-full">Add Steady State Hypotheses
           </button>
 
@@ -58,7 +61,7 @@
                                                      :totalProbesOrActions="chaostoolkitConfig.method"
                                                      :isSteadyState="false"/>
             </div>
-            <button @click="chaostoolkitConfig.method.push({type: 'probe', name: '', provider: {type: 'http'}})"
+            <button @click="chaostoolkitConfig.method.push({type: 'probe', name: '', provider: {type: 'http', url: ''}})"
                     class="bg-[#369a6e] text-white px-3 py-1 rounded hover:bg-[#2d7a5a] text-sm">+
             </button>
           </div>
@@ -70,109 +73,16 @@
 
 <script setup lang="ts">
 import ChaosToolkitConfiguratorProbeOrAction from './ChaosToolkitConfiguratorProbeOrAction.vue';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import {ref, onBeforeUnmount, watch} from 'vue'
-import {
-  showOverlay,
-  testUuid,
-  testVersion,
-  backendUrl,
-  chaostoolkitConfig,
-  showChaostoolkitEditor,
-} from '../util/global-state-handler.ts'
-import {type ChaostoolkitConfig} from "../model/chaostoolkit-config.ts";
+import {chaostoolkitConfig, showChaostoolkitEditor} from '../util/global-state-handler.ts'
+import JsonEditor from "./JsonEditor.vue";
+import type {ChaostoolkitConfig} from "../model/chaostoolkit-config.ts";
+import type {MiSArchConfig} from "../model/misarch-config.ts";
 
-const editorElement = ref<HTMLElement | null>(null)
-let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
-let resizeObserver: ResizeObserver | null = null
-
-watch(showOverlay, async (newValue, oldValue) => {
-  if (newValue !== oldValue) {
-    await loadConfig()
-    await watcher()
+function onConfigUpdate(newConfig: ChaostoolkitConfig | MiSArchConfig[]) {
+  if (showChaostoolkitEditor.value) {
+    if (Array.isArray(newConfig)) return;
+    chaostoolkitConfig.value = newConfig;
   }
-})
-
-watch(showChaostoolkitEditor, async () => {
-  await watcher()
-})
-
-async function watcher() {
-  if (showChaostoolkitEditor.value && !editorInstance) {
-    await initEditor()
-  }
-}
-
-watch(chaostoolkitConfig, async (newValue) => {
-  if (!showChaostoolkitEditor.value) {
-    if (editorInstance) {
-      editorInstance.setValue(JSON.stringify(newValue, null, 2))
-    }
-  }
-}, {deep: true})
-
-onBeforeUnmount(() => {
-  editorInstance?.dispose()
-  if (resizeObserver && editorElement.value) {
-    resizeObserver.unobserve(editorElement.value)
-    resizeObserver.disconnect()
-  }
-})
-
-const loadConfig = async () => {
-  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/chaosToolkitConfig`)
-  const text = await response.text()
-  chaostoolkitConfig.value = JSON.parse(text) as ChaostoolkitConfig
-}
-
-function debounce(func: Function, wait: number) {
-  let timeout: number | undefined
-  return () => {
-    clearTimeout(timeout)
-    timeout = window.setTimeout(() => func(), wait)
-  }
-}
-
-async function initEditor() {
-  if (!editorElement.value) return;
-
-  if (editorInstance) {
-    editorInstance.setValue(JSON.stringify(chaostoolkitConfig.value, null, 2))
-    return
-  }
-
-  editorInstance = monaco.editor.create(editorElement.value, {
-    value: JSON.stringify(chaostoolkitConfig.value, null, 2),
-    language: 'json',
-    tabSize: 2,
-    insertSpaces: true,
-    theme: 'vs-dark',
-    detectIndentation: false,
-    automaticLayout: false,
-    formatOnType: true,
-    formatOnPaste: true,
-    glyphMargin: false,
-    lineDecorationsWidth: 0,
-    lineNumbersMinChars: 2,
-    wordWrap: 'on',
-    wordWrapColumn: 80,
-    wrappingIndent: 'same',
-  })
-
-  editorInstance.onDidChangeModelContent(() => {
-    if (showChaostoolkitEditor.value) {
-      chaostoolkitConfig.value = JSON.parse(editorInstance?.getValue() || '') as ChaostoolkitConfig
-    }
-  })
-
-  const debouncedLayout = debounce(() => {
-    editorInstance?.layout()
-  }, 10)
-
-  resizeObserver = new ResizeObserver(() => {
-    debouncedLayout()
-  })
-  resizeObserver.observe(editorElement.value)
 }
 </script>
 
