@@ -182,7 +182,12 @@ async function applyUsers() {
 }
 
 watch(gatlingConfigs, async () => {
-      if (gatlingConfigs.value.length + 1 != chartData.value.datasets.length) {
+      if (
+          gatlingConfigs.value.length + 1 !== chartData.value.datasets.length ||
+          gatlingConfigs.value.some(config =>
+              !chartData.value.datasets.some(ds => ds.label.includes(config.fileName)))
+      ) {
+        console.log("triggereed")
         const list = []
         const totalRequests = await createTotalRequestChartData()
         list.push(totalRequests)

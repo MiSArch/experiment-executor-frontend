@@ -5,10 +5,16 @@
       <button class="btn-header">?</button>
     </div>
     <div class="flex flex-row w-full justify-evenly bg-[#2c2c2c] border-b border-[#444] z-10">
-      <button v-for="(tab, index) in gatlingConfigs" :key="index" :title="tab.fileName" @click="switchTab(index)"
+      <button v-for="(tab, index) in gatlingConfigs" :key="index" :title="tab.fileName" @click="switchTab(index)" @dblclick="startRenaming(index)"
               :class="['flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis px-2 py-1 text-white cursor-pointer text-sm border-r border-[#444]', { 'bg-[#444] font-bold text-white': activeTabIndex === index, 'hover:bg-[#333]': activeTabIndex !== index }]">
-        <span class="inline-block cursor-pointer select-none rounded mr-1 ml-1 pr-1.5 pl-1.5 hover:bg-red-900" @click.stop="removeTab(index)"
-              aria-label="Close tab" title="Close tab">&times;</span>{{ tab.fileName }}
+  <span class="inline-block cursor-pointer select-none rounded mr-1 ml-1 pr-1.5 pl-1.5 hover:bg-red-900" @click.stop="removeTab(index)"
+        aria-label="Close tab"
+        title="Close tab">&times;</span>
+        <template v-if="renamingTabIndex === index">
+          <input ref="renameInput" v-model="gatlingConfigs[index].fileName" @blur="finishRenaming(index, $event)"
+                 @keyup.enter="finishRenaming(index, $event)" class="bg-[#222] text-white px-1 rounded border-2 border-[#2d7a5a] focus:outline-none"/>
+        </template>
+        <template v-else>{{ tab.fileName }}</template>
       </button>
       <button class="px-4 py-1 bg-[#369a6e] text-white cursor-pointer text-sm rounded-none hover:bg-[#2d7a5a] focus:outline-none" @click="addTab">＋
       </button>
@@ -19,13 +25,16 @@
 
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import {ref, watch, onBeforeUnmount} from 'vue'
+import {ref, watch, onBeforeUnmount, nextTick} from 'vue'
 import {backendUrl, gatlingConfigs, testUuid, testVersion, showOverlay} from '../util/global-state-handler.ts'
 import {KotlinScenarioModel} from "../model/gatling-work.ts";
 
 const activeTabIndex = ref(0)
 const editorElement = ref<HTMLElement | null>(null)
 const newTabCounter = ref(0)
+const renamingTabIndex = ref<number | null>(null)
+const renameInput = ref<HTMLInputElement | null>(null)
+
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
 let resizeObserver: ResizeObserver | null = null
 
@@ -93,6 +102,24 @@ const removeTab = (index: number) => {
   } else {
     editorInstance?.setValue('')
   }
+}
+
+const startRenaming = (index: number) => {
+  renamingTabIndex.value = index
+  nextTick(() => {
+    renameInput.value?.focus()
+    renameInput.value?.select()
+  })
+}
+
+const finishRenaming = (index: number, event?: Event) => {
+  if (event && event.target) {
+    const input = event.target as HTMLInputElement
+    if (input.value.trim()) {
+      gatlingConfigs.value[index].fileName = input.value.trim()
+    }
+  }
+  renamingTabIndex.value = null
 }
 
 watch(showOverlay, async (newValue, oldValue) => {
