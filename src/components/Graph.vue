@@ -56,8 +56,8 @@
 import {defineChartComponent} from 'vue-chart-3'
 import dragDataPlugin from 'chartjs-plugin-dragdata'
 import {CategoryScale, Chart as ChartJS, Legend, LinearScale, LineController, LineElement, PointElement, Title, Tooltip} from 'chart.js'
-import {ref, watch} from 'vue'
-import {gatlingConfigs} from "../util/global-state-handler.ts";
+import {ref, toRaw, watch} from 'vue'
+import {chaostoolkitConfig, gatlingConfigs, misarchExperimentConfig} from "../util/global-state-handler.ts";
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale, LineController, dragDataPlugin)
 
@@ -112,16 +112,25 @@ function toggleGraphOverlay() {
   isGraphOverlayVisible.value = !isGraphOverlayVisible.value;
 }
 
-async function updateGraph() {
+function getXLabels() {
   const maxLength = Math.max(...gatlingConfigs.value.map(config => config.userSteps.length));
-  chartData.value.labels = Array.from({length: maxLength}, (_, i) => (i + 1).toString());
-  duration.value = maxLength;
+  return Array.from({length: maxLength}, (_, i) => (i).toString());
+}
+
+async function updateGraph() {
+
+  chartData.value.labels = getXLabels();
+  duration.value = chartData.value.labels.length;
+
+  removeFailureLinesFromChart()
 
   for (let i = 0; i < chartData.value.datasets.length - 1; i++) {
     chartData.value.datasets[i + 1].data = await calculateTotalUsers(i);
   }
 
   chartData.value.datasets[0].data = await calculateApproximateRequests();
+  addFailureLinesMiSArch()
+  addFailureLinesChaosToolkit();
 }
 
 async function calculateTotalUsers(index: number): Promise<number[]> {
@@ -187,7 +196,6 @@ watch(gatlingConfigs, async () => {
           gatlingConfigs.value.some(config =>
               !chartData.value.datasets.some(ds => ds.label.includes(config.fileName)))
       ) {
-        console.log("triggereed")
         const list = []
         const totalRequests = await createTotalRequestChartData()
         list.push(totalRequests)
@@ -201,6 +209,8 @@ watch(gatlingConfigs, async () => {
             backgroundColor: color.background,
             borderWidth: 2,
             dragData: false,
+            showLine: true,
+            pointRadius: 0,
           })
         }
 
@@ -219,6 +229,29 @@ watch(gatlingConfigs, async () => {
     }
 )
 
+let lastMisarchPauses: number[] = []
+watch(misarchExperimentConfig, (newVal) => {
+      const pauses = toRaw(newVal).map(cfg => cfg.pause)
+      if (pauses.length !== lastMisarchPauses.length || pauses.some((p, i) => p !== lastMisarchPauses[i])) {
+        needsUpdate.value = true
+        lastMisarchPauses = [...pauses]
+      }
+    }, {deep: true}
+)
+
+let lastChaosPauses: string = ''
+watch(chaostoolkitConfig, (newVal) => {
+      const pauses = toRaw(newVal).method
+      .filter((item: any) => item.type === 'action' && item.pauses)
+      .map((item: any) => `${item.pauses.before},${item.pauses.after}`)
+      .join('|')
+      if (pauses !== lastChaosPauses) {
+        needsUpdate.value = true
+        lastChaosPauses = pauses
+      }
+    }, {deep: true}
+)
+
 watch(needsUpdate, async () => {
   await updateGraph()
   needsUpdate.value = false
@@ -232,6 +265,8 @@ async function createTotalRequestChartData() {
     backgroundColor: 'rgba(199, 199, 199, 0.2)',
     borderWidth: 2,
     dragData: false,
+    showLine: true,
+    pointRadius: 0,
   };
 }
 
@@ -269,6 +304,78 @@ async function expandPausesToTimeline(pauses: number[]): Promise<number[]> {
 
   return timeline;
 }
+
+function removeFailureLinesFromChart() {
+  chartData.value.datasets = chartData.value.datasets.filter(ds => !ds.label.startsWith('MiSArch Failure Sets')).filter(ds =>
+      !ds.label.startsWith('ChaosToolkit Actions'))
+}
+
+function addFailureLinesChaosToolkit() {
+  if (!chaostoolkitConfig.value.method) return
+  let currentTime = 0;
+  const xValues: number[] = [];
+  chaostoolkitConfig.value.method.forEach(probeOrAction => {
+    if (probeOrAction.type === 'action' && probeOrAction.pauses) {
+      currentTime += probeOrAction.pauses.before;
+    }
+    xValues.push(currentTime);
+    if (probeOrAction.type === 'action' && probeOrAction.pauses) {
+      currentTime += probeOrAction.pauses.after;
+    }
+  });
+  buildFailureGraph(xValues, 'ChaosToolkit Actions', 'rgb(255,128,59, 1)', 'rgba(255, 128, 59, 0.2)');
+}
+
+function addFailureLinesMiSArch() {
+  if (misarchExperimentConfig.value.length === 0) return
+  let currentTime = 0;
+  const xValues: number[] = [];
+  misarchExperimentConfig.value.forEach(config => {
+    xValues.push(currentTime);
+    currentTime += config.pause / 1000;
+  });
+  buildFailureGraph(xValues, 'MiSArch Failure Sets', 'rgb(255,54,54,1)', 'rgba(255, 54, 54, 0.2)');
+}
+
+function getMaxYValue() {
+  const values = chartData.value.datasets
+  .filter(ds => !ds.label.startsWith('MiSArch Failure Sets') && !ds.label.startsWith('ChaosToolkit Actions'))
+  .flatMap(ds => ds.data as number[]);
+  return values.length > 0 ? Math.max(...values) : 0;
+}
+
+function buildFailureGraph(xValues: number[], label: string, borderColor: string, backgroundColor: string) {
+  const maxY = getMaxYValue() * 1.10;
+  const minY = 0;
+  const maxX = Math.ceil(xValues[xValues.length - 1]);
+  let data: Array<number | null> = [];
+
+  for (let x = 0; x <= maxX; x++) {
+    if (xValues.includes(x)) {
+      data.push(minY);
+      data.push(maxY);
+      x++;
+    } else {
+      data.push(null);
+    }
+  }
+
+  const failureLineDataSet = {
+    label: label,
+    data,
+    borderColor: borderColor,
+    backgroundColor: backgroundColor,
+    borderWidth: 2,
+    fill: false,
+    showLine: true,
+    pointRadius: 0,
+    borderDash: [5, 5],
+    dragData: false,
+  };
+
+  chartData.value.datasets.push(failureLineDataSet);
+}
+
 </script>
 
 <style/>
