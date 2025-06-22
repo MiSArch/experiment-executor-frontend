@@ -332,7 +332,7 @@ function addFailureLinesMiSArch() {
   const xValues: number[] = [];
   misarchExperimentConfig.value.forEach(config => {
     xValues.push(currentTime);
-    currentTime += config.pause / 1000;
+    currentTime += config.pause;
   });
   buildFailureGraph(xValues, 'MiSArch Failure Sets', 'rgb(255,54,54,1)', 'rgba(255, 54, 54, 0.2)');
 }

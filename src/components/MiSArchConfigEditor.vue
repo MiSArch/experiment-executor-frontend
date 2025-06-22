@@ -23,8 +23,8 @@
           </div>
           <div class="flex flex-col gap-2">
             <button @click="addFailure(configIndex)" class="btn-green-add">+</button>
-            <label class="label-small">Pause Duration after Failure Group (ms)</label>
-            <input v-model="failureSet.pause" type="number" class="input-default" placeholder="500"/>
+            <label class="label-small">Pause Duration after Failure Group (s)</label>
+            <input v-model="failureSet.pause" type="number" class="input-default" placeholder="15"/>
           </div>
         </div>
         <div class="flex flex-col gap-2">
