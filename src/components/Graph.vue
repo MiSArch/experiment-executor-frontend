@@ -89,7 +89,7 @@ const chartData = ref({
   datasets: [
     {
       label: 'Approx. Total Requests',
-      data: [0],
+      data: [0, null],
       borderColor: 'rgba(199, 199, 199, 1)',
       backgroundColor: 'rgba(199, 199, 199, 0.2)',
       borderWidth: 2,
