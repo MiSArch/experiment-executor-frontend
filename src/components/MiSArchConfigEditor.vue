@@ -23,8 +23,11 @@
           </div>
           <div class="flex flex-col gap-2">
             <button @click="addFailure(configIndex)" class="btn-green-add">+</button>
-            <label class="label-small">Pause Duration after Failure Group (s)</label>
-            <input v-model="failureSet.pause" type="number" class="input-default" placeholder="15"/>
+            <label class="label-small">Pause Durations Before and After Failure Group (s)</label>
+            <div class="flex flex-row gap-2 w-full justify-between items-center">
+              <input v-model.number="failureSet.pauses.before" type="number" class="input-default" placeholder="Pause Before Execution (s)" min="0">
+              <input v-model.number="failureSet.pauses.after" type="number" class="input-default" placeholder="Pause After Execution (s)" min="0">
+            </div>
           </div>
         </div>
         <div class="flex flex-col gap-2">
@@ -77,7 +80,10 @@ function addFailureSet() {
       artificialMemoryUsage: null,
       artificialCPUUsage: []
     }],
-    pause: 500
+    pauses: {
+      before: 5,
+      after: 5
+    }
   })
 }
 

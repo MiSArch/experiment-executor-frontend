@@ -1,6 +1,10 @@
 export class MiSArchConfig {
   failures!: MisArchFailure[];
-  pause!: number;
+  pauses!: Pauses;
+}
+export class Pauses {
+  before!: number;
+  after!: number;
 }
 
 export class MisArchFailure {

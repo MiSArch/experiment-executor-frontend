@@ -231,12 +231,14 @@ watch(gatlingConfigs, async () => {
     }
 )
 
-let lastMisarchPauses: number[] = []
+let lastMisarchPauses: string = ''
 watch(misarchExperimentConfig, (newVal) => {
-      const pauses = toRaw(newVal).map(cfg => cfg.pause)
-      if (pauses.length !== lastMisarchPauses.length || pauses.some((p, i) => p !== lastMisarchPauses[i])) {
+      const pauses = toRaw(newVal)
+      .map((item: any) => `${item.pauses.before},${item.pauses.after}`)
+      .join('|')
+      if (pauses !== lastMisarchPauses) {
         needsUpdate.value = true
-        lastMisarchPauses = [...pauses]
+        lastMisarchPauses = pauses
       }
     }, {deep: true}
 )
@@ -333,8 +335,9 @@ async function addFailureLinesMiSArch() {
   let currentTime = 0;
   const xValues: number[] = [];
   misarchExperimentConfig.value.forEach(config => {
+    currentTime += config.pauses.before
     xValues.push(currentTime);
-    currentTime += config.pause;
+    currentTime += config.pauses.after;
   });
   await buildFailureGraph(xValues, 'MiSArch Failure Sets', 'rgb(255,54,54,1)', 'rgba(255, 54, 54, 0.2)');
 }
