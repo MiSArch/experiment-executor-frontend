@@ -3,7 +3,7 @@
     <button class="btn-graph-hover right-14">?</button>
     <button class="btn-graph-hover right-2" @click="isGraphOverlayVisible = !isGraphOverlayVisible;">☰</button>
 
-    <LineChart :key="chartKey" class="grow h-full" :chart-data="chartData" :chart-options="chartOptions"/>
+    <LineChart class="grow h-full" :chart-data="chartData" :chart-options="chartOptions"/>
 
     <div v-if="isGraphOverlayVisible" class="z-50 absolute w-full h-full top-0 left-0 right-0 bg-[#242424] p-6">
       <button
@@ -61,7 +61,8 @@ import {chaostoolkitConfig, gatlingConfigs, misarchExperimentConfig} from "../ut
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale, LineController, dragDataPlugin)
 
-const LineChart = defineChartComponent("test", 'line')
+
+const LineChart = defineChartComponent("graph", 'line')
 const timeFrom = ref<number>(0)
 const timeTo = ref<number>(0)
 const arrivingUsers = ref<number>(0)
@@ -69,7 +70,6 @@ const needsUpdate = ref<boolean>(false)
 const duration = ref<number[]>([])
 const currentlyEditing = ref<number>(1)
 const isGraphOverlayVisible = ref(false)
-const chartKey = ref(0);
 
 const colors = [
   {border: 'rgba(83, 102, 255, 1)', background: 'rgba(83, 102, 255, 0.2)'},
@@ -217,7 +217,6 @@ watch(gatlingConfigs, async () => {
         }
 
         chartData.value.datasets = list;
-        chartKey.value++;
         needsUpdate.value = true;
       }
 
@@ -232,7 +231,7 @@ watch(gatlingConfigs, async () => {
 )
 
 let lastMisarchPauses: string = ''
-watch(misarchExperimentConfig, (newVal) => {
+watch(misarchExperimentConfig, async (newVal) => {
       const pauses = toRaw(newVal)
       .map((item: any) => `${item.pauses.before},${item.pauses.after}`)
       .join('|')
@@ -244,7 +243,7 @@ watch(misarchExperimentConfig, (newVal) => {
 )
 
 let lastChaosPauses: string = ''
-watch(chaostoolkitConfig, (newVal) => {
+watch(chaostoolkitConfig, async (newVal) => {
       const pauses = toRaw(newVal).method
       .filter((item: any) => item.type === 'action' && item.pauses)
       .map((item: any) => `${item.pauses.before},${item.pauses.after}`)
@@ -274,7 +273,6 @@ async function createTotalRequestChartData() {
   };
 }
 
-// TODO show the correct duration for each scenario
 async function applyDuration() {
   if (duration.value[currentlyEditing.value] > gatlingConfigs.value[currentlyEditing.value].userSteps.length) {
     for (let i = gatlingConfigs.value[currentlyEditing.value].userSteps.length; i < duration.value[currentlyEditing.value]; i++) {

@@ -49,7 +49,7 @@ watch(argumentsInput, async (newValue, oldValue) => {
     props.probeOrAction.provider.arguments = JSON.parse(newValue);
   } catch (e) {
   }
-}, {deep: true, immediate: true});
+}, {deep: true});
 
 watch(secretsInput, async (newValue, oldValue) => {
   if (newValue === oldValue || showChaostoolkitEditor.value) return
@@ -57,7 +57,7 @@ watch(secretsInput, async (newValue, oldValue) => {
     props.probeOrAction.provider.secrets = JSON.parse(newValue);
   } catch (e) {
   }
-}, {deep: true, immediate: true});
+}, {deep: true});
 
 watch(() => props.probeOrAction, async (newValue, oldValue) => {
   if (initialized.value === false) {
@@ -67,7 +67,7 @@ watch(() => props.probeOrAction, async (newValue, oldValue) => {
 
   if (newValue === oldValue || !showChaostoolkitEditor.value) return
   await parseJsonToModels(newValue.provider)
-}, {deep: true, immediate: true});
+}, {deep: true});
 
 async function parseJsonToModels(provider: Provider) {
   // arguments

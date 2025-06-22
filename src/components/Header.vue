@@ -32,7 +32,6 @@ const startExperiment = async () => {
     await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}`, {
       method: 'POST',
     })
-    // TODO implement an input field to add an optional access token for the experiment
     alert(`Experiment started! You will be notified once it is completed!`)
   } catch (error) {
     console.error('Error running experiment:', error)
