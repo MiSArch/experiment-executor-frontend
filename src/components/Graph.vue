@@ -1,14 +1,14 @@
 <template>
   <div class="m-2 pt-5 w-full max-h-[95vh] md:w-2/3 relative">
     <button class="btn-graph-hover right-14">?</button>
-    <button class="btn-graph-hover right-2" @click="toggleGraphOverlay">☰</button>
+    <button class="btn-graph-hover right-2" @click="isGraphOverlayVisible = !isGraphOverlayVisible;">☰</button>
 
     <LineChart :key="chartKey" class="grow h-full" :chart-data="chartData" :chart-options="chartOptions"/>
 
     <div v-if="isGraphOverlayVisible" class="z-50 absolute w-full h-full top-0 left-0 right-0 bg-[#242424] p-6">
       <button
           class="btn-graph-hover right-2"
-          @click="toggleGraphOverlay">&times;
+          @click="isGraphOverlayVisible = !isGraphOverlayVisible;">&times;
       </button>
       <div class="flex flex-col gap-4 items-center pt-12 max-w-2xl mx-auto min-width-xl">
         <div class="flex flex-row gap-4 w-full items-center">
@@ -24,7 +24,7 @@
           <div class="flex flex-col gap-2 w-full">
             <div class="flex flex-row gap-2 items-center">
               <span class="span-label">Duration</span>
-              <input class="input-default" v-model="duration" placeholder="Duration"/>
+              <input class="input-default" v-model="duration[currentlyEditing]" placeholder="Duration"/>
             </div>
           </div>
           <button class="btn-apply" @click="applyDuration" style="align-self: stretch;">Apply</button>
@@ -66,7 +66,7 @@ const timeFrom = ref<number>(0)
 const timeTo = ref<number>(0)
 const arrivingUsers = ref<number>(0)
 const needsUpdate = ref<boolean>(false)
-const duration = ref(0)
+const duration = ref<number[]>([])
 const currentlyEditing = ref<number>(1)
 const isGraphOverlayVisible = ref(false)
 const chartKey = ref(0);
@@ -108,37 +108,32 @@ const chartOptions = ref({
   },
 })
 
-function toggleGraphOverlay() {
-  isGraphOverlayVisible.value = !isGraphOverlayVisible.value;
-}
+async function getXLabels() {
+  const maxSessionDuration = Math.max(...gatlingConfigs.value.map((_, i) => calculateSessionDuration(i)));
+  const maxLength = Math.max(...gatlingConfigs.value.map(config => config.userSteps.length)) + maxSessionDuration
 
-function getXLabels() {
-  const maxLength = Math.max(...gatlingConfigs.value.map(config => config.userSteps.length));
   return Array.from({length: maxLength}, (_, i) => (i).toString());
 }
 
 async function updateGraph() {
 
-  chartData.value.labels = getXLabels();
-  duration.value = chartData.value.labels.length;
+  chartData.value.labels = await getXLabels();
+  gatlingConfigs.value.map(config => { duration.value[gatlingConfigs.value.indexOf(config)] = config.userSteps.length; });
 
-  removeFailureLinesFromChart()
+  await removeFailureLinesFromChart()
 
   for (let i = 0; i < chartData.value.datasets.length - 1; i++) {
     chartData.value.datasets[i + 1].data = await calculateTotalUsers(i);
   }
 
   chartData.value.datasets[0].data = await calculateApproximateRequests();
-  addFailureLinesMiSArch()
-  addFailureLinesChaosToolkit();
+  await addFailureLinesMiSArch()
+  await addFailureLinesChaosToolkit();
 }
 
 async function calculateTotalUsers(index: number): Promise<number[]> {
   const totalUsers: number[] = [];
-  const sessionDuration = Math.floor(gatlingConfigs.value[index].workModel.steps
-  .filter((step): step is typeof step & { durationMin: number, durationMax: number } =>
-      step.type === 'pause' && step.durationMin !== undefined && step.durationMax !== undefined)
-  .reduce((sum, step) => sum + (step.durationMin + step.durationMax) / 2, 0) / 1000);
+  const sessionDuration = calculateSessionDuration(index);
 
   gatlingConfigs.value[index].userSteps.forEach((users, time) => {
     for (let i = 0; i < sessionDuration; i++) {
@@ -147,6 +142,13 @@ async function calculateTotalUsers(index: number): Promise<number[]> {
   });
 
   return totalUsers;
+}
+
+function calculateSessionDuration(index: number): number {
+  return Math.floor(gatlingConfigs.value[index].workModel.steps
+  .filter((step): step is typeof step & { durationMin: number, durationMax: number } =>
+      step.type === 'pause' && step.durationMin !== undefined && step.durationMax !== undefined)
+  .reduce((sum, step) => sum + (step.durationMin + step.durationMax) / 2, 0) / 1000);
 }
 
 async function calculateApproximateRequests(): Promise<number[]> {
@@ -192,9 +194,9 @@ async function applyUsers() {
 
 watch(gatlingConfigs, async () => {
       if (
-          gatlingConfigs.value.length + 1 !== chartData.value.datasets.length ||
-          gatlingConfigs.value.some(config =>
-              !chartData.value.datasets.some(ds => ds.label.includes(config.fileName)))
+          // 1 totalRequests and 2 failure lines are always present
+          gatlingConfigs.value.length + 3 !== chartData.value.datasets.length ||
+          gatlingConfigs.value.some(config => !chartData.value.datasets.some(ds => ds.label.includes(config.fileName)))
       ) {
         const list = []
         const totalRequests = await createTotalRequestChartData()
@@ -272,12 +274,12 @@ async function createTotalRequestChartData() {
 
 // TODO show the correct duration for each scenario
 async function applyDuration() {
-  if (duration.value > gatlingConfigs.value[currentlyEditing.value].userSteps.length) {
-    for (let i = gatlingConfigs.value[currentlyEditing.value].userSteps.length; i < duration.value; i++) {
+  if (duration.value[currentlyEditing.value] > gatlingConfigs.value[currentlyEditing.value].userSteps.length) {
+    for (let i = gatlingConfigs.value[currentlyEditing.value].userSteps.length; i < duration.value[currentlyEditing.value]; i++) {
       gatlingConfigs.value[currentlyEditing.value].userSteps.push(0);
     }
-  } else if (duration.value < gatlingConfigs.value[currentlyEditing.value].userSteps.length) {
-    gatlingConfigs.value[currentlyEditing.value].userSteps.splice(duration.value);
+  } else if (duration.value[currentlyEditing.value] < gatlingConfigs.value[currentlyEditing.value].userSteps.length) {
+    gatlingConfigs.value[currentlyEditing.value].userSteps.splice(duration.value[currentlyEditing.value]);
   }
   needsUpdate.value = true
 }
@@ -305,12 +307,12 @@ async function expandPausesToTimeline(pauses: number[]): Promise<number[]> {
   return timeline;
 }
 
-function removeFailureLinesFromChart() {
+async function removeFailureLinesFromChart() {
   chartData.value.datasets = chartData.value.datasets.filter(ds => !ds.label.startsWith('MiSArch Failure Sets')).filter(ds =>
       !ds.label.startsWith('ChaosToolkit Actions'))
 }
 
-function addFailureLinesChaosToolkit() {
+async function addFailureLinesChaosToolkit() {
   if (!chaostoolkitConfig.value.method) return
   let currentTime = 0;
   const xValues: number[] = [];
@@ -323,10 +325,10 @@ function addFailureLinesChaosToolkit() {
       currentTime += probeOrAction.pauses.after;
     }
   });
-  buildFailureGraph(xValues, 'ChaosToolkit Actions', 'rgb(255,128,59, 1)', 'rgba(255, 128, 59, 0.2)');
+  await buildFailureGraph(xValues, 'ChaosToolkit Actions', 'rgb(255,128,59, 1)', 'rgba(255, 128, 59, 0.2)');
 }
 
-function addFailureLinesMiSArch() {
+async function addFailureLinesMiSArch() {
   if (misarchExperimentConfig.value.length === 0) return
   let currentTime = 0;
   const xValues: number[] = [];
@@ -334,18 +336,18 @@ function addFailureLinesMiSArch() {
     xValues.push(currentTime);
     currentTime += config.pause;
   });
-  buildFailureGraph(xValues, 'MiSArch Failure Sets', 'rgb(255,54,54,1)', 'rgba(255, 54, 54, 0.2)');
+  await buildFailureGraph(xValues, 'MiSArch Failure Sets', 'rgb(255,54,54,1)', 'rgba(255, 54, 54, 0.2)');
 }
 
-function getMaxYValue() {
+async function getMaxYValue() {
   const values = chartData.value.datasets
   .filter(ds => !ds.label.startsWith('MiSArch Failure Sets') && !ds.label.startsWith('ChaosToolkit Actions'))
   .flatMap(ds => ds.data as number[]);
   return values.length > 0 ? Math.max(...values) : 0;
 }
 
-function buildFailureGraph(xValues: number[], label: string, borderColor: string, backgroundColor: string) {
-  const maxY = getMaxYValue() * 1.10;
+async function buildFailureGraph(xValues: number[], label: string, borderColor: string, backgroundColor: string) {
+  const maxY = await getMaxYValue() * 1.10;
   const minY = 0;
   const maxX = Math.ceil(xValues[xValues.length - 1]);
   let data: Array<number | null> = [];

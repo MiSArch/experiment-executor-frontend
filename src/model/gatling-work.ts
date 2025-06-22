@@ -107,6 +107,7 @@ export class KotlinScenarioModel {
 
   toKotlin(): string {
     const lines: string[] = [];
+    // TODO the headers need to be conserved not hardcoded!!!!!
     lines.push("package org.misarch\n\nimport io.gatling.javaapi.core.CoreDsl.*\nimport io.gatling.javaapi.http.HttpDsl.http\nimport java.time.Duration\n");
     lines.push(`val ${this.scenarioName.replace(/\s+/g, '')} = scenario("${this.scenarioName}")`);
 

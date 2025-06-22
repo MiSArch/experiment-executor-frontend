@@ -7,8 +7,6 @@ export class ExperimentConfig {
 
 class Gatling {
   loadType!: string;
-  endpointHost!: string;
-  endpointAccessToken! : string;
 }
 
 class WorkLoad {
