@@ -22,3 +22,83 @@ body {
 #app {
   width: 100vw;
 }
+
+.div-subheader {
+  @apply flex flex-row items-center justify-between p-2 bg-[#235f43] text-white
+}
+
+.div-outer-border {
+  @apply rounded p-4 border-4 border-[#2d7a5a]
+}
+
+.div-inner-border {
+  @apply rounded p-3 mb-2 border-4 border-[#42b883]
+}
+
+.span-header{
+  @apply mr-4 text-lg font-bold
+}
+
+.span-subheader{
+  @apply text-xl font-bold text-white px-3 py-1.5
+}
+
+.span-ui-header {
+  @apply text-lg font-semibold text-white mt-1 mb-2
+}
+
+.span-label {
+  @apply p-2 rounded bg-[#444] border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0 text-center
+}
+
+.btn-green-add {
+  @apply bg-[#369a6e] text-white px-3 py-1 rounded hover:bg-[#2d7a5a] text-sm w-full
+}
+
+.btn-gray-add {
+  @apply bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs;
+}
+
+.btn-gray-close {
+  @apply bg-[#444] text-white px-2 py-2 min-h-full h-full rounded hover:bg-red-900 text-xs
+}
+
+.btn-gray-close-small {
+  @apply bg-[#444] text-white px-2 py-1 mb-2 ml-2 rounded hover:bg-red-900 text-xs
+}
+
+.btn-gray-minimize-small {
+  @apply bg-[#444] text-white px-2 py-1 mb-2 ml-2 rounded hover:bg-[#333] text-xs
+}
+
+.btn-header {
+  @apply mr-2 px-4 py-2  bg-[#369a6e] rounded text-white cursor-pointer hover:bg-[#2d7a5a] focus:outline-none focus:ring-0 focus:border-transparent appearance-none border-0
+}
+
+.btn-graph-hover {
+  @apply z-50 absolute top-2 w-10 h-10 flex justify-center items-center rounded-md bg-[#369a6e] text-white hover:bg-[#2d7a5a] border-0
+}
+
+.btn-apply {
+  @apply min-w-0 w-auto px-4 flex justify-center items-center rounded-md bg-[#369a6e] text-white hover:bg-[#2d7a5a] border-0
+}
+
+.label-small {
+  @apply text-sm font-medium text-white
+}
+
+.label-xs {
+  @apply text-xs font-medium text-white min-w-0 flex-1 text-center
+}
+
+.input-default {
+  @apply p-2 rounded border-[#444] border-1 focus:outline-none text-sm flex-1 min-w-0
+}
+
+.textarea-default {
+  @apply p-2 rounded border-[#444] border-1 focus:outline-none text-sm min-w-0 overflow-hidden resize-none flex-1
+}
+
+.select-default {
+  @apply p-2 w-full rounded border-1 border-[#444] text-white text-sm appearance-none cursor-pointer hover:bg-[#333] focus:outline-none
+}

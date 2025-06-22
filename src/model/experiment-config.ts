@@ -1,4 +1,4 @@
-export class TestConfig {
+export class ExperimentConfig {
   testUUID!: string;
   testVersion!: string;
   workLoad!: WorkLoad;
@@ -7,8 +7,6 @@ export class TestConfig {
 
 class Gatling {
   loadType!: string;
-  endpointHost!: string;
-  endpointAccessToken! : string;
 }
 
 class WorkLoad {

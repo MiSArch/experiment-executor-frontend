@@ -1,33 +1,32 @@
 <template>
   <div class="flex flex-col w-full md:min-w-2/12 md:max-w-3/12 h-full max-h-[512px] overflow-x-hidden">
-    <div class="flex flex-row items-center justify-between p-2 bg-[#235f43] text-white shadow-md">
-      <span class="text-lg font-bold">Experiment Goals</span>
-      <button @click="addLine" class="px-4 py-2 bg-[#369a6e] text-white rounded hover:bg-[#2d7a5a] mr-4">+</button>
+    <div class="div-subheader">
+      <span class="span-subheader">Experiment Goals</span>
+      <button class="btn-header">?</button>
     </div>
-    <div class="flex flex-col gap-2 p-2 max-w-full overflow-y-scroll">
-      <div v-for="(line, index) in lines" :key="index" class="flex flex-wrap items-center gap-2 w-full relative">
-        <select v-model="line.dropdown" class="flex-6 min-w-0 h-full text-sm p-2 rounded bg-[#369a6e] text-white appearance-none cursor-pointer hover:bg-[#42b883] focus:outline-none focus:ring focus:ring-[#369a6e]/50">
+    <div class="flex flex-col gap-2 p-2 max-w-full overflow-y-scroll min-w-0">
+      <div v-for="(line, index) in lines" :key="index" class="flex items-center gap-2 w-full relative">
+        <select v-model="line.dropdown" class="select-default !min-w-0 !flex-6">
           <option v-for="option in dropdownOptions" :key="option" :value="option">{{ option }}</option>
         </select>
-
+        <input type="number" v-model="line.value" class="input-default !flex-[1.5]"/>
         <div class="flex-1 rounded cursor-pointer min-w-0 h-full" :style="{ backgroundColor: line.color }" @click="toggleColorOptions(index)"></div>
-        <div v-if="line.showDropdown" class="absolute top-0 left-0 z-10 flex flex-wrap gap-2 bg-gray-100 p-2 rounded shadow-md w-1/2 max-w-full overflow-auto">
-          <div v-for="(hex, color) in reverseColorMap" :key="color" class="h-5 w-[12%] rounded cursor-pointer" :style="{ backgroundColor: hex }" @click="selectColor(index, hex)"></div>
+        <div v-if="line.showDropdown"
+             class="absolute top-0 left-0 z-10 flex gap-2 bg-gray-100 p-2 rounded shadow-md w-1/2 max-w-full overflow-auto">
+          <div v-for="(hex, color) in reverseColorMap" :key="color" class="h-5 w-[12%] rounded cursor-pointer" :style="{ backgroundColor: hex }"
+               @click="selectColor(index, hex)"></div>
         </div>
-
-        <input type="number" v-model="line.value" class="flex-[1.5] min-w-0 h-10 p-2 rounded bg-[#369a6e] text-white focus:outline-none focus:ring focus:ring-[#369a6e] appearance-none"/>
-        <button @click="removeLine(index)" class="flex-1 min-w-0 px-2 py-1 bg-[#369a6e] text-white rounded hover:bg-[#42b883] h-full">&times;</button>
+        <button @click="removeLine(index)" class="btn-gray-close">&times;</button>
       </div>
+      <button @click="addLine" class="btn-green-add">+</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import {ref, watch} from 'vue'
-import type {TestConfig} from "../model/test-config.ts";
-import {backendUrl, config} from "../util/test-handler.ts";
-import {testUuid, testVersion} from "../util/test-uuid.ts";
-import {showOverlay} from "../util/show-overlay.ts";
+import type {ExperimentConfig} from "../model/experiment-config.ts";
+import {showOverlay, testUuid, testVersion, backendUrl, config} from "../util/global-state-handler.ts";
 
 interface Line {
   dropdown: string;
@@ -94,7 +93,7 @@ const fetchConfig = async () => {
       'Content-Type': 'application/json'
     }
   })
-  const data: TestConfig = await response.json()
+  const data: ExperimentConfig = await response.json()
   lines.value = data.goals.map(goal => ({
     dropdown: goal.metric,
     color: reverseColorMap[goal.color] || goal.color,

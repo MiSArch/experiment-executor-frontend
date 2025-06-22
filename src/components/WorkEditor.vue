@@ -1,79 +1,62 @@
 <template>
   <div class="flex flex-col w-full md:w-1/3 overflow-hidden">
-    <!-- Header -->
-    <div class="flex flex-row items-center justify-between p-3 bg-[#235f43] text-white shadow-md">
-      <span class="text-lg font-bold">Work Configuration</span>
-      <button
-          class="px-4 py-2 bg-[#369a6e] text-white rounded cursor-pointer hover:bg-[#2d7a5a] focus:outline-none"
-      >
-        Simple View
-      </button>
+    <div class="div-subheader !pt-4">
+      <span class="span-subheader">Work Configuration</span>
+      <button class="btn-header">?</button>
     </div>
-
-    <!-- Tabs -->
     <div class="flex flex-row w-full justify-evenly bg-[#2c2c2c] border-b border-[#444] z-10">
-      <button
-          v-for="(tab, index) in gatlingConfigs"
-          :key="index"
-          :title="tab.fileName"
-          @click="switchTab(index)"
-          :class="[
-          'flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis px-2 py-1 text-white cursor-pointer text-sm border-r border-[#444]',
-          { 'bg-[#444] font-bold text-white': activeTabIndex === index, 'hover:bg-[#333]': activeTabIndex !== index }
-        ]"
-      >
-        <span
-            class="inline-block cursor-pointer select-none mr-1 "
-            @click.stop="removeTab(index)"
-            aria-label="Close tab"
-            title="Close tab"
-        >
-          &times;
-        </span>
-        {{ tab.fileName }}
+      <button v-for="(tab, index) in gatlingConfigs" :key="index" :title="tab.fileName" @click="switchTab(index)" @dblclick="startRenaming(index)"
+              :class="['flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis px-2 py-1 text-white cursor-pointer text-sm border-r border-[#444]', { 'bg-[#444] font-bold text-white': activeTabIndex === index, 'hover:bg-[#333]': activeTabIndex !== index }]">
+  <span class="inline-block cursor-pointer select-none rounded mr-1 ml-1 pr-1.5 pl-1.5 hover:bg-red-900" @click.stop="removeTab(index)"
+        aria-label="Close tab"
+        title="Close tab">&times;</span>
+        <template v-if="renamingTabIndex === index">
+          <input ref="renameInput" v-model="gatlingConfigs[index].fileName" @blur="finishRenaming(index, $event)"
+                 @keyup.enter="finishRenaming(index, $event)" class="bg-[#222] text-white px-1 rounded border-2 border-[#2d7a5a] focus:outline-none"/>
+        </template>
+        <template v-else>{{ tab.fileName }}</template>
       </button>
-
-      <button
-          class="px-4 py-1 bg-[#369a6e] text-white cursor-pointer text-sm rounded-none hover:bg-[#2d7a5a] focus:outline-none"
-          @click="addTab"
-      >
-        ＋
+      <button class="px-4 py-1 bg-[#369a6e] text-white cursor-pointer text-sm rounded-none hover:bg-[#2d7a5a] focus:outline-none" @click="addTab">＋
       </button>
     </div>
-
-    <!-- Editor -->
-    <div
-        ref="editorElement"
-        class="h-full z-10 shadow-[ -2px_0_5px_rgba(0,0,0,0.1) ] bg-[#1e1e1e] text-left overflow-x-auto"
-    ></div>
+    <div ref="editorElement" class="h-full overflow-x-auto"></div>
   </div>
 </template>
 
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import {ref, watch, onBeforeUnmount} from 'vue'
-import {showOverlay} from "../util/show-overlay.ts";
-import {backendUrl, gatlingConfigs} from '../util/test-handler.ts'
-import {testUuid, testVersion} from "../util/test-uuid.ts";
+import {ref, watch, onBeforeUnmount, nextTick} from 'vue'
+import {backendUrl, gatlingConfigs, testUuid, testVersion, showOverlay} from '../util/global-state-handler.ts'
+import {KotlinScenarioModel} from "../model/gatling-work.ts";
 
 const activeTabIndex = ref(0)
 const editorElement = ref<HTMLElement | null>(null)
 const newTabCounter = ref(0)
+const renamingTabIndex = ref<number | null>(null)
+const renameInput = ref<HTMLInputElement | null>(null)
+
 let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
 let resizeObserver: ResizeObserver | null = null
 
 const loadConfig = async () => {
   const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/gatlingConfig`)
   const dtoList = await response.json()
-  const list: Array<{ fileName: string; workFileContent: string; userSteps: number[] }> = []
-  dtoList.forEach((item: { fileName: string,
-    encodedWorkFileContent: string, encodedUserStepsFileContent: string }) => {
+  const list: Array<{ fileName: string; workFileContent: string; workModel: KotlinScenarioModel, userSteps: number[] }> = []
+
+  dtoList.forEach((item: {
+    fileName: string,
+    encodedWorkFileContent: string,
+    encodedUserStepsFileContent: string
+  }) => {
+    let work = atob(item.encodedWorkFileContent)
     list.push({
       fileName: item.fileName,
-      workFileContent: atob(item.encodedWorkFileContent),
+      workFileContent: work,
+      workModel: KotlinScenarioModel.parse(work),
       userSteps: atob(item.encodedUserStepsFileContent).split('\n').map(line => parseInt(line.trim(), 10)).filter(Number.isFinite)
     })
   })
+
   gatlingConfigs.value = list
 }
 
@@ -86,15 +69,18 @@ const switchTab = (index: number) => {
 
 const addTab = () => {
   newTabCounter.value += 1
+  const workFileContent = 'package org.misarch\n\n' +
+      'import io.gatling.javaapi.core.CoreDsl.*\n' +
+      'import io.gatling.javaapi.http.HttpDsl.http\n' +
+      'import java.time.Duration\n\n' +
+      `val newScenario${newTabCounter.value} = scenario("My Custom Scenario ${newTabCounter.value}")\n`
+
   const newTab = {
     fileName: `newScenario${newTabCounter.value}`,
-    workFileContent: 'package org.misarch\n\n' +
-        'import io.gatling.javaapi.core.CoreDsl.*\n' +
-        'import io.gatling.javaapi.http.HttpDsl.http\n' +
-        'import java.time.Duration\n\n' +
-        `val newScenario${newTabCounter.value} = scenario("My Custom Scenario ${newTabCounter.value}")\n`,
+    workFileContent: workFileContent,
+    workModel: KotlinScenarioModel.parse(workFileContent),
     // TODO this should add some usersteps
-    userSteps: [1,2,3,4,5,6,7,8,9,10],
+    userSteps: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
   }
   gatlingConfigs.value.push(newTab)
   switchTab(gatlingConfigs.value.length - 1)
@@ -118,6 +104,24 @@ const removeTab = (index: number) => {
   }
 }
 
+const startRenaming = (index: number) => {
+  renamingTabIndex.value = index
+  nextTick(() => {
+    renameInput.value?.focus()
+    renameInput.value?.select()
+  })
+}
+
+const finishRenaming = (index: number, event?: Event) => {
+  if (event && event.target) {
+    const input = event.target as HTMLInputElement
+    if (input.value.trim()) {
+      gatlingConfigs.value[index].fileName = input.value.trim()
+    }
+  }
+  renamingTabIndex.value = null
+}
+
 watch(showOverlay, async (newValue, oldValue) => {
   if (newValue !== oldValue && editorElement.value) {
     await loadConfig()
@@ -126,7 +130,7 @@ watch(showOverlay, async (newValue, oldValue) => {
     } else {
       editorInstance = monaco.editor.create(editorElement.value, {
         value: gatlingConfigs.value[0].workFileContent,
-        language: 'json',
+        language: 'kotlin',
         tabSize: 2,
         insertSpaces: true,
         theme: 'vs-dark',
@@ -141,7 +145,9 @@ watch(showOverlay, async (newValue, oldValue) => {
       })
 
       editorInstance.onDidChangeModelContent(() => {
-        gatlingConfigs.value[activeTabIndex.value].workFileContent = editorInstance?.getValue() || ''
+        let content = editorInstance?.getValue() || ''
+        gatlingConfigs.value[activeTabIndex.value].workFileContent = content
+        gatlingConfigs.value[activeTabIndex.value].workModel = KotlinScenarioModel.parse(content)
       })
 
       // debounce resize layout call to prevent loop

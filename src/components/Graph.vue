@@ -1,22 +1,18 @@
 <template>
   <div class="m-2 pt-5 w-full max-h-[95vh] md:w-2/3 relative">
-    <button
-        class="z-50 absolute top-2 right-2 w-10 h-10 flex justify-center items-center rounded-md bg-[#369a6e] text-white hover:bg-[#2d7a5a] border-0"
-        @click="toggleGraphOverlay">☰
-    </button>
+    <button class="btn-graph-hover right-14">?</button>
+    <button class="btn-graph-hover right-2" @click="isGraphOverlayVisible = !isGraphOverlayVisible;">☰</button>
 
     <LineChart :key="chartKey" class="grow h-full" :chart-data="chartData" :chart-options="chartOptions"/>
 
     <div v-if="isGraphOverlayVisible" class="z-50 absolute w-full h-full top-0 left-0 right-0 bg-[#242424] p-6">
       <button
-          class="z-50 absolute top-2 right-2 w-10 h-10 flex justify-center items-center rounded-md bg-[#369a6e] text-white hover:bg-[#2d7a5a] border-0"
-          @click="toggleGraphOverlay">X
+          class="btn-graph-hover right-2"
+          @click="isGraphOverlayVisible = !isGraphOverlayVisible;">&times;
       </button>
       <div class="flex flex-col gap-4 items-center pt-12 max-w-2xl mx-auto min-width-xl">
         <div class="flex flex-row gap-4 w-full items-center">
-          <select v-model="currentlyEditing"
-                  class="p-2 rounded-md bg-[#42b883] text-white text-sm appearance-none cursor-pointer focus:outline-none grow font-bold"
-                  style="user-select: none;">
+          <select v-model="currentlyEditing" class="select-default">
             <option v-for="(config, idx) in gatlingConfigs" :key="config.fileName" :value="idx" style="text-align: center;">{{
                 config.fileName
               }}
@@ -27,33 +23,29 @@
         <div class="flex flex-row gap-4 w-full items-center">
           <div class="flex flex-col gap-2 w-full">
             <div class="flex flex-row gap-2 items-center">
-              <span class="flex-1 p-2 rounded bg-[#369a6e] text-white text-base text-center">Duration</span>
-              <input class="min-w-0 p-2 rounded bg-[#369a6e] text-white flex-1" type="number" v-model="duration" placeholder="Duration"/>
+              <span class="span-label">Duration</span>
+              <input class="input-default" v-model="duration[currentlyEditing]" placeholder="Duration"/>
             </div>
           </div>
-          <button class="min-w-0 w-auto px-4 flex justify-center items-center rounded-md bg-[#369a6e] text-white hover:bg-[#2d7a5a] border-0"
-                  @click="applyDuration" style="align-self: stretch;">Apply
-          </button>
+          <button class="btn-apply" @click="applyDuration" style="align-self: stretch;">Apply</button>
         </div>
 
         <div class="flex flex-row gap-4 w-full items-center">
           <div class="flex flex-col gap-2 w-full">
             <div class="flex flex-row gap-2 items-center">
-              <span class="flex-1 p-2 rounded bg-[#369a6e] text-white text-base text-center">From Second</span>
-              <input class="min-w-0 p-2 rounded bg-[#369a6e] text-white flex-1" type="number" v-model="timeFrom" placeholder="TimeFrom"/>
+              <span class="span-label">From Second</span>
+              <input class="input-default" type="number" v-model="timeFrom" placeholder="TimeFrom"/>
             </div>
             <div class="flex flex-row gap-2 items-center">
-              <span class="flex-1 p-2 rounded bg-[#369a6e] text-white text-base text-center">To Second</span>
-              <input class="min-w-0 p-2 rounded bg-[#369a6e] text-white flex-1" type="number" v-model="timeTo" placeholder="TimeTo"/>
+              <span class="span-label">To Second</span>
+              <input class="input-default" type="number" v-model="timeTo" placeholder="TimeTo"/>
             </div>
             <div class="flex flex-row gap-2 items-center">
-              <span class="flex-1 p-2 rounded bg-[#369a6e] text-white text-base text-center">Arriving Users / s</span>
-              <input class="min-w-0 p-2 rounded bg-[#369a6e] text-white flex-1" type="number" v-model="arrivingUsers" placeholder="Arriving Users"/>
+              <span class="span-label">Arriving Users / s</span>
+              <input class="input-default" type="number" v-model="arrivingUsers" placeholder="Arriving Users"/>
             </div>
           </div>
-          <button class="min-w-0 w-auto px-4 flex justify-center items-center rounded-md bg-[#369a6e] text-white hover:bg-[#2d7a5a] border-0"
-                  @click="applyUsers" style="align-self: stretch;">Apply
-          </button>
+          <button class="btn-apply" @click="applyUsers" style="align-self: stretch;">Apply</button>
         </div>
       </div>
     </div>
@@ -64,8 +56,8 @@
 import {defineChartComponent} from 'vue-chart-3'
 import dragDataPlugin from 'chartjs-plugin-dragdata'
 import {CategoryScale, Chart as ChartJS, Legend, LinearScale, LineController, LineElement, PointElement, Title, Tooltip} from 'chart.js'
-import {ref, watch} from 'vue'
-import {gatlingConfigs} from "../util/test-handler.ts";
+import {ref, toRaw, watch} from 'vue'
+import {chaostoolkitConfig, gatlingConfigs, misarchExperimentConfig} from "../util/global-state-handler.ts";
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale, LineController, dragDataPlugin)
 
@@ -74,14 +66,10 @@ const timeFrom = ref<number>(0)
 const timeTo = ref<number>(0)
 const arrivingUsers = ref<number>(0)
 const needsUpdate = ref<boolean>(false)
-const duration = ref(0)
+const duration = ref<number[]>([])
 const currentlyEditing = ref<number>(1)
 const isGraphOverlayVisible = ref(false)
 const chartKey = ref(0);
-
-// TODO this must be calculated from the work
-const approximateSessionDuration = 20
-const sessionRequests = [1, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1]
 
 const colors = [
   {border: 'rgba(83, 102, 255, 1)', background: 'rgba(83, 102, 255, 0.2)'},
@@ -101,7 +89,7 @@ const chartData = ref({
   datasets: [
     {
       label: 'Approx. Total Requests',
-      data: [0],
+      data: [0, null],
       borderColor: 'rgba(199, 199, 199, 1)',
       backgroundColor: 'rgba(199, 199, 199, 0.2)',
       borderWidth: 2,
@@ -120,25 +108,33 @@ const chartOptions = ref({
   },
 })
 
-function toggleGraphOverlay() {
-  isGraphOverlayVisible.value = !isGraphOverlayVisible.value;
+async function getXLabels() {
+  const maxSessionDuration = Math.max(...gatlingConfigs.value.map((_, i) => calculateSessionDuration(i)));
+  const maxLength = Math.max(...gatlingConfigs.value.map(config => config.userSteps.length)) + maxSessionDuration
+
+  return Array.from({length: maxLength}, (_, i) => (i).toString());
 }
 
 async function updateGraph() {
-  const maxLength = Math.max(...gatlingConfigs.value.map(config => config.userSteps.length));
-  chartData.value.labels = Array.from({length: maxLength}, (_, i) => (i + 1).toString());
-  duration.value = maxLength;
+
+  chartData.value.labels = await getXLabels();
+  gatlingConfigs.value.map(config => { duration.value[gatlingConfigs.value.indexOf(config)] = config.userSteps.length; });
+
+  await removeFailureLinesFromChart()
 
   for (let i = 0; i < chartData.value.datasets.length - 1; i++) {
-    console.log(chartData.value.datasets[i + 1].label);
-    chartData.value.datasets[i + 1].data = await calculateTotalUsers(Math.floor(approximateSessionDuration), i);
+    chartData.value.datasets[i + 1].data = await calculateTotalUsers(i);
   }
 
   chartData.value.datasets[0].data = await calculateApproximateRequests();
+  await addFailureLinesMiSArch()
+  await addFailureLinesChaosToolkit();
 }
 
-async function calculateTotalUsers(sessionDuration: number, index: number): Promise<number[]> {
+async function calculateTotalUsers(index: number): Promise<number[]> {
   const totalUsers: number[] = [];
+  const sessionDuration = calculateSessionDuration(index);
+
   gatlingConfigs.value[index].userSteps.forEach((users, time) => {
     for (let i = 0; i < sessionDuration; i++) {
       totalUsers[time + i] = (totalUsers[time + i] || 0) + users;
@@ -148,9 +144,22 @@ async function calculateTotalUsers(sessionDuration: number, index: number): Prom
   return totalUsers;
 }
 
+function calculateSessionDuration(index: number): number {
+  return Math.floor(gatlingConfigs.value[index].workModel.steps
+  .filter((step): step is typeof step & { durationMin: number, durationMax: number } =>
+      step.type === 'pause' && step.durationMin !== undefined && step.durationMax !== undefined)
+  .reduce((sum, step) => sum + (step.durationMin + step.durationMax) / 2, 0) / 1000);
+}
+
 async function calculateApproximateRequests(): Promise<number[]> {
   const approximateRequests: number[] = [];
   for (let i = 0; i < gatlingConfigs.value.length; i++) {
+    const requestPauses = gatlingConfigs.value[i].workModel.steps
+    .filter((step): step is typeof step & { durationMin: number, durationMax: number } =>
+        step.type === 'pause' && step.durationMin !== undefined && step.durationMax !== undefined)
+    .map(step => Math.floor((step.durationMin + step.durationMax) / 2 / 1000));
+    const sessionRequests = await expandPausesToTimeline(requestPauses);
+
     gatlingConfigs.value[i].userSteps.forEach((users, time) => {
       for (let j = 0; j < sessionRequests.length; j++) {
         const requestIndex = time + j;
@@ -184,7 +193,11 @@ async function applyUsers() {
 }
 
 watch(gatlingConfigs, async () => {
-      if (gatlingConfigs.value.length + 1 != chartData.value.datasets.length) {
+      if (
+          // 1 totalRequests and 2 failure lines are always present
+          gatlingConfigs.value.length + 3 !== chartData.value.datasets.length ||
+          gatlingConfigs.value.some(config => !chartData.value.datasets.some(ds => ds.label.includes(config.fileName)))
+      ) {
         const list = []
         const totalRequests = await createTotalRequestChartData()
         list.push(totalRequests)
@@ -198,6 +211,8 @@ watch(gatlingConfigs, async () => {
             backgroundColor: color.background,
             borderWidth: 2,
             dragData: false,
+            showLine: true,
+            pointRadius: 0,
           })
         }
 
@@ -205,10 +220,40 @@ watch(gatlingConfigs, async () => {
         chartKey.value++;
         needsUpdate.value = true;
       }
+
+      clearTimeout((watch as any)._debounceTimeout);
+      (watch as any)._debounceTimeout = setTimeout(() => {
+        needsUpdate.value = true;
+      }, 1000);
     },
     {
       deep: true
     }
+)
+
+let lastMisarchPauses: string = ''
+watch(misarchExperimentConfig, (newVal) => {
+      const pauses = toRaw(newVal)
+      .map((item: any) => `${item.pauses.before},${item.pauses.after}`)
+      .join('|')
+      if (pauses !== lastMisarchPauses) {
+        needsUpdate.value = true
+        lastMisarchPauses = pauses
+      }
+    }, {deep: true}
+)
+
+let lastChaosPauses: string = ''
+watch(chaostoolkitConfig, (newVal) => {
+      const pauses = toRaw(newVal).method
+      .filter((item: any) => item.type === 'action' && item.pauses)
+      .map((item: any) => `${item.pauses.before},${item.pauses.after}`)
+      .join('|')
+      if (pauses !== lastChaosPauses) {
+        needsUpdate.value = true
+        lastChaosPauses = pauses
+      }
+    }, {deep: true}
 )
 
 watch(needsUpdate, async () => {
@@ -224,19 +269,116 @@ async function createTotalRequestChartData() {
     backgroundColor: 'rgba(199, 199, 199, 0.2)',
     borderWidth: 2,
     dragData: false,
+    showLine: true,
+    pointRadius: 0,
   };
 }
 
 // TODO show the correct duration for each scenario
 async function applyDuration() {
-  if (duration.value > gatlingConfigs.value[currentlyEditing.value].userSteps.length) {
-    for (let i = gatlingConfigs.value[currentlyEditing.value].userSteps.length; i < duration.value; i++) {
+  if (duration.value[currentlyEditing.value] > gatlingConfigs.value[currentlyEditing.value].userSteps.length) {
+    for (let i = gatlingConfigs.value[currentlyEditing.value].userSteps.length; i < duration.value[currentlyEditing.value]; i++) {
       gatlingConfigs.value[currentlyEditing.value].userSteps.push(0);
     }
-  } else if (duration.value < gatlingConfigs.value[currentlyEditing.value].userSteps.length) {
-    gatlingConfigs.value[currentlyEditing.value].userSteps.splice(duration.value);
+  } else if (duration.value[currentlyEditing.value] < gatlingConfigs.value[currentlyEditing.value].userSteps.length) {
+    gatlingConfigs.value[currentlyEditing.value].userSteps.splice(duration.value[currentlyEditing.value]);
   }
   needsUpdate.value = true
+}
+
+async function expandPausesToTimeline(pauses: number[]): Promise<number[]> {
+  const timeline: number[] = [];
+  let time = 0;
+
+  for (const pause of pauses) {
+    if (timeline[time] === undefined) {
+      timeline[time] = 0;
+    }
+
+    timeline[time] += 1;
+
+    for (let i = 1; i <= pause; i++) {
+      if (timeline[time + i] === undefined) {
+        timeline[time + i] = 0;
+      }
+    }
+
+    time += pause;
+  }
+
+  return timeline;
+}
+
+async function removeFailureLinesFromChart() {
+  chartData.value.datasets = chartData.value.datasets.filter(ds => !ds.label.startsWith('MiSArch Failure Sets')).filter(ds =>
+      !ds.label.startsWith('ChaosToolkit Actions'))
+}
+
+async function addFailureLinesChaosToolkit() {
+  if (!chaostoolkitConfig.value.method) return
+  let currentTime = 0;
+  const xValues: number[] = [];
+  chaostoolkitConfig.value.method.forEach(probeOrAction => {
+    if (probeOrAction.type === 'action' && probeOrAction.pauses) {
+      currentTime += probeOrAction.pauses.before;
+    }
+    xValues.push(currentTime);
+    if (probeOrAction.type === 'action' && probeOrAction.pauses) {
+      currentTime += probeOrAction.pauses.after;
+    }
+  });
+  await buildFailureGraph(xValues, 'ChaosToolkit Actions', 'rgb(255,128,59, 1)', 'rgba(255, 128, 59, 0.2)');
+}
+
+async function addFailureLinesMiSArch() {
+  if (misarchExperimentConfig.value.length === 0) return
+  let currentTime = 0;
+  const xValues: number[] = [];
+  misarchExperimentConfig.value.forEach(config => {
+    currentTime += config.pauses.before
+    xValues.push(currentTime);
+    currentTime += config.pauses.after;
+  });
+  await buildFailureGraph(xValues, 'MiSArch Failure Sets', 'rgb(255,54,54,1)', 'rgba(255, 54, 54, 0.2)');
+}
+
+async function getMaxYValue() {
+  const values = chartData.value.datasets
+  .filter(ds => !ds.label.startsWith('MiSArch Failure Sets') && !ds.label.startsWith('ChaosToolkit Actions'))
+  .flatMap(ds => ds.data as number[]);
+  return values.length > 0 ? Math.max(...values) : 0;
+}
+
+async function buildFailureGraph(xValues: number[], label: string, borderColor: string, backgroundColor: string) {
+  const maxY = await getMaxYValue() * 1.10;
+  const minY = 0;
+  const maxX = Math.ceil(xValues[xValues.length - 1]);
+  let data: Array<number | null> = [];
+
+  for (let x = 0; x <= maxX; x++) {
+    if (xValues.includes(x)) {
+      data.push(minY);
+      data.push(maxY);
+      x++;
+    } else {
+      data.push(null);
+    }
+  }
+
+  const failureLineDataSet = {
+    label: label,
+    data,
+    borderColor: borderColor,
+    backgroundColor: backgroundColor,
+    borderWidth: 2,
+    fill: false,
+    showLine: true,
+    pointRadius: 0,
+    borderDash: [5, 5],
+    dragData: false,
+  };
+
+  chartData.value.datasets.push(failureLineDataSet);
 }
 
 </script>

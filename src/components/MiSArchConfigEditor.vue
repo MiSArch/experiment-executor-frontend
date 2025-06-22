@@ -1,103 +1,92 @@
 <template>
-  <div class="flex flex-col md:min-w-1/3 h-full grow">
-    <div class="flex flex-row items-center justify-between p-2 bg-[#235f43] text-white shadow-md">
-      <span class="text-xl font-bold">MiSArch Experiment Configuration</span>
-      <button
-          class="
-    mr-4 px-4 py-2
-    bg-[#369a6e] rounded
-    text-white cursor-pointer
-    hover:bg-[#2d7a5a]
-    focus:outline-none focus:ring-0 focus:border-transparent
-    appearance-none
-    border-0
-  "
-      >
-        Simple View
-      </button>    </div>
-    <div
-        ref="editorElement"
-        class="flex-grow overflow-hidden z-10 shadow-[ -2px_0_5px_rgba(0,0,0,0.1) ] bg-[#1e1e1e] text-left overflow-x-auto"
-    ></div>
+  <div class="flex flex-col max-h-full min-h-0 h-full grow md:min-w-1/3 md:max-w-3/8">
+    <div class="div-subheader">
+      <span class="span-subheader">MiSArch Experiment Configuration</span>
+      <div>
+        <button class="btn-header">?</button>
+        <button class="btn-header !mr-4" @click="showMisarchEditor = !showMisarchEditor">{{ showMisarchEditor ? 'Simplified UI' : 'Editor' }}</button>
+      </div>
+    </div>
+    <div v-show="showMisarchEditor" class="flex flex-1">
+      <JsonEditor :config="misarchExperimentConfig" @update:config="onConfigUpdate" :showEditor="showMisarchEditor"
+                  :endpoint="'misarchExperimentConfig'"></JsonEditor>
+    </div>
+    <div v-show="!showMisarchEditor" class="flex-1 min-h-0 h-full max-w-full overflow-y-scroll">
+      <div class="flex flex-col gap-4 p-2">
+        <div v-for="(failureSet, configIndex) in misarchExperimentConfig" :key="configIndex" class="div-outer-border flex flex-col">
+          <div class="flex flex-row justify-between w-full mb-2">
+            <h3 class="span-ui-header">Failure Set {{ configIndex + 1 }}</h3>
+            <button @click="misarchExperimentConfig.splice(configIndex, 1)" class="btn-gray-close">&times;</button>
+          </div>
+          <div v-for="(failure, failureIndex) in failureSet.failures" :key="failureIndex" class="div-inner-border">
+            <MiSArchConfigEditorFailure :configIndex="configIndex" :failureIndex="failureIndex" :failure="failure"></MiSArchConfigEditorFailure>
+          </div>
+          <div class="flex flex-col gap-2">
+            <button @click="addFailure(configIndex)" class="btn-green-add">+</button>
+            <label class="label-small">Pause Durations Before and After Failure Group (s)</label>
+            <div class="flex flex-row gap-2 w-full justify-between items-center">
+              <input v-model.number="failureSet.pauses.before" type="number" class="input-default" placeholder="Pause Before Execution (s)" min="0">
+              <input v-model.number="failureSet.pauses.after" type="number" class="input-default" placeholder="Pause After Execution (s)" min="0">
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <button @click="addFailureSet()" class="btn-green-add">+</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 
 <script setup lang="ts">
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import {ref, onBeforeUnmount, watch} from 'vue'
-import {testUuid, testVersion} from "../util/test-uuid.ts";
-import {showOverlay} from '../util/show-overlay.ts'
-import {backendUrl, misarchExperimentConfig} from '../util/test-handler.ts'
+import {ref} from 'vue'
+import {misarchExperimentConfig, showMisarchEditor} from '../util/global-state-handler.ts'
+import JsonEditor from "./JsonEditor.vue";
+import type {ChaostoolkitConfig} from "../model/chaostoolkit-config.ts";
+import type {MiSArchConfig} from "../model/misarch-config.ts";
+import MiSArchConfigEditorFailure from "./MiSArchConfigEditorFailure.vue";
 
-const editorElement = ref<HTMLElement | null>(null)
-let editorInstance: monaco.editor.IStandaloneCodeEditor | null = null
-let resizeObserver: ResizeObserver | null = null
+const initialized = ref(false)
 
-const loadConfig = async (): Promise<string> => {
-  const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/misarchExperimentConfig`)
-  const text = await response.text()
-  return JSON.stringify(JSON.parse(text), null, 2)
+function onConfigUpdate(newConfig: ChaostoolkitConfig | MiSArchConfig[]) {
+  if (!Array.isArray(newConfig)) return;
+  if (!initialized.value) {
+    initialized.value = true;
+    misarchExperimentConfig.value = newConfig;
+    return;
+  }
+  if (showMisarchEditor.value) {
+    misarchExperimentConfig.value = newConfig;
+  }
 }
 
-watch(showOverlay, async (newValue, oldValue) => {
-  if (newValue !== oldValue && editorElement.value) {
-    const config = await loadConfig()
-    misarchExperimentConfig.value = config
-    if (editorInstance?.getEditorType() != undefined) {
-      editorInstance?.setValue(config)
-    } else {
-      editorInstance = monaco.editor.create(editorElement.value, {
-        value: misarchExperimentConfig.value,
-        language: 'json',
-        tabSize: 2,
-        insertSpaces: true,
-        theme: 'vs-dark',
-        detectIndentation: false,
-        automaticLayout: false,
-        formatOnType: true,
-        formatOnPaste: true,
-        glyphMargin: false,
-        lineDecorationsWidth: 0,
-        lineNumbersMinChars: 2,
-        wordWrap: 'on',
-        wordWrapColumn: 80,
-        wrappingIndent: 'same',
-      })
+function addFailure(configIndex: number) {
+  misarchExperimentConfig.value[configIndex].failures.push({
+    name: '',
+    pubSubDeterioration: null,
+    serviceInvocationDeterioration: [],
+    artificialMemoryUsage: null,
+    artificialCPUUsage: []
+  });
+}
 
-      editorInstance.onDidChangeModelContent(() => {
-        misarchExperimentConfig.value = editorInstance?.getValue() || ''
-      })
-
-      // debounce resize layout call to prevent loop
-      const debouncedLayout = debounce(() => {
-        editorInstance?.layout()
-      }, 10)
-
-      resizeObserver = new ResizeObserver(() => {
-        debouncedLayout()
-      })
-
-      resizeObserver.observe(editorElement.value)
+function addFailureSet() {
+  misarchExperimentConfig.value.push({
+    failures: [{
+      name: '',
+      pubSubDeterioration: null,
+      serviceInvocationDeterioration: [],
+      artificialMemoryUsage: null,
+      artificialCPUUsage: []
+    }],
+    pauses: {
+      before: 5,
+      after: 5
     }
-  }
-})
-
-onBeforeUnmount(() => {
-  editorInstance?.dispose()
-  if (resizeObserver && editorElement.value) {
-    resizeObserver.unobserve(editorElement.value)
-    resizeObserver.disconnect()
-  }
-})
-
-function debounce(func: Function, wait: number) {
-  let timeout: number | undefined
-  return () => {
-    clearTimeout(timeout)
-    timeout = window.setTimeout(() => func(), wait)
-  }
+  })
 }
+
 </script>
 
 <style/>

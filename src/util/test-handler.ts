@@ -1,13 +1,4 @@
-import {TestConfig} from '../model/test-config.ts';
-import {testUuid, testVersion} from "./test-uuid.ts";
-import {ref} from "vue";
-
-// TODO: move this to a more appropriate place
-export const chaostoolkitConfig = ref('')
-export const misarchExperimentConfig = ref('')
-export const config = ref<TestConfig>(new TestConfig());
-export const gatlingConfigs = ref<{ fileName: string; workFileContent: string; userSteps: number[] }[]>([])
-export const backendUrl = import.meta.env.VITE_BACKEND_URL;
+import {testUuid, testVersion, backendUrl, config, chaostoolkitConfig, gatlingConfigs, misarchExperimentConfig} from "./global-state-handler.ts";
 
 export class TestHandler {
   async persistAllConfigs(): Promise<void> {
@@ -25,13 +16,6 @@ export class TestHandler {
         'Content-Type': 'application/json'
       },
       body: jsonData
-    })
-  }
-
-  async persistChaosToolkitConfig(): Promise<void> {
-    await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/chaosToolkitConfig`, {
-      method: 'PUT',
-      body: chaostoolkitConfig.value
     })
   }
 
@@ -56,9 +40,20 @@ export class TestHandler {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: misarchExperimentConfig.value
+      body: JSON.stringify(misarchExperimentConfig.value, null, 2)
     })
   }
+
+  async persistChaosToolkitConfig(): Promise<void> {
+    await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/chaosToolkitConfig`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(chaostoolkitConfig.value, null, 2)
+    })
+  }
+
 }
 
 export const testHandler = new TestHandler();
