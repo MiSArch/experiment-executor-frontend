@@ -84,6 +84,7 @@ const newVersion = async () => {
 }
 
 const loadOrGenerate = async () => {
+  await persistAll()
   showOverlay.value = true
 }
 
