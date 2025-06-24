@@ -20,3 +20,15 @@ export const misarchExperimentConfig = ref<MiSArchConfig[]>([])
 export const chaostoolkitConfig = ref<ChaostoolkitConfig>(new ChaostoolkitConfig())
 
 export const gatlingConfigs = ref<{ fileName: string; workFileContent: string; workModel: KotlinScenarioModel, userSteps: number[] }[]>([])
+
+export function resetGlobalState() {
+  testUuid.value = ''
+  testVersion.value = ''
+  showOverlay.value = true
+  showMisarchEditor.value = false
+  showChaostoolkitEditor.value = false
+  config.value = new ExperimentConfig()
+  misarchExperimentConfig.value = []
+  chaostoolkitConfig.value = new ChaostoolkitConfig()
+  gatlingConfigs.value = []
+}

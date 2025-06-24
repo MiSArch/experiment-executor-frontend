@@ -3,7 +3,7 @@
     <button class="btn-graph-hover right-14">?</button>
     <button class="btn-graph-hover right-2" @click="isGraphOverlayVisible = !isGraphOverlayVisible;">☰</button>
 
-    <LineChart class="grow h-full" :chart-data="chartData" :chart-options="chartOptions"/>
+    <LineChart ref="chartRef" :key="chartKey" class="grow h-full" :chart-data="chartData" :chart-options="chartOptions"/>
 
     <div v-if="isGraphOverlayVisible" class="z-50 absolute w-full h-full top-0 left-0 right-0 bg-[#242424] p-6">
       <button
@@ -57,10 +57,9 @@ import {defineChartComponent} from 'vue-chart-3'
 import dragDataPlugin from 'chartjs-plugin-dragdata'
 import {CategoryScale, Chart as ChartJS, Legend, LinearScale, LineController, LineElement, PointElement, Title, Tooltip} from 'chart.js'
 import {ref, toRaw, watch} from 'vue'
-import {chaostoolkitConfig, gatlingConfigs, misarchExperimentConfig} from "../util/global-state-handler.ts";
+import {chaostoolkitConfig, gatlingConfigs, misarchExperimentConfig, showOverlay} from "../util/global-state-handler.ts";
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale, LineController, dragDataPlugin)
-
 
 const LineChart = defineChartComponent("graph", 'line')
 const timeFrom = ref<number>(0)
@@ -70,6 +69,8 @@ const needsUpdate = ref<boolean>(false)
 const duration = ref<number[]>([])
 const currentlyEditing = ref<number>(1)
 const isGraphOverlayVisible = ref(false)
+const chartRef = ref<ChartJS | null>(null)
+const chartKey = ref(0)
 
 const colors = [
   {border: 'rgba(83, 102, 255, 1)', background: 'rgba(83, 102, 255, 0.2)'},
@@ -118,17 +119,21 @@ async function getXLabels() {
 async function updateGraph() {
 
   chartData.value.labels = await getXLabels();
-  gatlingConfigs.value.map(config => { duration.value[gatlingConfigs.value.indexOf(config)] = config.userSteps.length; });
+  gatlingConfigs.value.map(config => {
+    duration.value[gatlingConfigs.value.indexOf(config)] = config.userSteps.length;
+  });
 
   await removeFailureLinesFromChart()
+  chartRef.value?.update()
 
   for (let i = 0; i < chartData.value.datasets.length - 1; i++) {
     chartData.value.datasets[i + 1].data = await calculateTotalUsers(i);
   }
 
   chartData.value.datasets[0].data = await calculateApproximateRequests();
-  await addFailureLinesMiSArch()
   await addFailureLinesChaosToolkit();
+  await addFailureLinesMiSArch()
+  chartRef.value?.update()
 }
 
 async function calculateTotalUsers(index: number): Promise<number[]> {
@@ -192,12 +197,14 @@ async function applyUsers() {
   needsUpdate.value = true
 }
 
-watch(gatlingConfigs, async () => {
-      if (
-          // 1 totalRequests and 2 failure lines are always present
-          gatlingConfigs.value.length + 3 !== chartData.value.datasets.length ||
-          gatlingConfigs.value.some(config => !chartData.value.datasets.some(ds => ds.label.includes(config.fileName)))
-      ) {
+let lastGatlingConfigs: string = ''
+watch(gatlingConfigs, async (newVal) => {
+      if (showOverlay.value) return;
+      const configs = toRaw(newVal)
+      .map((item: any) => `${item.fileName},${item.fileName}`)
+      .join('|')
+      if (configs !== lastGatlingConfigs) {
+        lastGatlingConfigs = configs
         const list = []
         const totalRequests = await createTotalRequestChartData()
         list.push(totalRequests)
@@ -217,13 +224,13 @@ watch(gatlingConfigs, async () => {
         }
 
         chartData.value.datasets = list;
-        needsUpdate.value = true;
+        chartKey.value++;
       }
 
       clearTimeout((watch as any)._debounceTimeout);
       (watch as any)._debounceTimeout = setTimeout(() => {
         needsUpdate.value = true;
-      }, 1000);
+      }, 300);
     },
     {
       deep: true
@@ -232,11 +239,15 @@ watch(gatlingConfigs, async () => {
 
 let lastMisarchPauses: string = ''
 watch(misarchExperimentConfig, async (newVal) => {
+      if (showOverlay.value) return;
       const pauses = toRaw(newVal)
       .map((item: any) => `${item.pauses.before},${item.pauses.after}`)
       .join('|')
       if (pauses !== lastMisarchPauses) {
-        needsUpdate.value = true
+        clearTimeout((watch as any)._debounceTimeout);
+        (watch as any)._debounceTimeout = setTimeout(() => {
+          needsUpdate.value = true;
+        }, 300);
         lastMisarchPauses = pauses
       }
     }, {deep: true}
@@ -244,12 +255,16 @@ watch(misarchExperimentConfig, async (newVal) => {
 
 let lastChaosPauses: string = ''
 watch(chaostoolkitConfig, async (newVal) => {
+      if (showOverlay.value) return;
       const pauses = toRaw(newVal).method
       .filter((item: any) => item.type === 'action' && item.pauses)
       .map((item: any) => `${item.pauses.before},${item.pauses.after}`)
       .join('|')
       if (pauses !== lastChaosPauses) {
-        needsUpdate.value = true
+        clearTimeout((watch as any)._debounceTimeout);
+        (watch as any)._debounceTimeout = setTimeout(() => {
+          needsUpdate.value = true;
+        }, 300);
         lastChaosPauses = pauses
       }
     }, {deep: true}
@@ -308,35 +323,37 @@ async function expandPausesToTimeline(pauses: number[]): Promise<number[]> {
 }
 
 async function removeFailureLinesFromChart() {
-  chartData.value.datasets = chartData.value.datasets.filter(ds => !ds.label.startsWith('MiSArch Failure Sets')).filter(ds =>
-      !ds.label.startsWith('ChaosToolkit Actions'))
+  chartData.value.datasets = chartData.value.datasets.filter(ds => !ds.label.startsWith('MiSArch Failure Sets')
+      && !ds.label.startsWith('ChaosToolkit Actions'))
 }
 
 async function addFailureLinesChaosToolkit() {
-  if (!chaostoolkitConfig.value.method) return
-  let currentTime = 0;
   const xValues: number[] = [];
-  chaostoolkitConfig.value.method.forEach(probeOrAction => {
-    if (probeOrAction.type === 'action' && probeOrAction.pauses) {
-      currentTime += probeOrAction.pauses.before;
-    }
-    xValues.push(currentTime);
-    if (probeOrAction.type === 'action' && probeOrAction.pauses) {
-      currentTime += probeOrAction.pauses.after;
-    }
-  });
+  if (chaostoolkitConfig.value.method && chaostoolkitConfig.value.method.length !== 0) {
+    let currentTime = 0;
+    chaostoolkitConfig.value.method.forEach(probeOrAction => {
+      if (probeOrAction.type === 'action' && probeOrAction.pauses) {
+        currentTime += probeOrAction.pauses.before;
+      }
+      xValues.push(currentTime);
+      if (probeOrAction.type === 'action' && probeOrAction.pauses) {
+        currentTime += probeOrAction.pauses.after;
+      }
+    });
+  }
   await buildFailureGraph(xValues, 'ChaosToolkit Actions', 'rgb(255,128,59, 1)', 'rgba(255, 128, 59, 0.2)');
 }
 
 async function addFailureLinesMiSArch() {
-  if (misarchExperimentConfig.value.length === 0) return
-  let currentTime = 0;
   const xValues: number[] = [];
-  misarchExperimentConfig.value.forEach(config => {
-    currentTime += config.pauses.before
-    xValues.push(currentTime);
-    currentTime += config.pauses.after;
-  });
+  if (misarchExperimentConfig.value.length !== 0) {
+    let currentTime = 0;
+    misarchExperimentConfig.value.forEach(config => {
+      currentTime += config.pauses.before
+      xValues.push(currentTime);
+      currentTime += config.pauses.after;
+    });
+  }
   await buildFailureGraph(xValues, 'MiSArch Failure Sets', 'rgb(255,54,54,1)', 'rgba(255, 54, 54, 0.2)');
 }
 

@@ -123,7 +123,7 @@ const finishRenaming = (index: number, event?: Event) => {
 }
 
 watch(showOverlay, async (newValue, oldValue) => {
-  if (newValue !== oldValue && editorElement.value) {
+  if (newValue !== oldValue && newValue === false && editorElement.value) {
     await loadConfig()
     if (editorInstance?.getEditorType() != undefined) {
       editorInstance?.setValue(gatlingConfigs.value[0].workFileContent)

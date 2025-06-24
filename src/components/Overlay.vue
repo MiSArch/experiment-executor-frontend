@@ -7,7 +7,7 @@
           <button v-if="testUuid && testVersion" class="btn-gray-close" @click="showOverlay = false">&times;</button>
         </div>
         <span class="span-header">Experiment Configuration</span>
-        <span class="span-header">Use Existing Or Create New Experiment</span>
+        <span class="span-header">Use Existing Experiment</span>
         <select v-model="uuidInputValue" @change="fetchVersions" class="select-default bg-[#444]">
           <option v-for="uuid in uuidList" :key="uuid" :value="uuid">{{ uuid }}</option>
         </select>
@@ -18,6 +18,7 @@
         </select>
 
         <button @click="useExistingTest" class="btn-header !mr-0 mb-24">Use Existing Experiment</button>
+        <span class="span-header">Create New Experiment</span>
         <select v-model="loadType" class="select-default bg-[#444]">
           <option value="NormalLoadTest">Realistic Load Test</option>
           <option value="ElasticityLoadTest">Elasticity Load Test</option>
@@ -116,7 +117,7 @@ const useExistingTest = () => {
 
 onMounted(fetchUUIDs)
 watch(showOverlay, async (newValue, oldValue) => {
-  if (newValue !== oldValue) {
+  if (newValue !== oldValue && newValue === false) {
     await fetchUUIDs()
   }
 })

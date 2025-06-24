@@ -120,7 +120,7 @@ watch(lines, async (newLines) => {
 }, {deep: true})
 
 watch(showOverlay, async (newValue, oldValue) => {
-  if (newValue !== oldValue) {
+  if (newValue !== oldValue && newValue === false) {
     config.value = await fetchConfig();
   }
 });

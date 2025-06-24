@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import {ref} from 'vue'
-import {backendUrl, testUuid, testVersion, showOverlay} from "../util/global-state-handler.ts";
+import {backendUrl, testUuid, testVersion, showOverlay, resetGlobalState} from "../util/global-state-handler.ts";
 import {testHandler} from "../util/test-handler.ts";
 
 const isRunningExperiment = ref(false)
@@ -85,6 +85,7 @@ const newVersion = async () => {
 
 const loadOrGenerate = async () => {
   await persistAll()
+  resetGlobalState()
   showOverlay.value = true
 }
 
