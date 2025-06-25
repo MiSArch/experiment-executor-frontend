@@ -29,7 +29,7 @@ const props = defineProps<{
 }>()
 
 watch(showOverlay, async (newValue, oldValue) => {
-  if (newValue !== oldValue) {
+  if (newValue !== oldValue && newValue === false) {
     await loadConfig()
     await watcher()
   }
@@ -64,7 +64,9 @@ onBeforeUnmount(() => {
 const loadConfig = async () => {
   const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/${props.endpoint}`)
   const text = await response.text()
-  emit('update:config', JSON.parse(text))
+  if (props.config) {
+    emit('update:config', JSON.parse(text))
+  }
 }
 
 function debounce(func: Function, wait: number) {

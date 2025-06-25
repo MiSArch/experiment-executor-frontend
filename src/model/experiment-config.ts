@@ -1,16 +1,9 @@
 export class ExperimentConfig {
   testUUID!: string;
   testVersion!: string;
-  workLoad!: WorkLoad;
-  goals!: Goal[];
-}
-
-class Gatling {
+  testName?: string;
   loadType!: string;
-}
-
-class WorkLoad {
-  gatling!: Gatling;
+  goals!: Goal[];
 }
 
 class Goal {

@@ -111,7 +111,7 @@ const removeLine = (index: number) => {
   lines.value.splice(index, 1)
 }
 
-watch(lines, (newLines) => {
+watch(lines, async (newLines) => {
   config.value.goals = newLines.map(line => ({
     metric: line.dropdown,
     color: colorMap[line.color] || line.color,
@@ -120,7 +120,7 @@ watch(lines, (newLines) => {
 }, {deep: true})
 
 watch(showOverlay, async (newValue, oldValue) => {
-  if (newValue !== oldValue) {
+  if (newValue !== oldValue && newValue === false) {
     config.value = await fetchConfig();
   }
 });

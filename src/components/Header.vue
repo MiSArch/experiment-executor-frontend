@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import {ref} from 'vue'
-import {backendUrl, testUuid, testVersion, showOverlay} from "../util/global-state-handler.ts";
+import {backendUrl, testUuid, testVersion, showOverlay, resetGlobalState} from "../util/global-state-handler.ts";
 import {testHandler} from "../util/test-handler.ts";
 
 const isRunningExperiment = ref(false)
@@ -32,7 +32,6 @@ const startExperiment = async () => {
     await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}`, {
       method: 'POST',
     })
-    // TODO implement an input field to add an optional access token for the experiment
     alert(`Experiment started! You will be notified once it is completed!`)
   } catch (error) {
     console.error('Error running experiment:', error)
@@ -85,6 +84,8 @@ const newVersion = async () => {
 }
 
 const loadOrGenerate = async () => {
+  await persistAll()
+  resetGlobalState()
   showOverlay.value = true
 }
 

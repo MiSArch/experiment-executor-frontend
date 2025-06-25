@@ -40,14 +40,20 @@
 
 
 <script setup lang="ts">
-import {ref} from 'vue'
-import {misarchExperimentConfig, showMisarchEditor} from '../util/global-state-handler.ts'
+import {ref, watch} from 'vue'
+import {misarchExperimentConfig, showMisarchEditor, showOverlay} from '../util/global-state-handler.ts'
 import JsonEditor from "./JsonEditor.vue";
 import type {ChaostoolkitConfig} from "../model/chaostoolkit-config.ts";
 import type {MiSArchConfig} from "../model/misarch-config.ts";
 import MiSArchConfigEditorFailure from "./MiSArchConfigEditorFailure.vue";
 
 const initialized = ref(false)
+
+watch(showOverlay, async (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    initialized.value = false
+  }
+})
 
 function onConfigUpdate(newConfig: ChaostoolkitConfig | MiSArchConfig[]) {
   if (!Array.isArray(newConfig)) return;

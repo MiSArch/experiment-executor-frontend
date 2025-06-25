@@ -7,7 +7,7 @@
           <button v-if="testUuid && testVersion" class="btn-gray-close" @click="showOverlay = false">&times;</button>
         </div>
         <span class="span-header">Experiment Configuration</span>
-        <span class="span-header">Use Existing Or Create New Experiment</span>
+        <span class="span-header">Use Existing Experiment</span>
         <select v-model="uuidInputValue" @change="fetchVersions" class="select-default bg-[#444]">
           <option v-for="uuid in uuidList" :key="uuid" :value="uuid">{{ uuid }}</option>
         </select>
@@ -17,13 +17,21 @@
           <option v-for="version in versionList" :key="version" :value="version">{{ version }}</option>
         </select>
 
-        <button @click="useExistingTest" class="btn-header !mr-0">Use Existing Experiment</button>
+        <button @click="useExistingTest" class="btn-header !mr-0 mb-24">Use Existing Experiment</button>
+        <span class="span-header">Create New Experiment</span>
         <select v-model="loadType" class="select-default bg-[#444]">
           <option value="NormalLoadTest">Realistic Load Test</option>
           <option value="ElasticityLoadTest">Elasticity Load Test</option>
           <option value="ResilienceLoadTest">Resilience Load Test</option>
           <option value="ScalabilityLoadTest">Scalability Load Test</option>
         </select>
+        <label class="label-small !text-[#444]" type="number">Duration of the Load Test (s)</label>
+        <input v-model="testDuration" class="input-default bg-[#444] text-white" type="number" placeholder="60">
+        <label v-if="loadType==='NormalLoadTest'" class="label-small !text-[#444]">Maximum Arriving Users/s</label>
+        <input v-if="loadType==='NormalLoadTest'" v-model="testMaxArrivingUsers" class="input-default bg-[#444] text-white" placeholder="10"
+               type="number">
+        <label v-if="loadType!=='NormalLoadTest'" class="label-small !text-[#444]">Growth Rate Arriving Users/s</label>
+        <input v-if="loadType!=='NormalLoadTest'" v-model="testRate" class="input-default bg-[#444] text-white" placeholder="0.8" type="number">
         <button @click="submitRequest" class="btn-header !mr-0">Create New Experiment</button>
       </div>
     </div>
@@ -41,6 +49,10 @@ const versionList = ref<string[]>([])
 const uuidInputValue = ref('')
 const versionInputValue = ref('')
 const loadType = ref('NormalLoadTest')
+
+const testDuration = ref(1800)
+const testRate = ref(0.9)
+const testMaxArrivingUsers = ref(10)
 
 const fetchUUIDs = async () => {
   try {
@@ -70,9 +82,17 @@ const fetchVersions = async () => {
 
 const submitRequest = async () => {
   try {
-    const response = await fetch(`${backendUrl}/experiment/generate?loadType=${loadType.value}`, {
-      method: 'POST',
-    })
+    const response = await
+        fetch(`${backendUrl}/experiment/generate` +
+            `?loadType=${loadType.value}` +
+            `&testDuration=${testDuration.value}` +
+            `&maximumArrivingUsersPerSecond=${testMaxArrivingUsers.value}` +
+            `&rate=${testRate.value}`, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          method: 'POST',
+        })
     const strings = (await response.text()).split(":")
 
     testUuid.value = strings[0].trim()
@@ -97,7 +117,7 @@ const useExistingTest = () => {
 
 onMounted(fetchUUIDs)
 watch(showOverlay, async (newValue, oldValue) => {
-  if (newValue !== oldValue) {
+  if (newValue !== oldValue && newValue === false) {
     await fetchUUIDs()
   }
 })

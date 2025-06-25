@@ -110,7 +110,7 @@ watch(headersRef, async () => {
     props.probeOrAction.provider.headers = mapHeadersArrayToObject(headersRef.value);
   } catch (e) {
   }
-}, {deep: true, immediate: true});
+}, {deep: true});
 
 watch(() => props.probeOrAction, async (newValue, oldValue) => {
   if (initialized.value === false) {
@@ -120,7 +120,7 @@ watch(() => props.probeOrAction, async (newValue, oldValue) => {
 
   if (newValue === oldValue || !showChaostoolkitEditor.value) return
   await parseJsonToModels(newValue.provider)
-}, {deep: true, immediate: true});
+}, {deep: true});
 
 async function parseJsonToModels(provider: Provider) {
   if (provider.type === "http") {

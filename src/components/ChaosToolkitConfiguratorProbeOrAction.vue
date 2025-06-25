@@ -4,7 +4,7 @@
       <span class="span-ui-header">{{ probeOrAction.type === 'action' ? 'Action' : 'Probe' }} {{ probeOrActionIndex + 1 }}</span>
       <div>
         <button class="btn-gray-minimize-small" @click="minimized = !minimized">{{ minimized ? '+' : '–' }}</button>
-        <button v-if="totalProbesOrActions.length > 1" @click="totalProbesOrActions.splice(probeOrActionIndex, 1)" class="btn-gray-close-small">
+        <button @click="totalProbesOrActions.splice(probeOrActionIndex, 1)" class="btn-gray-close-small">
           &times;
         </button>
       </div>
@@ -66,7 +66,7 @@ watch(toleranceInput, async (newValue, oldValue) => {
     props.probeOrAction.tolerance = JSON.parse(newValue);
   } catch (e) {
   }
-}, {deep: true, immediate: true});
+}, {deep: true});
 
 watch(() => props.probeOrAction, async (newValue, oldValue) => {
   if (initialized.value === false) {
@@ -76,7 +76,7 @@ watch(() => props.probeOrAction, async (newValue, oldValue) => {
 
   if (newValue === oldValue || !showChaostoolkitEditor.value) return
   await parseJsonToModels(newValue)
-}, {deep: true, immediate: true});
+}, {deep: true});
 
 
 async function parseJsonToModels(probeOrAction: Probe | Action) {
