@@ -7,12 +7,14 @@ import MiSArchConfigEditor from "./components/MiSArchConfigEditor.vue";
 import GoalEditor from "./components/GoalEditor.vue";
 import Overlay from "./components/Overlay.vue";
 import HelpOverlay from "./components/HelpOverlay.vue";
+import DeleteOverlay from "./components/DeleteOverlay.vue";
 </script>
 
 <template>
   <div class="flex flex-col w-full h-full justify-stretch overflow-hidden">
     <Overlay/>
     <HelpOverlay/>
+    <DeleteOverlay/>
     <div class="w-full h-2/32">
       <Header/>
     </div>

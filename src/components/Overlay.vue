@@ -2,22 +2,19 @@
   <div v-if="showOverlay" class="fixed inset-0 bg-[#141414] bg-opacity-70 flex justify-center items-center z-[1000] text-black">
     <div class="relative bg-white p-8 rounded-lg text-center w-[90%] max-w-md">
       <div class="flex flex-col gap-2">
-        <div class="flex flex-row gap-2 items-center justify-between">
-          <span></span>
-          <button v-if="testUuid && testVersion" class="btn-gray-close" @click="showOverlay = false">&times;</button>
-        </div>
         <span class="span-header">Experiment Configuration</span>
-        <span class="span-header">Use Existing Experiment</span>
-        <select v-model="uuidInputValue" @change="fetchVersions" class="select-default bg-[#444]">
-          <option v-for="uuid in uuidList" :key="uuid" :value="uuid">{{ uuid }}</option>
-        </select>
+        <div v-if="uuidList.length > 0" class="flex flex-col gap-2">
+          <span class="span-header">Use Existing Experiment</span>
+          <select v-model="uuidInputValue" @change="fetchVersions" class="select-default bg-[#444]">
+            <option v-for="uuid in uuidList" :key="uuid" :value="uuid">{{ uuid }}</option>
+          </select>
 
-        <select v-model="versionInputValue"
-                class="select-default bg-[#444]">
-          <option v-for="version in versionList" :key="version" :value="version">{{ version }}</option>
-        </select>
-
-        <button @click="useExistingTest" class="btn-header !mr-0 mb-24">Use Existing Experiment</button>
+          <select v-model="versionInputValue"
+                  class="select-default bg-[#444]">
+            <option v-for="version in versionList" :key="version" :value="version">{{ version }}</option>
+          </select>
+          <button @click="useExistingTest" class="btn-header !mr-0 mb-24">Use Existing Experiment</button>
+        </div>
         <span class="span-header">Create New Experiment</span>
         <select v-model="loadType" class="select-default bg-[#444]">
           <option value="NormalLoadTest">Realistic Load Test</option>
@@ -117,8 +114,9 @@ const useExistingTest = () => {
 
 onMounted(fetchUUIDs)
 watch(showOverlay, async (newValue, oldValue) => {
-  if (newValue !== oldValue && !newValue) {
+  if (newValue !== oldValue && newValue) {
     await fetchUUIDs()
+    await fetchVersions()
   }
 })
 </script>

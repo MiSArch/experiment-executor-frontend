@@ -10,6 +10,7 @@ export const testUuid = ref('')
 export const testVersion = ref('')
 
 export const showOverlay = ref(true)
+export const showDeleteOverlay = ref(false)
 export const showHelpOverlay = ref(false)
 export const callingSection = ref('');
 export const showMisarchEditor = ref(false)
@@ -34,6 +35,7 @@ export function resetGlobalState() {
   testUuid.value = ''
   testVersion.value = ''
   showHelpOverlay.value = false
+  showDeleteOverlay.value = false
   showOverlay.value = true
   showMisarchEditor.value = false
   showChaostoolkitEditor.value = false

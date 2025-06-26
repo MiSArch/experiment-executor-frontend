@@ -4,7 +4,8 @@
     <span v-if="testUuid" class="span-header">Test UUID: {{ testUuid }}</span>
     <span v-if="testVersion" class="span-header">Test Version: {{ testVersion }}</span>
     <div class="ml-auto flex gap-2">
-      <button v-if="!showOverlay" @click="toggleHelpOverlay('Header')" class="btn-header">Help</button>
+      <button v-if="!showOverlay" @click="toggleHelpOverlay('Header')" class="btn-header">?</button>
+      <button v-if="!showOverlay" @click="showDeleteOverlay = true" class="btn-header">Delete</button>
       <button v-if="!showOverlay" @click="persistAll" :disabled="isSaving" class="btn-header">{{ isSaving ? 'Saving... ' : 'Save' }}</button>
       <button v-if="!showOverlay" @click="loadOrGenerate" :disabled="isSaving" class="btn-header">Load / Generate</button>
       <button v-if="!showOverlay" @click="newVersion" :disabled="isSaving" class="btn-header">New Version</button>
@@ -17,7 +18,15 @@
 
 <script setup lang="ts">
 import {ref} from 'vue'
-import {backendUrl, testUuid, testVersion, showOverlay, resetGlobalState, toggleHelpOverlay} from "../util/global-state-handler.ts";
+import {
+  backendUrl,
+  testUuid,
+  testVersion,
+  showOverlay,
+  resetGlobalState,
+  toggleHelpOverlay,
+  showDeleteOverlay
+} from "../util/global-state-handler.ts";
 import {testHandler} from "../util/test-handler.ts";
 
 const isRunningExperiment = ref(false)
@@ -42,8 +51,11 @@ const startExperiment = async () => {
 
 const stopExperiment = async () => {
   try {
-    await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}`, {
-      method: 'DELETE',
+    await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/stop`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     })
     alert('Experiment stopped successfully.')
     isRunningExperiment.value = false
