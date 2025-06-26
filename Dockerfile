@@ -3,6 +3,7 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json ./
+COPY assets ./assets
 
 ENV VITE_BACKEND_URL=http://localhost:8888
 
@@ -13,6 +14,7 @@ RUN npm run build
 FROM nginx:stable-alpine AS production
 
 COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/assets /usr/share/nginx/html/assets
 
 EXPOSE 5173
 
