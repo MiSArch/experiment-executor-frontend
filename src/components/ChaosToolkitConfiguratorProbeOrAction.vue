@@ -50,7 +50,7 @@ const props = defineProps<{
 }>()
 import ChaosToolkitConfiguratorProvider from "./ChaosToolkitConfiguratorProvider.vue";
 import {Action, METHOD_OPTIONS, Probe} from "../model/chaostoolkit-config.ts";
-import {ref, watch} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {showChaostoolkitEditor} from "../util/global-state-handler.ts";
 
 const toleranceInput = ref<string>('');
@@ -68,12 +68,14 @@ watch(toleranceInput, async (newValue, oldValue) => {
   }
 }, {deep: true});
 
-watch(() => props.probeOrAction, async (newValue, oldValue) => {
-  if (initialized.value === false) {
+onMounted(async () => {
+  if (!initialized.value) {
     initialized.value = true;
-    await parseJsonToModels(newValue)
+    await parseJsonToModels(props.probeOrAction);
   }
+});
 
+watch(() => props.probeOrAction, async (newValue, oldValue) => {
   if (newValue === oldValue || !showChaostoolkitEditor.value) return
   await parseJsonToModels(newValue)
 }, {deep: true});

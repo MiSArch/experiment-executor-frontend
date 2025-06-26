@@ -91,7 +91,7 @@
 
 <script setup lang="ts">
 import {HttpProvider, type Provider, PROVIDER_OPTIONS} from "../model/chaostoolkit-config.ts";
-import {ref, watch} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {showChaostoolkitEditor} from "../util/global-state-handler.ts";
 import ChaosToolkitConfiguratorProviderArgsAndSecrets from "./ChaosToolkitConfiguratorProviderArgsAndSecrets.vue";
 
@@ -112,12 +112,14 @@ watch(headersRef, async () => {
   }
 }, {deep: true});
 
-watch(() => props.probeOrAction, async (newValue, oldValue) => {
-  if (initialized.value === false) {
+onMounted(async () => {
+  if (!initialized.value) {
     initialized.value = true;
-    await parseJsonToModels(newValue.provider)
+    await parseJsonToModels(props.probeOrAction.provider)
   }
+});
 
+watch(() => props.probeOrAction, async (newValue, oldValue) => {
   if (newValue === oldValue || !showChaostoolkitEditor.value) return
   await parseJsonToModels(newValue.provider)
 }, {deep: true});
