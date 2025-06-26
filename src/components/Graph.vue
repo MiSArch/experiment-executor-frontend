@@ -1,15 +1,12 @@
 <template>
   <div class="m-2 pt-5 w-full max-h-[95vh] md:w-2/3 relative">
-    <button class="btn-graph-hover right-14">?</button>
     <button class="btn-graph-hover right-2" @click="isGraphOverlayVisible = !isGraphOverlayVisible;">☰</button>
 
     <LineChart ref="chartRef" :key="chartKey" class="grow h-full" :chart-data="chartData" :chart-options="chartOptions"/>
 
     <div v-if="isGraphOverlayVisible" class="z-50 absolute w-full h-full top-0 left-0 right-0 bg-[#242424] p-6">
-      <button
-          class="btn-graph-hover right-2"
-          @click="isGraphOverlayVisible = !isGraphOverlayVisible;">&times;
-      </button>
+      <button class="btn-graph-hover right-14" @click="toggleHelpOverlay('Graph')">?</button>
+      <button class="btn-graph-hover right-2" @click="isGraphOverlayVisible = !isGraphOverlayVisible;">&times;</button>
       <div class="flex flex-col gap-4 items-center pt-12 max-w-2xl mx-auto min-width-xl">
         <div class="flex flex-row gap-4 w-full items-center">
           <select v-model="currentlyEditing" class="select-default">
@@ -57,7 +54,7 @@ import {defineChartComponent} from 'vue-chart-3'
 import dragDataPlugin from 'chartjs-plugin-dragdata'
 import {CategoryScale, Chart as ChartJS, Legend, LinearScale, LineController, LineElement, PointElement, Title, Tooltip} from 'chart.js'
 import {ref, toRaw, watch} from 'vue'
-import {chaostoolkitConfig, gatlingConfigs, misarchExperimentConfig, showOverlay} from "../util/global-state-handler.ts";
+import {chaostoolkitConfig, gatlingConfigs, misarchExperimentConfig, showOverlay, toggleHelpOverlay} from "../util/global-state-handler.ts";
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale, LineController, dragDataPlugin)
 

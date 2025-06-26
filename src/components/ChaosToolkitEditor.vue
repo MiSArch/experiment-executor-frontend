@@ -3,7 +3,7 @@
     <div class="div-subheader">
       <span class="span-subheader">ChaosToolkit Configuration</span>
       <div>
-        <button class="btn-header">?</button>
+        <button class="btn-header" @click="toggleHelpOverlay('ChaosToolkitEditor')">?</button>
         <button class="btn-header !mr-4" @click="showChaostoolkitEditor = !showChaostoolkitEditor">
           {{ showChaostoolkitEditor ? 'Simplified UI' : 'Editor' }}
         </button>
@@ -61,7 +61,7 @@
 
 <script setup lang="ts">
 import ChaosToolkitConfiguratorProbeOrAction from './ChaosToolkitConfiguratorProbeOrAction.vue';
-import {chaostoolkitConfig, showChaostoolkitEditor, showOverlay} from '../util/global-state-handler.ts'
+import {chaostoolkitConfig, showChaostoolkitEditor, showOverlay, toggleHelpOverlay} from '../util/global-state-handler.ts'
 import JsonEditor from "./JsonEditor.vue";
 import type {ChaostoolkitConfig} from "../model/chaostoolkit-config.ts";
 import type {MiSArchConfig} from "../model/misarch-config.ts";

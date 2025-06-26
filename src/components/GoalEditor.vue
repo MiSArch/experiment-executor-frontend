@@ -2,7 +2,7 @@
   <div class="flex flex-col w-full md:min-w-2/12 md:max-w-3/12 h-full max-h-[512px] overflow-x-hidden">
     <div class="div-subheader">
       <span class="span-subheader">Experiment Goals</span>
-      <button class="btn-header">?</button>
+      <button class="btn-header" @click="toggleHelpOverlay('GoalEditor')">?</button>
     </div>
     <div class="flex flex-col gap-2 p-2 max-w-full overflow-y-scroll min-w-0">
       <div v-for="(line, index) in lines" :key="index" class="flex items-center gap-2 w-full relative">
@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import {ref, watch} from 'vue'
 import type {ExperimentConfig} from "../model/experiment-config.ts";
-import {showOverlay, testUuid, testVersion, backendUrl, config} from "../util/global-state-handler.ts";
+import {showOverlay, testUuid, testVersion, backendUrl, config, toggleHelpOverlay} from "../util/global-state-handler.ts";
 
 interface Line {
   dropdown: string;
@@ -120,7 +120,7 @@ watch(lines, async (newLines) => {
 }, {deep: true})
 
 watch(showOverlay, async (newValue, oldValue) => {
-  if (newValue !== oldValue && newValue === false) {
+  if (newValue !== oldValue && !newValue) {
     config.value = await fetchConfig();
   }
 });

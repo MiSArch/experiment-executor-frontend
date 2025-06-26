@@ -3,7 +3,7 @@
     <div class="div-subheader">
       <span class="span-subheader">MiSArch Experiment Configuration</span>
       <div>
-        <button class="btn-header">?</button>
+        <button class="btn-header" @click="toggleHelpOverlay('MiSArchConfigEditor')">?</button>
         <button class="btn-header !mr-4" @click="showMisarchEditor = !showMisarchEditor">{{ showMisarchEditor ? 'Simplified UI' : 'Editor' }}</button>
       </div>
     </div>
@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import {ref, watch} from 'vue'
-import {misarchExperimentConfig, showMisarchEditor, showOverlay} from '../util/global-state-handler.ts'
+import {misarchExperimentConfig, showMisarchEditor, showOverlay, toggleHelpOverlay} from '../util/global-state-handler.ts'
 import JsonEditor from "./JsonEditor.vue";
 import type {ChaostoolkitConfig} from "../model/chaostoolkit-config.ts";
 import type {MiSArchConfig} from "../model/misarch-config.ts";

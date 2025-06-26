@@ -2,7 +2,7 @@
   <div class="flex flex-col w-full md:w-1/3 overflow-hidden">
     <div class="div-subheader !pt-4">
       <span class="span-subheader">Work Configuration</span>
-      <button class="btn-header">?</button>
+      <button class="btn-header" @click="toggleHelpOverlay('WorkEditor')">?</button>
     </div>
     <div class="flex flex-row w-full justify-evenly bg-[#2c2c2c] border-b border-[#444] z-10">
       <button v-for="(tab, index) in gatlingConfigs" :key="index" :title="tab.fileName" @click="switchTab(index)" @dblclick="startRenaming(index)"
@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import {ref, watch, onBeforeUnmount, nextTick} from 'vue'
-import {backendUrl, gatlingConfigs, testUuid, testVersion, showOverlay} from '../util/global-state-handler.ts'
+import {backendUrl, gatlingConfigs, testUuid, testVersion, showOverlay, toggleHelpOverlay} from '../util/global-state-handler.ts'
 import {KotlinScenarioModel} from "../model/gatling-work.ts";
 
 const activeTabIndex = ref(0)
@@ -123,7 +123,7 @@ const finishRenaming = (index: number, event?: Event) => {
 }
 
 watch(showOverlay, async (newValue, oldValue) => {
-  if (newValue !== oldValue && newValue === false && editorElement.value) {
+  if (newValue !== oldValue && !newValue && editorElement.value) {
     await loadConfig()
     if (editorInstance?.getEditorType() != undefined) {
       editorInstance?.setValue(gatlingConfigs.value[0].workFileContent)

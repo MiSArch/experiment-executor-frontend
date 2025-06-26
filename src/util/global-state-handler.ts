@@ -10,8 +10,11 @@ export const testUuid = ref('')
 export const testVersion = ref('')
 
 export const showOverlay = ref(true)
+export const showHelpOverlay = ref(false)
+export const callingSection = ref('');
 export const showMisarchEditor = ref(false)
 export const showChaostoolkitEditor = ref(false)
+
 
 export const config = ref<ExperimentConfig>(new ExperimentConfig());
 
@@ -21,9 +24,16 @@ export const chaostoolkitConfig = ref<ChaostoolkitConfig>(new ChaostoolkitConfig
 
 export const gatlingConfigs = ref<{ fileName: string; workFileContent: string; workModel: KotlinScenarioModel, userSteps: number[] }[]>([])
 
+
+export function toggleHelpOverlay(caller: string) {
+  showHelpOverlay.value = true;
+  callingSection.value = caller;
+}
+
 export function resetGlobalState() {
   testUuid.value = ''
   testVersion.value = ''
+  showHelpOverlay.value = false
   showOverlay.value = true
   showMisarchEditor.value = false
   showChaostoolkitEditor.value = false

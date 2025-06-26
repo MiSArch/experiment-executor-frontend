@@ -1,5 +1,5 @@
 <template>
-  <div v-if="showOverlay" class="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-[1000] text-black">
+  <div v-if="showOverlay" class="fixed inset-0 bg-[#141414] bg-opacity-70 flex justify-center items-center z-[1000] text-black">
     <div class="relative bg-white p-8 rounded-lg text-center w-[90%] max-w-md">
       <div class="flex flex-col gap-2">
         <div class="flex flex-row gap-2 items-center justify-between">
@@ -117,7 +117,7 @@ const useExistingTest = () => {
 
 onMounted(fetchUUIDs)
 watch(showOverlay, async (newValue, oldValue) => {
-  if (newValue !== oldValue && newValue === false) {
+  if (newValue !== oldValue && !newValue) {
     await fetchUUIDs()
   }
 })

@@ -14,6 +14,8 @@
     "@vueuse/core": "^13.2.0",
     "chartjs-plugin-dragdata": "^2.3.1",
     "class-transformer": "^0.5.1",
+    "github-markdown-css": "^5.8.1",
+    "marked": "^15.0.12",
     "monaco-editor": "^0.52.2",
     "monaco-editor-wrapper": "^6.7.0",
     "sprotty": "^1.4.0",
