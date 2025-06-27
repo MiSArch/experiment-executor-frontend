@@ -38,14 +38,17 @@ const startExperiment = async () => {
   try {
     await persistAll()
     startEventListener()
-    await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}`, {
+    const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}`, {
       method: 'POST',
     })
+    if (response.status !== 200) {
+      throw new Error(`Failed to start experiment.`)
+    }
     toggleAlert(`Experiment started! You will be notified once it has finished!`)
   } catch (error) {
     isRunningExperiment.value = false
     console.error('Error running experiment:', error)
-    toggleAlert('Failed to run experiment.')
+    toggleAlert('Failed to run experiment!<br>Make sure the test is not executed in parallel<br>and the experiment-executor is running!')
   } finally {
   }
 }
