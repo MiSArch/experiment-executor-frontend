@@ -10,7 +10,7 @@
       <button v-if="!showOverlay" @click="loadOrGenerate" :disabled="isSaving" class="btn-header">Load / Generate</button>
       <button v-if="!showOverlay" @click="newVersion" :disabled="isSaving" class="btn-header">New Version</button>
       <button v-if="!showOverlay" type="button" @click="isRunningExperiment ? stopExperiment() : startExperiment()" class="btn-header">
-        {{ isRunningExperiment ? 'Stop Experiment' : 'Execute Experiment' }}
+        {{ isRunningExperiment ? 'Stop Run' : 'Execute' }}
       </button>
     </div>
   </div>
@@ -25,7 +25,7 @@ import {
   showOverlay,
   resetGlobalState,
   toggleHelpOverlay,
-  showDeleteOverlay
+  showDeleteOverlay, toggleAlert
 } from "../util/global-state-handler.ts";
 import {testHandler} from "../util/test-handler.ts";
 
@@ -41,10 +41,11 @@ const startExperiment = async () => {
     await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}`, {
       method: 'POST',
     })
-    alert(`Experiment started! You will be notified once it is completed!`)
+    toggleAlert(`Experiment started! You will be notified once it has finished!`)
   } catch (error) {
+    isRunningExperiment.value = false
     console.error('Error running experiment:', error)
-    alert('Failed to run experiment.')
+    toggleAlert('Failed to run experiment.')
   } finally {
   }
 }
@@ -57,12 +58,12 @@ const stopExperiment = async () => {
         'Content-Type': 'application/json',
       },
     })
-    alert('Experiment stopped successfully.')
+    toggleAlert('Experiment stopped successfully.')
     isRunningExperiment.value = false
   } catch (error) {
     stopEventListener()
     console.error('Error stopping experiment:', error)
-    alert('Failed to stop experiment.')
+    toggleAlert('Failed to stop experiment.')
   } finally {
   }
 }
@@ -73,7 +74,7 @@ const persistAll = async () => {
     await testHandler.persistAllConfigs()
   } catch (error) {
     console.error('Error saving experiment:', error)
-    alert('Failed to save experiment configuration.')
+    toggleAlert('Failed to save experiment configuration.')
   } finally {
     isSaving.value = false
   }
@@ -89,7 +90,7 @@ const newVersion = async () => {
     testVersion.value = await response.text()
   } catch (error) {
     console.error('Error creating new version:', error)
-    alert('Failed to create new version.')
+    toggleAlert('Failed to create new version.')
   } finally {
     isSaving.value = false
   }
@@ -114,9 +115,9 @@ const startEventListener = () => {
 
     if (urlRegex.test(message)) {
       const url = message.match(urlRegex)?.[0];
-      alert(`Experiment finished successfully, please open the URL below.\n\n\n${url}`);
+      toggleAlert(`Experiment finished successfully, please open the URL below to see the result dashboard: ${url}`);
     } else {
-      alert(message);
+      toggleAlert(message);
     }
   };
   eventSource.value.onerror = () => {

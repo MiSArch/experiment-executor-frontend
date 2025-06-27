@@ -15,7 +15,8 @@ export const showHelpOverlay = ref(false)
 export const callingSection = ref('');
 export const showMisarchEditor = ref(false)
 export const showChaostoolkitEditor = ref(false)
-
+export const showAlert = ref(false)
+export const alertText = ref('')
 
 export const config = ref<ExperimentConfig>(new ExperimentConfig());
 
@@ -31,11 +32,19 @@ export function toggleHelpOverlay(caller: string) {
   callingSection.value = caller;
 }
 
+export function toggleAlert(message: string) {
+  showAlert.value = true;
+  alertText.value = message;
+}
+
+
 export function resetGlobalState() {
   testUuid.value = ''
   testVersion.value = ''
   showHelpOverlay.value = false
   showDeleteOverlay.value = false
+  showAlert.value = false
+  alertText.value = ''
   showOverlay.value = true
   showMisarchEditor.value = false
   showChaostoolkitEditor.value = false

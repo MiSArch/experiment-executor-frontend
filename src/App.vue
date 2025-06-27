@@ -8,10 +8,12 @@ import GoalEditor from "./components/GoalEditor.vue";
 import Overlay from "./components/Overlay.vue";
 import HelpOverlay from "./components/HelpOverlay.vue";
 import DeleteOverlay from "./components/DeleteOverlay.vue";
+import Alert from "./components/Alert.vue";
 </script>
 
 <template>
   <div class="flex flex-col w-full h-full justify-stretch overflow-hidden">
+    <Alert/>
     <Overlay/>
     <HelpOverlay/>
     <DeleteOverlay/>

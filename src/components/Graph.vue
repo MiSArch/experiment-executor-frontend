@@ -54,7 +54,14 @@ import {defineChartComponent} from 'vue-chart-3'
 import dragDataPlugin from 'chartjs-plugin-dragdata'
 import {CategoryScale, Chart as ChartJS, Legend, LinearScale, LineController, LineElement, PointElement, Title, Tooltip} from 'chart.js'
 import {ref, toRaw, watch} from 'vue'
-import {chaostoolkitConfig, gatlingConfigs, misarchExperimentConfig, showOverlay, toggleHelpOverlay} from "../util/global-state-handler.ts";
+import {
+  chaostoolkitConfig,
+  gatlingConfigs,
+  misarchExperimentConfig,
+  showOverlay,
+  toggleAlert,
+  toggleHelpOverlay
+} from "../util/global-state-handler.ts";
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale, LineController, dragDataPlugin)
 
@@ -175,7 +182,7 @@ async function calculateApproximateRequests(): Promise<number[]> {
 
 async function applyUsers() {
   if (timeTo.value < 0 || timeFrom.value < 0 || arrivingUsers.value < 0) {
-    alert('Time and Arriving Users must be non-negative.')
+    toggleAlert('Time and Arriving Users must be non-negative.')
     return
   }
   if (timeFrom.value >= gatlingConfigs.value[currentlyEditing.value].userSteps.length) {

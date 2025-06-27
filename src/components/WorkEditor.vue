@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col w-full md:w-1/3 overflow-hidden">
-    <div class="div-subheader !pt-4">
+    <div class="div-subheader !pt-3 ">
       <span class="span-subheader">Work Configuration</span>
       <button class="btn-header" @click="toggleHelpOverlay('WorkEditor')">?</button>
     </div>

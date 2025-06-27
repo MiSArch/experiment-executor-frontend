@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import {backendUrl, resetGlobalState, showDeleteOverlay, testUuid, testVersion} from "../util/global-state-handler.ts";
+import {backendUrl, resetGlobalState, showDeleteOverlay, testUuid, testVersion, toggleAlert} from "../util/global-state-handler.ts";
 
 
 const loading = ref(false);
@@ -49,7 +49,7 @@ async function deleteExperimentVersion() {
       },
     });
   } catch (e: any) {
-    alert('Failed to delete experiment verseion.')
+    toggleAlert('Failed to delete experiment version.')
   } finally {
     loading.value = false;
     resetGlobalState()

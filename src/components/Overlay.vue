@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import {onMounted, ref, watch} from 'vue'
-import {backendUrl, testUuid, testVersion, showOverlay} from '../util/global-state-handler.ts'
+import {backendUrl, testUuid, testVersion, showOverlay, toggleAlert} from '../util/global-state-handler.ts'
 
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -96,6 +96,7 @@ const submitRequest = async () => {
     testVersion.value = strings[1].trim()
     showOverlay.value = false
   } catch (error) {
+    toggleAlert('Failed to create new experiment!<br>Is the experiment-executor running?')
     console.error('Error:', error)
   }
 }
@@ -108,7 +109,7 @@ const useExistingTest = () => {
     testVersion.value = trimmedVersionValue;
     showOverlay.value = false;
   } else {
-    alert('Please enter a valid Test UUID and version.');
+    toggleAlert('Please enter a valid Test UUID and version.');
   }
 }
 
