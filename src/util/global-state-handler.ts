@@ -25,7 +25,7 @@ export const misarchExperimentConfig = ref<MiSArchConfig[]>([])
 export const chaostoolkitConfig = ref<ChaostoolkitConfig>(new ChaostoolkitConfig())
 
 export const gatlingConfigs = ref<{ fileName: string; workFileContent: string; workModel: KotlinScenarioModel, userSteps: number[] }[]>([])
-
+export const userStepsResetState = ref<{ fileName: string; userSteps: number[] }[]>([])
 
 export function toggleHelpOverlay(caller: string) {
   showHelpOverlay.value = true;
@@ -36,7 +36,6 @@ export function toggleAlert(message: string) {
   showAlert.value = true;
   alertText.value = message;
 }
-
 
 export function resetGlobalState() {
   testUuid.value = ''

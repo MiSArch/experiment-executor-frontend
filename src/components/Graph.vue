@@ -44,6 +44,9 @@
           </div>
           <button class="btn-apply" @click="applyUsers" style="align-self: stretch;">Apply</button>
         </div>
+        <button class="btn-green-add" :disabled="arraysEqual(gatlingConfigs[currentlyEditing].userSteps,
+        userStepsResetState[currentlyEditing].userSteps)" @click="resetGatlingTimeConfigs">Reset
+        </button>
       </div>
     </div>
   </div>
@@ -60,7 +63,8 @@ import {
   misarchExperimentConfig,
   showOverlay,
   toggleAlert,
-  toggleHelpOverlay
+  toggleHelpOverlay,
+  userStepsResetState,
 } from "../util/global-state-handler.ts";
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale, LineController, dragDataPlugin)
@@ -75,6 +79,9 @@ const currentlyEditing = ref<number>(1)
 const isGraphOverlayVisible = ref(false)
 const chartRef = ref<ChartJS | null>(null)
 const chartKey = ref(0)
+const lastMisarchPauses = ref<string>('')
+const lastChaosPauses = ref<string>('')
+const lastGatlingConfigs = ref<string>('')
 
 const colors = [
   {border: 'rgba(83, 102, 255, 1)', background: 'rgba(83, 102, 255, 0.2)'},
@@ -201,14 +208,13 @@ async function applyUsers() {
   needsUpdate.value = true
 }
 
-let lastGatlingConfigs: string = ''
 watch(gatlingConfigs, async (newVal) => {
       if (showOverlay.value) return;
       const configs = toRaw(newVal)
       .map((item: any) => `${item.fileName},${item.fileName}`)
       .join('|')
-      if (configs !== lastGatlingConfigs) {
-        lastGatlingConfigs = configs
+      if (configs !== lastGatlingConfigs.value) {
+        lastGatlingConfigs.value = configs
         const list = []
         const totalRequests = await createTotalRequestChartData()
         list.push(totalRequests)
@@ -241,35 +247,33 @@ watch(gatlingConfigs, async (newVal) => {
     }
 )
 
-let lastMisarchPauses: string = ''
 watch(misarchExperimentConfig, async (newVal) => {
       if (showOverlay.value) return;
       const pauses = toRaw(newVal)
       .map((item: any) => `${item.pauses.before},${item.pauses.after}`)
       .join('|')
-      if (pauses !== lastMisarchPauses) {
+      if (pauses !== lastMisarchPauses.value) {
         clearTimeout((watch as any)._debounceTimeout);
         (watch as any)._debounceTimeout = setTimeout(() => {
           needsUpdate.value = true;
         }, 300);
-        lastMisarchPauses = pauses
+        lastMisarchPauses.value = pauses
       }
     }, {deep: true}
 )
 
-let lastChaosPauses: string = ''
 watch(chaostoolkitConfig, async (newVal) => {
       if (showOverlay.value) return;
       const pauses = toRaw(newVal).method
       .filter((item: any) => item.type === 'action' && item.pauses)
       .map((item: any) => `${item.pauses.before},${item.pauses.after}`)
       .join('|')
-      if (pauses !== lastChaosPauses) {
+      if (pauses !== lastChaosPauses.value) {
         clearTimeout((watch as any)._debounceTimeout);
         (watch as any)._debounceTimeout = setTimeout(() => {
           needsUpdate.value = true;
         }, 300);
-        lastChaosPauses = pauses
+        lastChaosPauses.value = pauses
       }
     }, {deep: true}
 )
@@ -300,6 +304,12 @@ async function applyDuration() {
   } else if (duration.value[currentlyEditing.value] < gatlingConfigs.value[currentlyEditing.value].userSteps.length) {
     gatlingConfigs.value[currentlyEditing.value].userSteps.splice(duration.value[currentlyEditing.value]);
   }
+  needsUpdate.value = true
+}
+
+async function resetGatlingTimeConfigs() {
+  gatlingConfigs.value[currentlyEditing.value].userSteps = [...userStepsResetState.value[currentlyEditing.value].userSteps];
+  duration.value[currentlyEditing.value] = gatlingConfigs.value[currentlyEditing.value].userSteps.length;
   needsUpdate.value = true
 }
 
@@ -398,6 +408,13 @@ async function buildFailureGraph(xValues: number[], label: string, borderColor: 
   };
 
   chartData.value.datasets.push(failureLineDataSet);
+}
+
+function arraysEqual(a: number[], b: number[]): boolean {
+  if (a.length !== b.length) return false;
+  let result = a.every((val, idx) => val === b[idx]);
+  console.log(result)
+  return result
 }
 
 </script>

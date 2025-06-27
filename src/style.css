@@ -53,11 +53,11 @@ body {
 }
 
 .btn-green-add {
-  @apply bg-[#369a6e] text-white px-3 py-1 rounded hover:bg-[#2d7a5a] text-sm w-full
+  @apply bg-[#369a6e] text-white px-3 py-1 rounded hover:bg-[#2d7a5a] text-sm w-full disabled:bg-[#333] disabled:text-[#444] disabled:cursor-not-allowed
 }
 
 .btn-gray-add {
-  @apply bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs;
+  @apply bg-[#444] text-white px-2 py-1 rounded hover:bg-[#333] text-xs
 }
 
 .btn-gray-close {
@@ -73,7 +73,7 @@ body {
 }
 
 .btn-header {
-  @apply mr-2 px-4 py-2  bg-[#369a6e] rounded text-white cursor-pointer hover:bg-[#2d7a5a] focus:outline-none focus:ring-0 focus:border-transparent appearance-none border-0
+  @apply mr-2 px-4 py-2  bg-[#369a6e] rounded text-white hover:bg-[#2d7a5a] focus:outline-none focus:ring-0 focus:border-transparent appearance-none border-0
 }
 
 .btn-graph-hover {
@@ -101,5 +101,5 @@ body {
 }
 
 .select-default {
-  @apply p-2 w-full rounded border-1 border-[#444] text-white text-sm appearance-none cursor-pointer hover:bg-[#333] focus:outline-none
+  @apply p-2 w-full rounded border-1 border-[#444] text-white text-sm appearance-none hover:bg-[#333] focus:outline-none
 }

@@ -6,8 +6,8 @@
     </div>
     <div class="flex flex-row w-full justify-evenly bg-[#2c2c2c] border-b border-[#444] z-10">
       <button v-for="(tab, index) in gatlingConfigs" :key="index" :title="tab.fileName" @click="switchTab(index)" @dblclick="startRenaming(index)"
-              :class="['flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis px-2 py-1 text-white cursor-pointer text-sm border-r border-[#444]', { 'bg-[#444] font-bold text-white': activeTabIndex === index, 'hover:bg-[#333]': activeTabIndex !== index }]">
-  <span class="inline-block cursor-pointer select-none rounded mr-1 ml-1 pr-1.5 pl-1.5 hover:bg-red-900" @click.stop="removeTab(index)"
+              :class="['flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis px-2 py-1 text-white text-sm border-r border-[#444]', { 'bg-[#444] font-bold text-white': activeTabIndex === index, 'hover:bg-[#333]': activeTabIndex !== index }]">
+  <span class="inline-block select-none rounded mr-1 ml-1 pr-1.5 pl-1.5 hover:bg-red-900" @click.stop="removeTab(index)"
         aria-label="Close tab"
         title="Close tab">&times;</span>
         <template v-if="renamingTabIndex === index">
@@ -16,7 +16,7 @@
         </template>
         <template v-else>{{ tab.fileName }}</template>
       </button>
-      <button class="px-4 py-1 bg-[#369a6e] text-white cursor-pointer text-sm rounded-none hover:bg-[#2d7a5a] focus:outline-none" @click="addTab">＋
+      <button class="px-4 py-1 bg-[#369a6e] text-white text-sm rounded-none hover:bg-[#2d7a5a] focus:outline-none" @click="addTab">＋
       </button>
     </div>
     <div ref="editorElement" class="h-full overflow-x-auto"></div>
@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import {ref, watch, onBeforeUnmount, nextTick} from 'vue'
-import {backendUrl, gatlingConfigs, testUuid, testVersion, showOverlay, toggleHelpOverlay} from '../util/global-state-handler.ts'
+import {backendUrl, gatlingConfigs, userStepsResetState, testUuid, testVersion, showOverlay, toggleHelpOverlay} from '../util/global-state-handler.ts'
 import {KotlinScenarioModel} from "../model/gatling-work.ts";
 
 const activeTabIndex = ref(0)
@@ -57,6 +57,7 @@ const loadConfig = async () => {
     })
   })
 
+  userStepsResetState.value = list.map(cfg => ({fileName: cfg.fileName, userSteps: [...cfg.userSteps]}))
   gatlingConfigs.value = list
 }
 
@@ -83,6 +84,11 @@ const addTab = () => {
     userSteps: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
   }
   gatlingConfigs.value.push(newTab)
+  userStepsResetState.value.push(({
+    fileName: newTab.fileName,
+    userSteps: [...newTab.userSteps]
+  }))
+
   switchTab(gatlingConfigs.value.length - 1)
 }
 
@@ -90,6 +96,7 @@ const removeTab = (index: number) => {
   if (index < 0 || index >= gatlingConfigs.value.length) return
 
   gatlingConfigs.value.splice(index, 1)
+  userStepsResetState.value.splice(index, 1)
 
   if (activeTabIndex.value === index) {
     activeTabIndex.value = index > 0 ? index - 1 : 0
