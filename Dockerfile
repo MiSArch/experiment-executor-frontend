@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY assets ./assets
 
-ENV VITE_BACKEND_URL=http://129.69.217.214/experiment-backend
+ENV VITE_BACKEND_URL=http://129.69.217.214
 
 RUN npm install
 COPY . .
