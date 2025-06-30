@@ -38,7 +38,7 @@ const startExperiment = async () => {
   try {
     await persistAll()
     startEventListener()
-    const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}`, {
+    const response = await fetch(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/start`, {
       method: 'POST',
     })
     if (response.status !== 200) {

@@ -53,7 +53,7 @@ const testMaxArrivingUsers = ref(10)
 
 const fetchUUIDs = async () => {
   try {
-    const response = await fetch(`${backendUrl}/experiments`)
+    const response = await fetch(`${backendUrl}/experiment/list`)
     uuidList.value = await response.json()
     if (uuidList.value.length > 0) {
       uuidInputValue.value = uuidList.value[0]
