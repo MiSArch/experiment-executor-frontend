@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY assets ./assets
 
-ENV VITE_BACKEND_URL=http://localhost:8888
+ENV VITE_BACKEND_URL=http://misarch-experiment-executor.misarch.svc.cluster.local:8888
 
 RUN npm install
 COPY . .
