@@ -21,7 +21,7 @@ const htmlContent = ref('');
 
 watch(showHelpOverlay, async (newValue, oldValue) => {
   if (newValue !== oldValue && newValue) {
-    const response = await fetch(`/assets/${callingSection.value}.md`);
+    const response = await fetch(`/frontend/assets/${callingSection.value}.md`);
     markdownContent.value = await response.text();
     htmlContent.value = await marked.parse(markdownContent.value, {gfm: true, breaks: true});
   }
