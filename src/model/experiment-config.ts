@@ -22,4 +22,5 @@ class WarmUp {
 class SteadyState {
   duration!: number;
   rate!: number;
+  factor!: number;
 }

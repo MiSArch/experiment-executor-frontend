@@ -18,6 +18,10 @@
         <span class="span-label">Duration</span>
         <input class="input-default" type="number" min="0" step="1" v-model="steadyStateDuration">
       </div>
+      <div class="flex flex-row gap-2 w-full">
+        <span class="span-label">Factor</span>
+        <input class="input-default" type="number" min="0" step="0.01" v-model="steadyStateFactor">
+      </div>
     </div>
     <div v-if="showExperimentGoals" class="flex flex-col gap-2 p-2 max-w-full overflow-y-auto min-w-0">
       <div v-for="(line, index) in lines" :key="index" class="flex items-center gap-2 w-full relative">
@@ -60,6 +64,7 @@ interface Line {
 
 const lines = ref<Line[]>([])
 const steadyStateDuration = ref<number>(0);
+const steadyStateFactor = ref<number>(1.0);
 const steadyStateRate = ref<number>(0);
 
 const colorMap: Record<string, string> = {
@@ -105,7 +110,7 @@ const dropdownOptions = [
 async function toggleExperimentGoals() {
   showExperimentGoals.value = !showExperimentGoals.value;
   if (!showExperimentGoals.value) {
-    config.value.steadyState = {duration: steadyStateDuration.value, rate: steadyStateRate.value}
+    config.value.steadyState = {duration: steadyStateDuration.value, rate: steadyStateRate.value, factor: steadyStateFactor.value}
     config.value.goals = []
   } else {
     config.value.steadyState = undefined;
@@ -164,6 +169,7 @@ watch(showOverlay, async (newValue, oldValue) => {
     config.value = await fetchConfig();
     steadyStateDuration.value = config.value.steadyState?.duration ? config.value.steadyState.duration : 0;
     steadyStateRate.value = config.value.steadyState?.rate ? config.value.steadyState.rate : 0;
+    steadyStateFactor.value = config.value.steadyState?.factor ? config.value.steadyState.factor : 1.0;
     if (config.value.goals.length === 0 && config.value.steadyState !== undefined && config.value.steadyState !== null &&
         showExperimentGoals.value) {
       showExperimentGoals.value = false;
@@ -180,6 +186,12 @@ watch(steadyStateDuration, async (newValue, oldValue) => {
 watch(steadyStateRate, async (newValue, oldValue) => {
   if (!showExperimentGoals.value && newValue !== oldValue) {
     config.value.steadyState!.rate = newValue;
+  }
+})
+
+watch(steadyStateFactor, async (newValue, oldValue) => {
+  if (!showExperimentGoals.value && newValue !== oldValue) {
+    config.value.steadyState!.factor = newValue;
   }
 })
 </script>
