@@ -15,6 +15,9 @@ export const showHelpOverlay = ref(false)
 export const callingSection = ref('');
 export const showMisarchEditor = ref(false)
 export const showChaostoolkitEditor = ref(false)
+export const showGraphOverlay = ref(false)
+export const showWarmUpOverlay = ref(false)
+export const showExperimentGoals = ref(true)
 export const showAlert = ref(false)
 export const alertText = ref('')
 
@@ -45,6 +48,8 @@ export function resetGlobalState() {
   showAlert.value = false
   alertText.value = ''
   showOverlay.value = true
+  showGraphOverlay.value = false
+  showWarmUpOverlay.value = false
   showMisarchEditor.value = false
   showChaostoolkitEditor.value = false
   config.value = new ExperimentConfig()

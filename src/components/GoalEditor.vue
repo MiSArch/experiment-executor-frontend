@@ -2,9 +2,24 @@
   <div class="flex flex-col w-full md:min-w-2/12 md:max-w-3/12 h-full max-h-[512px] overflow-x-hidden">
     <div class="div-subheader">
       <span class="span-subheader">Experiment Goals</span>
-      <button class="btn-header" @click="toggleHelpOverlay('GoalEditor')">?</button>
+      <div>
+        <button class="btn-header" @click="toggleHelpOverlay('GoalEditor')">?</button>
+        <button class="btn-header" @click="toggleExperimentGoals">{{ showExperimentGoals ? 'Auto' : 'Manual' }}
+        </button>
+      </div>
     </div>
-    <div class="flex flex-col gap-2 p-2 max-w-full overflow-y-scroll min-w-0">
+    <div v-if="!showExperimentGoals" class="flex flex-col items-center justify-center w-full p-2 gap-2 overflow-y-auto">
+      <span class="span-label">Automatically detecting experiment goals using a steady-state hypothesis measured before the test execution.</span>
+      <div class="flex flex-row gap-2 w-full">
+        <span class="span-label">Static User Rate</span>
+        <input class="input-default" type="number" min="0" step="1" v-model="steadyStateRate">
+      </div>
+      <div class="flex flex-row gap-2 w-full">
+        <span class="span-label">Duration</span>
+        <input class="input-default" type="number" min="0" step="1" v-model="steadyStateDuration">
+      </div>
+    </div>
+    <div v-if="showExperimentGoals" class="flex flex-col gap-2 p-2 max-w-full overflow-y-auto min-w-0">
       <div v-for="(line, index) in lines" :key="index" class="flex items-center gap-2 w-full relative">
         <select v-model="line.dropdown" class="select-default !min-w-0 !flex-6">
           <option v-for="option in dropdownOptions" :key="option" :value="option">{{ option }}</option>
@@ -18,7 +33,7 @@
         </div>
         <button @click="removeLine(index)" class="btn-gray-close">&times;</button>
       </div>
-      <button @click="addLine" class="btn-green-add">+</button>
+      <button v-if="showExperimentGoals" @click="addLine" class="btn-green-add">+</button>
     </div>
   </div>
 </template>
@@ -26,7 +41,15 @@
 <script setup lang="ts">
 import {ref, watch} from 'vue'
 import type {ExperimentConfig} from "../model/experiment-config.ts";
-import {showOverlay, testUuid, testVersion, backendUrl, config, toggleHelpOverlay} from "../util/global-state-handler.ts";
+import {
+  showOverlay,
+  testUuid,
+  testVersion,
+  backendUrl,
+  config,
+  toggleHelpOverlay,
+  showExperimentGoals,
+} from "../util/global-state-handler.ts";
 
 interface Line {
   dropdown: string;
@@ -36,6 +59,8 @@ interface Line {
 }
 
 const lines = ref<Line[]>([])
+const steadyStateDuration = ref<number>(0);
+const steadyStateRate = ref<number>(0);
 
 const colorMap: Record<string, string> = {
   '#f2495c': 'red',
@@ -76,6 +101,21 @@ const dropdownOptions = [
   'mean response time ko',
   'max response time ko',
 ];
+
+async function toggleExperimentGoals() {
+  showExperimentGoals.value = !showExperimentGoals.value;
+  if (!showExperimentGoals.value) {
+    config.value.steadyState = {duration: steadyStateDuration.value, rate: steadyStateRate.value}
+    config.value.goals = []
+  } else {
+    config.value.steadyState = undefined;
+    config.value.goals = lines.value.map(line => ({
+      metric: line.dropdown,
+      color: colorMap[line.color] || line.color,
+      threshold: line.value?.toString() || ''
+    }))
+  }
+}
 
 const toggleColorOptions = (index: number) => {
   lines.value[index].showDropdown = !lines.value[index].showDropdown;
@@ -122,8 +162,26 @@ watch(lines, async (newLines) => {
 watch(showOverlay, async (newValue, oldValue) => {
   if (newValue !== oldValue && !newValue) {
     config.value = await fetchConfig();
+    steadyStateDuration.value = config.value.steadyState?.duration ? config.value.steadyState.duration : 0;
+    steadyStateRate.value = config.value.steadyState?.rate ? config.value.steadyState.rate : 0;
+    if (config.value.goals.length === 0 && config.value.steadyState !== undefined && config.value.steadyState !== null &&
+        showExperimentGoals.value) {
+      showExperimentGoals.value = false;
+    }
   }
 });
+
+watch(steadyStateDuration, async (newValue, oldValue) => {
+  if (!showExperimentGoals.value && newValue !== oldValue) {
+    config.value.steadyState!.duration = newValue;
+  }
+})
+
+watch(steadyStateRate, async (newValue, oldValue) => {
+  if (!showExperimentGoals.value && newValue !== oldValue) {
+    config.value.steadyState!.rate = newValue;
+  }
+})
 </script>
 
 <style/>

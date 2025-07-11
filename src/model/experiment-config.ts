@@ -4,8 +4,8 @@ export class ExperimentConfig {
   testName?: string;
   loadType!: string;
   goals!: Goal[];
-  warmUp!: WarmUp;
-  steadyState!: SteadyState;
+  warmUp?: WarmUp;
+  steadyState?: SteadyState;
 }
 
 class Goal {

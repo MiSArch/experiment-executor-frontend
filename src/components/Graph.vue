@@ -1,13 +1,15 @@
 <template>
   <div class="m-2 pt-5 w-full max-h-[95vh] md:w-2/3 relative">
-    <button class="btn-graph-hover right-2" @click="isGraphOverlayVisible = !isGraphOverlayVisible;">☰</button>
+    <button class="btn-graph-hover right-2" @click="showGraphOverlay = !showGraphOverlay;">⚙</button>
+    <button class="btn-graph-hover right-2 !top-14" @click="showWarmUpOverlay = !showWarmUpOverlay;">☰</button>
 
     <LineChart ref="chartRef" :key="chartKey" class="grow h-full" :chart-data="chartData" :chart-options="chartOptions"/>
 
-    <div v-if="isGraphOverlayVisible" class="z-50 absolute w-full h-full top-0 left-0 right-0 bg-[#242424] p-6">
+    <div v-if="showGraphOverlay" class="z-50 absolute w-full h-full top-0 left-0 right-0 bg-[#242424] p-6">
       <button class="btn-graph-hover right-14" @click="toggleHelpOverlay('Graph')">?</button>
-      <button class="btn-graph-hover right-2" @click="isGraphOverlayVisible = !isGraphOverlayVisible;">&times;</button>
+      <button class="btn-graph-hover right-2" @click="showGraphOverlay = !showGraphOverlay;">&times;</button>
       <div class="flex flex-col gap-4 items-center pt-12 max-w-2xl mx-auto min-width-xl">
+        <span class="span-ui-header !-mt-5 !text-center w-full">Configure Load</span>
         <div class="flex flex-row gap-4 w-full items-center">
           <select v-model="currentlyEditing" class="select-default">
             <option v-for="(config, idx) in gatlingConfigs" :key="config.fileName" :value="idx" style="text-align: center;">{{
@@ -31,15 +33,15 @@
           <div class="flex flex-col gap-2 w-full">
             <div class="flex flex-row gap-2 items-center">
               <span class="span-label">From Second</span>
-              <input class="input-default" type="number" v-model="timeFrom" placeholder="TimeFrom"/>
+              <input class="input-default" type="number" v-model="timeFrom" placeholder="0"/>
             </div>
             <div class="flex flex-row gap-2 items-center">
               <span class="span-label">To Second</span>
-              <input class="input-default" type="number" v-model="timeTo" placeholder="TimeTo"/>
+              <input class="input-default" type="number" v-model="timeTo" placeholder="0"/>
             </div>
             <div class="flex flex-row gap-2 items-center">
               <span class="span-label">Arriving Users / s</span>
-              <input class="input-default" type="number" v-model="arrivingUsers" placeholder="Arriving Users"/>
+              <input class="input-default" type="number" v-model="arrivingUsers" placeholder="0"/>
             </div>
           </div>
           <button class="btn-apply" @click="applyUsers" style="align-self: stretch;">Apply</button>
@@ -47,6 +49,25 @@
         <button class="btn-green-add" :disabled="arraysEqual(gatlingConfigs[currentlyEditing].userSteps,
         userStepsResetState[currentlyEditing].userSteps)" @click="resetGatlingTimeConfigs">Reset
         </button>
+      </div>
+    </div>
+    <div v-if="showWarmUpOverlay" class="z-60 absolute w-full h-full top-0 left-0 right-0 bg-[#242424] p-6">
+      <button class="btn-graph-hover right-14" @click="toggleHelpOverlay('Graph')">?</button>
+      <button class="btn-graph-hover right-2" @click="showWarmUpOverlay = !showWarmUpOverlay;">&times;</button>
+      <div class="flex flex-col gap-4 items-center pt-12 max-w-2xl mx-auto min-width-xl">
+        <span class="span-ui-header !-mt-5 !text-center w-full">Configure Warm-Up </span>
+        <div class="flex flex-row gap-4 items-center w-full justify-end">
+          <div v-if="useWarmUp" class="flex flex-row gap-4 w-full items-center">
+            <span class="span-label">Static User Rate</span>
+            <input class="input-default" type="number" min="0" step="1" placeholder="0" v-model="warmUpRate"/>
+          </div>
+          <div v-if="useWarmUp" class="flex flex-row gap-4 w-full items-center">
+            <span class="span-label">Duration</span>
+            <input class="input-default" type="number" min="0" step="1" placeholder="0" v-model="warmUpDuration"/>
+          </div>
+          <button v-if="useWarmUp" class="btn-gray-close" @click="toggleWarmUp">&times;</button>
+        </div>
+        <button v-if="!useWarmUp" class="btn-green-add" @click="toggleWarmUp">+</button>
       </div>
     </div>
   </div>
@@ -59,9 +80,12 @@ import {CategoryScale, Chart as ChartJS, Legend, LinearScale, LineController, Li
 import {ref, toRaw, watch} from 'vue'
 import {
   chaostoolkitConfig,
+  config,
   gatlingConfigs,
   misarchExperimentConfig,
+  showGraphOverlay,
   showOverlay,
+  showWarmUpOverlay,
   toggleAlert,
   toggleHelpOverlay,
   userStepsResetState,
@@ -76,12 +100,14 @@ const arrivingUsers = ref<number>(0)
 const needsUpdate = ref<boolean>(false)
 const duration = ref<number[]>([])
 const currentlyEditing = ref<number>(1)
-const isGraphOverlayVisible = ref(false)
 const chartRef = ref<ChartJS | null>(null)
 const chartKey = ref(0)
 const lastMisarchPauses = ref<string>('')
 const lastChaosPauses = ref<string>('')
 const lastGatlingConfigs = ref<string>('')
+const useWarmUp = ref<boolean>(false)
+const warmUpDuration = ref<number>(0);
+const warmUpRate = ref<number>(0);
 
 const colors = [
   {border: 'rgba(83, 102, 255, 1)', background: 'rgba(83, 102, 255, 0.2)'},
@@ -207,6 +233,15 @@ async function applyUsers() {
 
   needsUpdate.value = true
 }
+
+watch(config, async (newValue, oldValue) => {
+  if (newValue !== oldValue && config.value.warmUp !== undefined && config.value.warmUp !== null) {
+    console.log("fuck")
+    useWarmUp.value = true;
+    warmUpRate.value = config.value.warmUp.rate;
+    warmUpDuration.value = config.value.warmUp.duration;
+  }
+})
 
 watch(gatlingConfigs, async (newVal) => {
       if (showOverlay.value) return;
@@ -416,6 +451,30 @@ function arraysEqual(a: number[], b: number[]): boolean {
   console.log(result)
   return result
 }
+
+async function toggleWarmUp() {
+  useWarmUp.value = !useWarmUp.value;
+  if (useWarmUp.value) {
+    config.value.warmUp = {
+      rate: warmUpRate.value,
+      duration: warmUpDuration.value,
+    };
+  } else {
+    config.value.warmUp = undefined;
+  }
+}
+
+watch(warmUpDuration, async (newValue, oldValue) => {
+  if (newValue !== oldValue)  {
+    config.value.warmUp!.duration = newValue;
+  }
+})
+
+watch(warmUpRate, async (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    config.value.warmUp!.rate = newValue;
+  }
+})
 
 </script>
 

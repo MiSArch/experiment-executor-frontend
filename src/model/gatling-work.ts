@@ -123,7 +123,7 @@ export class KotlinScenarioModel {
             `.exec(\n  http("${step.name}").post("${step.url}")${bodyLine}${checks}\n)`
         );
       } else if (step.type === 'exec') {
-        if (step.code != null) {
+        if (step.code !== undefined && step.code !== null) {
           lines.push(step.code);
         }
       }

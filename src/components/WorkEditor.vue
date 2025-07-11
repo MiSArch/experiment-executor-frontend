@@ -132,7 +132,7 @@ const finishRenaming = (index: number, event?: Event) => {
 watch(showOverlay, async (newValue, oldValue) => {
   if (newValue !== oldValue && !newValue && editorElement.value) {
     await loadConfig()
-    if (editorInstance?.getEditorType() != undefined) {
+    if (editorInstance?.getEditorType() !== undefined && editorInstance?.getEditorType() !== null) {
       editorInstance?.setValue(gatlingConfigs.value[0].workFileContent)
     } else {
       editorInstance = monaco.editor.create(editorElement.value, {
