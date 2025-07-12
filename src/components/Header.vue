@@ -12,6 +12,7 @@
       <button v-if="!showOverlay" type="button" @click="isRunningExperiment ? stopExperiment() : startExperiment()" class="btn-header">
         {{ isRunningExperiment ? 'Stop Run' : 'Execute' }}
       </button>
+      <span v-if="isRunningExperiment" class="spinner"></span>
     </div>
   </div>
 </template>

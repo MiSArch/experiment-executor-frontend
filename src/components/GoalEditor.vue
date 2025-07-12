@@ -86,16 +86,12 @@ const reverseColorMap: Record<string, string> = {
 };
 
 const dropdownOptions = [
-  'number reqs with resp. time t < 800 ms',
-  'number reqs with resp. time t < 800 ms < t < 1200 ms',
-  'number reqs with resp. time t > 1200 ms',
-  'number failed requests',
-  'number of requests total',
-  'number of requests total ok',
-  'number of requests total ko',
-  'mean requests/sec',
-  'mean requests/sec ok',
-  'mean requests/sec ko',
+  'percentage reqs with resp. time t < 800 ms',
+  'percentage reqs with resp. time 800 ms < t < 1200 ms',
+  'percentage reqs with resp. time t > 1200 ms',
+  'percentage failed requests',
+  'percentage mean requests/sec ok',
+  'percentage mean requests/sec ko',
   'min response time',
   'mean response time',
   'max response time',
