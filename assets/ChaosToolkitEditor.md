@@ -1,12 +1,11 @@
 # 💥 ChaosToolkit Failure Configuration
 
-The **Chaos Toolkit** is a powerful, extensible tool for defining and executing chaos experiments in cloud-native systems.  
+The **ChaosToolkit** is a powerful, extensible tool for defining and executing chaos experiments in cloud-native systems.  
 It allows you to inject failures, observe system behavior, and validate resiliency through declarative experiments written.
-> ⚠️ In this editor, **only JSON no YAML** is supported.
+> ⚠️ In this editor, **only JSON** and **no YAML** is supported.
 
-This interface lets you configure and run chaos experiments using Chaos Toolkit, with optional pauses, probes, and steady-state hypotheses.
-
-> 📘 For full details, refer to the [Chaos Toolkit documentation](https://chaostoolkit.org).
+This interface lets you configure chaos experiments using ChaosToolkit, with optional pauses, probes, and steady-state hypotheses.
+For full details, refer to the [📚 ChaosToolkit documentation](https://chaostoolkit.org).
 
 ---
 
@@ -34,9 +33,9 @@ These modes are **synchronized** and can be toggled via the **button in the top 
 
 ## ⚙️ Configuration Structure
 
-> For a full example and reference see the [Chaos Toolkit documentation](https://chaostoolkit.org/reference/api/experiment).
+> For a full example and reference see the [📚 ChaosToolkit documentation](https://chaostoolkit.org/reference/api/experiment).
 
-A Chaos Toolkit experiment consists of the following key elements:
+A ChaosToolkit experiment consists of the following key elements:
 
 ### 🧪 Steady-State Hypothesis
 
@@ -73,13 +72,13 @@ A method can either be an **action** (to apply a failure) or a **probe** (to obs
 
 ### 🧰 Provider Examples
 
-Chaos Toolkit supports three **provider types** that define how actions and probes are executed: `http`, `process`, or `python`.  
-For a full list of available extensions, see the [Chaos Toolkit Extensions](https://chaostoolkit.org/drivers/overview/) documentation.
+ChaosToolkit supports three **provider types** that define how actions and probes are executed: `http`, `process`, or `python`.  
+For a full list of available extensions, see the [📚 ChaosToolkit Extensions](https://chaostoolkit.org/drivers/overview/) documentation.
 
 ### 🐍 Python Provider
 
 - The **Python provider** allows you to use **Python functions** of chaos-toolkit extensions.
-- For the **Kubernetes provider**, see the [chaosk8s documentation](https://chaostoolkit.org/drivers/kubernetes/).
+- For the **Kubernetes provider**, see the [📚 chaosk8s documentation](https://chaostoolkit.org/drivers/kubernetes/).
 - For our **custom Docker provider** see the documentation on the bottom of the page.
 
 These examples show how to kill the containers of the MiSArch gateway in local Docker or Kubernetes:
@@ -173,7 +172,7 @@ The example below shows how to terminate the `nginx` process using the `killall`
 ---
 
 ## 🐳 ChaosToolkit Docker Python Provider
-As there is no official Docker provider for the Chaos Toolkit, we provide a custom Python provider to interact with Docker containers.
+As there is no official Docker provider for the ChaosToolkit, we provide a custom Python provider to interact with Docker containers.
 This provider has the following functions:
 
 - `kill_containers`: Kills one or more Docker containers by name.

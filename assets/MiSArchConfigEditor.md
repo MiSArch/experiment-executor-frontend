@@ -2,7 +2,10 @@
 
 The **MiSArch Experiment Failure** feature allows users to **simulate failures** of specific MiSArch components.
 
-It operates using a **sidecar container** that proxies all network traffic and resides in the same pod as the MiSArch component.  
+It is called **MiSArch Experiment Failure** and is a custom solution, which is part of MiSArch.
+For more information about the MiSArch Experiment Configuration, refer to the [📚 MiSArch documentation](https://misarch.github.io/docs/docs/dev-manuals/other-repositories/experiment-config-frontend).
+
+The **MiSArch Experiment Failure** operates using a **sidecar container** that proxies all network traffic and resides in the same pod as the MiSArch component.  
 This traffic can be **intercepted and modified** to emulate a range of network-based failure scenarios.
 
 MiSArch leverages **Dapr** features such as **PubSub** and **service-mesh**, which can be selectively failed.  
@@ -12,6 +15,7 @@ In addition to network-related failures, the sidecar container can also simulate
 
 > ⚠️ **Note:** Container configuration is static, but the failure **behavior** can be non-deterministic using probability for failure.
 
+---
 
 ## 🛠️ Interface Overview
 
@@ -64,7 +68,7 @@ Simulates degraded performance in **Dapr PubSub** by introducing:
 - 🎲 **Delay Probability**: Likelihood of applying the delay (e.g. `0.57`)
 - ❌ **Error Rate**: Proportion of invocations that will fail (e.g. `0.57`)
 
-> This applies to **all PubSub events** for the specified service.
+> 💡 This applies to **all PubSub events** for the specified service.
 
 ### Service Invocation Deterioration
 
@@ -76,7 +80,7 @@ Simulates network errors/delays on **HTTP requests** to specific paths.
 - 📉 **HTTP Error Code**: Response code to return (e.g. `500`)
 - 🎲 **Error Probability**: Chance the error code is returned (e.g. `0.57`)
 
-> You can configure **multiple paths** using the **'+' button**.
+> 💡 You can configure **multiple paths** using the **'+' button**.
 
 ### Artificial Memory Usage
 

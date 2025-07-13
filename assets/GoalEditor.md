@@ -57,3 +57,5 @@ It configures every metric you find above in the **Manual Configuration** sectio
 - **Rate**: The constant user rate for the steady-state hypothesis execution in **users per second** (e.g. `10`).
 - **Duration**: The duration of the steady-state hypothesis execution in seconds (e.g. `60`).
 - **Factor**: The factor to multiply the collected values with for time-based metrics (e.g. `1.2`).
+
+> 💡 If you also configure a **warm-up phase**, the warm-up phase will be executed **before** the steady-state hypothesis phase.

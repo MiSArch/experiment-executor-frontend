@@ -6,13 +6,13 @@
     </div>
     <div class="flex flex-row w-full justify-evenly bg-[#2c2c2c] border-b border-[#444] z-10">
       <button v-for="(tab, index) in gatlingConfigs" :key="index" :title="tab.fileName" @click="switchTab(index)" @dblclick="startRenaming(index)"
-              :class="['flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis px-2 py-1 text-white text-sm border-r border-[#444]', { 'bg-[#444] font-bold text-white': activeTabIndex === index, 'hover:bg-[#333]': activeTabIndex !== index }]">
+              :class="['flex-1 min-w-0 px-2 py-1 text-white text-sm border-r border-[#444]', {'bg-[#444] font-bold text-white': activeTabIndex === index,'hover:bg-[#333]': activeTabIndex !== index,'overflow-hidden whitespace-nowrap text-ellipsis': renamingTabIndex !== index}]">
   <span class="inline-block select-none rounded mr-1 ml-1 pr-1.5 pl-1.5 hover:bg-red-900" @click.stop="removeTab(index)"
         aria-label="Close tab"
         title="Close tab">&times;</span>
         <template v-if="renamingTabIndex === index">
           <input ref="renameInput" v-model="gatlingConfigs[index].fileName" @blur="finishRenaming(index, $event)"
-                 @keyup.enter="finishRenaming(index, $event)" class="bg-[#222] text-white px-1 rounded border-2 border-[#2d7a5a] focus:outline-none"/>
+                 @keyup.enter="finishRenaming(index, $event)" class="w-full bg-[#222] text-white px-1 rounded border-2 border-[#2d7a5a] focus:outline-none"/>
         </template>
         <template v-else>{{ tab.fileName }}</template>
       </button>
@@ -74,14 +74,16 @@ const addTab = () => {
       'import io.gatling.javaapi.core.CoreDsl.*\n' +
       'import io.gatling.javaapi.http.HttpDsl.http\n' +
       'import java.time.Duration\n\n' +
-      `val newScenario${newTabCounter.value} = scenario("My Custom Scenario ${newTabCounter.value}")\n`
+      `val newScenario${newTabCounter.value} = scenario("newScenario${newTabCounter.value}")\n`
 
   const newTab = {
     fileName: `newScenario${newTabCounter.value}`,
     workFileContent: workFileContent,
     workModel: KotlinScenarioModel.parse(workFileContent),
-    // TODO this should add some usersteps
-    userSteps: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    userSteps: Array.from(
+        {length: Math.max(0, ...gatlingConfigs.value.map(cfg => cfg.userSteps.length))},
+        () => 3
+    ),
   }
   gatlingConfigs.value.push(newTab)
   userStepsResetState.value.push(({

@@ -2,11 +2,12 @@
   <div class="m-2 pt-5 w-full max-h-[95vh] md:w-2/3 relative">
     <button class="btn-graph-hover right-2" @click="showGraphOverlay = !showGraphOverlay;">⚙</button>
     <button class="btn-graph-hover right-2 !top-14" @click="showWarmUpOverlay = !showWarmUpOverlay;">☰</button>
+    <button class="btn-graph-hover right-2 !top-26" @click="toggleHelpOverlay('Graph')">?</button>
 
     <LineChart ref="chartRef" :key="chartKey" class="grow h-full" :chart-data="chartData" :chart-options="chartOptions"/>
 
     <div v-if="showGraphOverlay" class="z-50 absolute w-full h-full top-0 left-0 right-0 bg-[#242424] p-6">
-      <button class="btn-graph-hover right-14" @click="toggleHelpOverlay('Graph')">?</button>
+      <button class="btn-graph-hover right-14" @click="toggleHelpOverlay('Load')">?</button>
       <button class="btn-graph-hover right-2" @click="showGraphOverlay = !showGraphOverlay;">&times;</button>
       <div class="flex flex-col gap-4 items-center pt-12 max-w-2xl mx-auto min-width-xl">
         <span class="span-ui-header !-mt-5 !text-center w-full">Configure Load</span>
@@ -52,7 +53,7 @@
       </div>
     </div>
     <div v-if="showWarmUpOverlay" class="z-60 absolute w-full h-full top-0 left-0 right-0 bg-[#242424] p-6">
-      <button class="btn-graph-hover right-14" @click="toggleHelpOverlay('Graph')">?</button>
+      <button class="btn-graph-hover right-14" @click="toggleHelpOverlay('WarmUp')">?</button>
       <button class="btn-graph-hover right-2" @click="showWarmUpOverlay = !showWarmUpOverlay;">&times;</button>
       <div class="flex flex-col gap-4 items-center pt-12 max-w-2xl mx-auto min-width-xl">
         <span class="span-ui-header !-mt-5 !text-center w-full">Configure Warm-Up </span>
