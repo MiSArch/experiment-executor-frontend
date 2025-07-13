@@ -4,7 +4,7 @@
     <span v-if="testUuid" class="span-header">Test UUID: {{ testUuid }}</span>
     <span v-if="testVersion" class="span-header">Test Version: {{ testVersion }}</span>
     <div class="ml-auto flex gap-2">
-      <button v-if="!showOverlay" @click="toggleHelpOverlay('Header')" class="btn-header">?</button>
+      <button @click="toggleHelpOverlay('Header')" class="btn-header">?</button>
       <button v-if="!showOverlay" @click="showDeleteOverlay = true" class="btn-header">Delete</button>
       <button v-if="!showOverlay" @click="persistAll" :disabled="isSaving" class="btn-header">{{ isSaving ? 'Saving... ' : 'Save' }}</button>
       <button v-if="!showOverlay" @click="loadOrGenerate" :disabled="isSaving" class="btn-header">Load / Generate</button>
