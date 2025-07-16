@@ -237,7 +237,6 @@ async function applyUsers() {
 
 watch(config, async (newValue, oldValue) => {
   if (newValue !== oldValue && config.value.warmUp !== undefined && config.value.warmUp !== null) {
-    console.log("fuck")
     useWarmUp.value = true;
     warmUpRate.value = config.value.warmUp.rate;
     warmUpDuration.value = config.value.warmUp.duration;

@@ -80,3 +80,19 @@ The following concepts are essential to understand how the MiSArch Experiment To
     - **⚠️ Important concepts in observability**:
       - 📈 **Metrics**: **Quantitative measurements** of the system's performance, such as response times, error rates, and throughput (collected on different levels using OpenTelemetry and Gatling).
       - 📊 **Dashboards**: **Visual representations** of the metrics collected during the load test, providing insights into the system's behavior.
+
+---
+
+## 📈 How-To-Read the Grafana Dashboard
+
+The Grafana dashboard has the following features:
+- 📅 **Automated Time Range**: The dashboard automatically adjusts the time range to the duration of the experiment.
+- ↔️ **Compare with Previous Run (`timeShift`)**: You can compare the current experiment run with a previous one by selecting a value for `timeShift` in the dashboard settings. The seconds indicate how long before the current run the previous run has started.
+- 📦 **Service**: You can select the service of which the metrics should be displayed in the dashboard.
+- ↩️ **Gatling Request**: You can select the Gatling subrequest for which the metrics should be displayed in the dashboard (this is based on your scenario(s)).
+
+The dashboard provides an overview of the experiment results, including the following sections:
+- 📊 **Gatling Total**: Displays the **total Gatling metrics**, such as the number of requests, response times, and error rates.
+- 💥 **Gatling Errors**: Displays the **Gatling engine errors**, such as failed requests and exceptions.
+- 📈 **Gatling Requests**: Displays the metrics for the **selected individual Gatling request**, such as response times and error rates.
+- 📦 **Service Metrics**: Displays the metrics for the **selected service**, such as CPU and memory usage, request and error rates.
