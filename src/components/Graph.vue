@@ -100,7 +100,7 @@ const timeTo = ref<number>(0)
 const arrivingUsers = ref<number>(0)
 const needsUpdate = ref<boolean>(false)
 const duration = ref<number[]>([])
-const currentlyEditing = ref<number>(1)
+const currentlyEditing = ref<number>(0)
 const chartRef = ref<ChartJS | null>(null)
 const chartKey = ref(0)
 const lastMisarchPauses = ref<string>('')
@@ -249,6 +249,7 @@ watch(gatlingConfigs, async (newVal) => {
       .map((item: any) => `${item.fileName},${item.fileName}`)
       .join('|')
       if (configs !== lastGatlingConfigs.value) {
+        currentlyEditing.value = 0;
         lastGatlingConfigs.value = configs
         const list = []
         const totalRequests = await createTotalRequestChartData()
@@ -447,9 +448,7 @@ async function buildFailureGraph(xValues: number[], label: string, borderColor: 
 
 function arraysEqual(a: number[], b: number[]): boolean {
   if (a.length !== b.length) return false;
-  let result = a.every((val, idx) => val === b[idx]);
-  console.log(result)
-  return result
+  return a.every((val, idx) => val === b[idx])
 }
 
 async function toggleWarmUp() {
