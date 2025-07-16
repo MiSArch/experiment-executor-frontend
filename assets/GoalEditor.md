@@ -24,29 +24,40 @@ Each metric can be assigned a **maximum** threshold value:
 Metrics are collected by [Gatling](https://gatling.io) and parsed by the MiSArch Experiment Tool, to be evaluated and displayed  in [Grafana](https://grafana.com/docs/grafana/latest/).
 The following metrics are available:
 
-| Metric                                               | Description                                                                                                 |
-|------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
-| percentage reqs with resp. time t < 800 ms           | Maximum percentage of requests with a response time below 800ms from all requests (e.g. `90`).              |
-| percentage reqs with resp. time 800 ms < t < 1200 ms | Maximum percentage of requests with a response time between 800ms and 1200ms from all requests (e.g. `20`). |
-| percentage reqs with resp. time t > 1200 ms          | Maximum percentage of requests with a response time above 1200ms from all requests (e.g. `20`).             |
-| percentage failed requests                           | Maximum percentage of failed requests from all requests (e.g. `5`).                                         |
-| percentage mean requests/sec ok                      | Maximum percentage of successful requests per second from all requests per second (e.g. `80`).              |
-| percentage mean requests/sec ko                      | Maximum percentage of failed requests per second from all requests per second (e.g. `20`).                  |
-| min response time                                    | Highest allowed minimum response time of all requests in milliseconds (e.g. `800`).                         |
-| mean response time                                   | Highest allowed average response time of all requests in milliseconds (e.g. `800`).                         |
-| max response time                                    | Highest allowed maximum response time of all requests in milliseconds (e.g. `800`).                         |
-| min response time ok                                 | Highest allowed minimum response time of successful requests in milliseconds (e.g. `800`).                  |
-| mean response time ok                                | Highest allowed average response time of successful requests in milliseconds (e.g. `800`).                  |
-| max response time ok                                 | Highest allowed maximum response time of successful requests in milliseconds (e.g. `800`).                  |
-| min response time ko                                 | Highest allowed minimum response time of failed requests in milliseconds (e.g. `800`).                      |                                                                                               |
-| mean response time ko                                | Highest allowed average response time of failed requests in milliseconds (e.g. `800`).                      |
-| max response time ko                                 | Highest allowed maximum response time of failed requests in milliseconds (e.g. `800`).                      |
-
-
+| Metric                                               | Description                                                                                                     |
+|------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| percentage reqs with resp. time t < 800 ms           | Maximum percentage of requests with a response time below 800ms from all requests (e.g. `90`).                  |
+| percentage reqs with resp. time 800 ms < t < 1200 ms | Maximum percentage of requests with a response time between 800ms and 1200ms from all requests (e.g. `20`).     |
+| percentage reqs with resp. time t > 1200 ms          | Maximum percentage of requests with a response time above 1200ms from all requests (e.g. `20`).                 |
+| percentage failed requests                           | Maximum percentage of failed requests from all requests (e.g. `5`).                                             |
+| percentage mean requests/sec ok                      | Maximum percentage of successful requests per second from all requests per second (e.g. `80`).                  |
+| percentage mean requests/sec ko                      | Maximum percentage of failed requests per second from all requests per second (e.g. `20`).                      |
+| min response time                                    | Highest allowed minimum response time of all requests in milliseconds (e.g. `800`).                             |
+| mean response time                                   | Highest allowed average response time of all requests in milliseconds (e.g. `800`).                             |
+| max response time                                    | Highest allowed maximum response time of all requests in milliseconds (e.g. `800`).                             |
+| min response time ok                                 | Highest allowed minimum response time of successful requests in milliseconds (e.g. `800`).                      |
+| mean response time ok                                | Highest allowed average response time of successful requests in milliseconds (e.g. `800`).                      |
+| max response time ok                                 | Highest allowed maximum response time of successful requests in milliseconds (e.g. `800`).                      |
+| min response time ko                                 | Highest allowed minimum response time of failed requests in milliseconds (e.g. `800`).                          |                                                                                               |
+| mean response time ko                                | Highest allowed average response time of failed requests in milliseconds (e.g. `800`).                          |
+| max response time ko                                 | Highest allowed maximum response time of failed requests in milliseconds (e.g. `800`).                          |
+| 50th percentile response time                        | Highest allowed response time for the 50th percentile of all requests in milliseconds (e.g. `800`).             |
+| 75th percentile response time                        | Highest allowed response time for the 75th percentile of all requests in milliseconds (e.g. `800`).             |
+| 95th percentile response time                        | Highest allowed response time for the 95th percentile of all requests in milliseconds (e.g. `800`).             |
+| 99th percentile response time                        | Highest allowed response time for the 99th percentile of all requests in milliseconds (e.g. `800`).             |
+| 50th percentile response time ok                     | Highest allowed response time for the 50th percentile of successful requests in milliseconds (e.g. `800`).      |
+| 75th percentile response time ok                     | Highest allowed response time for the 75th percentile of successful requests in milliseconds (e.g. `800`).      |
+| 95th percentile response time ok                     | Highest allowed response time for the 95th percentile of successful requests in <br/>milliseconds (e.g. `800`). |
+| 99th percentile response time ok                     | Highest allowed response time for the 99th percentile of successful requests in <br/>milliseconds (e.g. `800`). |
+| 50th percentile response time ko                     | Highest allowed response time for the 50th percentile of failed requests in milliseconds (e.g. `800`).          |
+| 75th percentile response time ko                     | Highest allowed response time for the 75th percentile of failed requests in milliseconds (e.g. `800`).          |
+| 95th percentile response time ko                     | Highest allowed response time for the 95th percentile of failed requests in milliseconds (e.g. `800`).          |
+| 99th percentile response time ko                     | Highest allowed response time for the 99th percentile of failed requests in milliseconds (e.g. `800`).          |
 ## 🪄 Auto Configuration
 
 The MiSArch Experiment Tool provides an **automatic configuration** for the goals of your experiment.
 It configures every metric you find above in the **Manual Configuration** section, based on the results of a **steady-state hypothesis** execution.
+
 - 🎯 The automatic configuration allows the system to automatically define goals in terms of a **steady-state hypothesis**.
 - 📈 Before running the experiment, your scenarios will be executed with a **constant user rate** for a configured **duration**.
 - 🛑 After this execution the collected metrics will be used as the **thresholds for the goals**.
@@ -54,6 +65,7 @@ It configures every metric you find above in the **Manual Configuration** sectio
 - 🔺 All thresholds exceeded in the actual run will be displayed in the resulting Grafana dashboard in **red** color.
 
 ### ⚙️ Configurations:
+
 - **Rate**: The constant user rate for the steady-state hypothesis execution in **users per second** (e.g. `10`).
 - **Duration**: The duration of the steady-state hypothesis execution in seconds (e.g. `60`).
 - **Factor**: The factor to multiply the collected values with for time-based metrics (e.g. `1.2`).

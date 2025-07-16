@@ -101,6 +101,18 @@ const dropdownOptions = [
   'min response time ko',
   'mean response time ko',
   'max response time ko',
+  '50th percentile response time',
+  '50th percentile response time ok',
+  '50th percentile response time ko',
+  '75th percentile response time',
+  '75th percentile response time ok',
+  '75th percentile response time ko',
+  '95th percentile response time',
+  '95th percentile response time ok',
+  '95th percentile response time ko',
+  '99th percentile response time',
+  '99th percentile response time ok',
+  '99th percentile response time ko',
 ];
 
 async function toggleExperimentGoals() {
