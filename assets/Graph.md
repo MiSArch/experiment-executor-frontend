@@ -18,6 +18,7 @@ How are the values calculated?
 - 📈 **Approx. Total Users**: This is calculated by summing up the number of users arriving per second for each scenario. The system stores the arriving users for each scenario in a list. The list has an entry for each second of the experiment, and the value is the number of users arriving at that second for this scenario.
 - 📊 **Approx. Total Requests**: This is calculated by multiplying the number of arriving users per second with the request rate of the scenario. The request rate is defined in the scenario and represents how many requests are sent per user per second, based on the configured pauses between requests in the scenario.
 
+> ⚠️ Note: The real request rates are dynamic and depend on the responding system, thus those approximations can differ from the real results. 
 ---
 
 ## 📝 Concepts
