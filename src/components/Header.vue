@@ -105,6 +105,12 @@ const loadOrGenerate = async () => {
   resetGlobalState()
 }
 
+let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+let reconnectAttempts = 0;
+
+const maxReconnectAttempts = 10;
+const baseReconnectDelay = 1000;
+
 const startEventListener = () => {
   if (eventSource.value) {
     eventSource.value.close()
@@ -123,20 +129,41 @@ const startEventListener = () => {
     } else {
       toggleAlert(message);
     }
+
+    // Reset reconnect attempts on successful message
+    reconnectAttempts = 0;
   };
+
   eventSource.value.onerror = () => {
-    console.error('Error receiving server-sent events.')
-    eventSource.value?.close()
-    eventSource.value = null
-  }
-}
+    console.error('Error receiving server-sent events. Attempting to reconnect...');
+
+    eventSource.value?.close();
+    eventSource.value = null;
+
+    if (reconnectAttempts < maxReconnectAttempts) {
+      const delay = baseReconnectDelay * Math.pow(2, reconnectAttempts); // exponential backoff
+      reconnectAttempts++;
+
+      reconnectTimeout = setTimeout(() => {
+        startEventListener();
+      }, delay);
+    } else {
+      toggleAlert('Unable to reconnect to event stream after several attempts.');
+    }
+  };
+};
 
 const stopEventListener = () => {
   if (eventSource.value) {
     eventSource.value.close()
     eventSource.value = null
   }
-}
+  if (reconnectTimeout) {
+    clearTimeout(reconnectTimeout);
+    reconnectTimeout = null;
+  }
+  reconnectAttempts = 0;
+};
 </script>
 
 <style/>
