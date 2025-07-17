@@ -6,7 +6,7 @@ COPY package.json package-lock.json ./
 COPY assets ./assets
 
 # TODO FIX
-ENV VITE_BACKEND_URL=http://129.69.217.214
+ENV VITE_BACKEND_URL=https://misarch-experiment.gropius.dev
 
 RUN npm install
 COPY . .
