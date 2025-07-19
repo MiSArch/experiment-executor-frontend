@@ -59,12 +59,12 @@
         <span class="span-ui-header !-mt-5 !text-center w-full">Configure Warm-Up </span>
         <div class="flex flex-row gap-4 items-center w-full justify-end">
           <div v-if="useWarmUp" class="flex flex-row gap-4 w-full items-center">
-            <span class="span-label">Static User Rate</span>
-            <input class="input-default" type="number" min="0" step="1" placeholder="0" v-model="warmUpRate"/>
+            <span class="span-label">Constant Users / s</span>
+            <input class="input-default" type="number" min="0" step="1" placeholder="10" v-model="warmUpRate"/>
           </div>
           <div v-if="useWarmUp" class="flex flex-row gap-4 w-full items-center">
-            <span class="span-label">Duration</span>
-            <input class="input-default" type="number" min="0" step="1" placeholder="0" v-model="warmUpDuration"/>
+            <span class="span-label">Duration (s)</span>
+            <input class="input-default" type="number" min="0" step="1" placeholder="10" v-model="warmUpDuration"/>
           </div>
           <button v-if="useWarmUp" class="btn-gray-close" @click="toggleWarmUp">&times;</button>
         </div>

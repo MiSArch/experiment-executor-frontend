@@ -11,12 +11,12 @@
     <div v-if="!showExperimentGoals" class="flex flex-col items-center justify-center w-full p-2 gap-2 overflow-y-auto">
       <span class="span-label">Automatically detecting experiment goals using a steady-state hypothesis measured before the test execution.</span>
       <div class="flex flex-row gap-2 w-full">
-        <span class="span-label">Static User Rate</span>
+        <span class="span-label">Static Users / s</span>
         <input class="input-default" type="number" min="0" step="1" v-model="steadyStateRate">
       </div>
       <div class="flex flex-row gap-2 w-full">
-        <span class="span-label">Duration</span>
-        <input class="input-default" type="number" min="0" step="1" v-model="steadyStateDuration">
+        <span class="span-label">Duration (s)</span>
+        <input class="input-default" type="number" min="0" step="1" placeholder="10" v-model="steadyStateDuration">
       </div>
       <div class="flex flex-row gap-2 w-full">
         <span class="span-label">Factor</span>
