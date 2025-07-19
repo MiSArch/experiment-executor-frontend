@@ -119,7 +119,7 @@ const startEventListener = () => {
   eventSource.value = new EventSource(`${backendUrl}/experiment/${testUuid.value}/${testVersion.value}/events`)
 
   eventSource.value.onmessage = (event) => {
-    const urlRegex = /(http?:\/\/\S+)/g;
+    const urlRegex = /^https?:\/\/[^\/]+\/d\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-v\d+$/i;
     const message = event.data;
     isRunningExperiment.value = false;
 
