@@ -3,9 +3,11 @@
 The **MiSArch Experiment Failure** feature allows users to **simulate failures** of specific MiSArch components.
 
 It is called **MiSArch Experiment Failure** and is a custom solution, which is part of MiSArch.
-For more information about the MiSArch Experiment Configuration, refer to the [📚 MiSArch documentation](https://misarch.github.io/docs/docs/dev-manuals/other-repositories/experiment-config-frontend).
+For more information about the MiSArch Experiment Configuration, refer to
+the [📚 MiSArch documentation](https://misarch.github.io/docs/docs/dev-manuals/other-repositories/experiment-config-frontend).
 
-The **MiSArch Experiment Failure** operates using a **sidecar container** that proxies all network traffic and resides in the same pod as the MiSArch component.  
+The **MiSArch Experiment Failure** operates using a **sidecar container** that proxies all network traffic and resides in the same pod as the MiSArch
+component.  
 This traffic can be **intercepted and modified** to emulate a range of network-based failure scenarios.
 
 MiSArch leverages **Dapr** features such as **PubSub** and **service-mesh**, which can be selectively failed.  
@@ -19,8 +21,16 @@ In addition to network-related failures, the sidecar container can also simulate
 
 ## 🛠️ Interface Overview
 
-You can configure **a series of failure sets** with optional pauses in between.  
-Once applied, a configuration **persists** until it is **overwritten** or **cleared**.
+You can configure **a series of failure sets** containing different **failure configurations**. 
+A **failure configuration** targets **exactly one service**. 
+In between two failure sets you can configure **optional pauses**.
+
+
+> ⚠️ **Note:** Once applied, a failure configuration **persists** until it is **cleared** or **overwritten**.
+
+🧹 **Clear** the config by creating a **new failure set** with a **new failure configuration** that has only **null values** for the **target service** (Delete all entries using the 'x'-button).
+📝 **Overwrite** the config by creating a **new failure set** with a **new failure configuration** setting a new **target value** for the target 
+service.
 
 ---
 
@@ -41,11 +51,11 @@ Each configuration includes the following components:
 
 ### 🔹 Failure Set
 
-A **Failure Set** is a collection of one or more **failures** applied **at the same time**. 
+A **Failure Set** is a collection of one or more **failures** applied **at the same time**.
+
 - **⏳ Pauses**: configure pauses in seconds before and after setting the configuration of the failure set
 
 > ⚠️ Avoid applying more than **one failure to the same component** within a single set.
-
 
 ### 🔸 Failure
 
@@ -56,8 +66,8 @@ A **Failure** targets a specific MiSArch component.
 - To **activate** a failure: use the **'+' button** and set configuration values
 - To **deactivate** a failure: use the **'x' button** to **remove** the configuration
 
-
 ### Service Name
+
 The simple (logical) name of the affected service (e.g. `catalog`, `gateway`).
 
 ### PubSub Deterioration
@@ -99,9 +109,11 @@ Simulates **high CPU load** via a busy loop in the sidecar.
 
 
 ---
+
 ## 💡 Example
 
-The following example demonstrates a **failure set** that applies a **series of failures** to the `catalog` service with a pause before and after the set:
+The following example demonstrates a **failure set** that applies a **series of failures** to the `catalog` service with a pause before and after the
+set:
 
 ```json
 {
