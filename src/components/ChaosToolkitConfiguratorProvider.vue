@@ -28,10 +28,13 @@
     <div class="flex flex-col w-full">
       <div class="flex flex-row gap-2 w-full items-center">
         <input v-if="probeOrAction.provider.method !== undefined" v-model="probeOrAction.provider.method" class="input-default" placeholder="POST">
-        <button v-if="probeOrAction.provider.method !== undefined" @click="removeMethod(probeOrAction.provider)" class="btn-gray-close">&times;
+        <button v-if="probeOrAction.provider.method !== undefined" @click="removeMethod(probeOrAction.provider)" class="btn-gray-close"
+                title="Delete HTTP Method">&times;
         </button>
       </div>
-      <button v-if="probeOrAction.provider.method === undefined" @click="addMethod(probeOrAction.provider)" class="btn-gray-add">+</button>
+      <button v-if="probeOrAction.provider.method === undefined" @click="addMethod(probeOrAction.provider)" class="btn-gray-add"
+              title="Add HTTP Method">+
+      </button>
     </div>
 
     <label class="label-small">HTTP Headers</label>
@@ -39,9 +42,9 @@
       <div v-for="(header, index) in headersRef" class="flex flex-row gap-2 w-full">
         <input v-model="header.key" class="input-default" placeholder="Header Key">
         <input v-model="header.value" class="input-default" placeholder="Header Value">
-        <button @click="headersRef.splice(index, 1)" class="btn-gray-close">&times;</button>
+        <button @click="headersRef.splice(index, 1)" class="btn-gray-close" title="Delete HTTP Header">&times;</button>
       </div>
-      <button @click="headersRef.push({key: '', value: ''})" class="btn-gray-add">+</button>
+      <button @click="headersRef.push({key: '', value: ''})" class="btn-gray-add" title="Add HTTP Header">+</button>
     </div>
 
     <label class="label-small">Expected HTTP Status Code</label>
@@ -50,10 +53,11 @@
         <input v-if="probeOrAction.provider.expected_status !== undefined" v-model="probeOrAction.provider.expected_status" class="input-default"
                placeholder="404">
         <button v-if="probeOrAction.provider.expected_status !== undefined" @click="removeExpectedStatus(probeOrAction.provider)"
-                class="btn-gray-close">&times;
+                class="btn-gray-close" title="Delete Expected HTTP Status Code">&times;
         </button>
       </div>
-      <button v-if="probeOrAction.provider.expected_status === undefined" @click="addExpectedStatus(probeOrAction.provider)" class="btn-gray-add">+
+      <button v-if="probeOrAction.provider.expected_status === undefined" @click="addExpectedStatus(probeOrAction.provider)" class="btn-gray-add"
+              title="Add Expected HTTP Status Code">+
       </button>
     </div>
 
@@ -61,10 +65,13 @@
     <div class="flex flex-col w-full">
       <div class="flex flex-row gap-2 w-full items-center">
         <input v-if="probeOrAction.provider.timeout !== undefined" v-model="probeOrAction.provider.timeout" class="input-default" placeholder="30">
-        <button v-if="probeOrAction.provider.timeout !== undefined" @click="removeTimeout(probeOrAction.provider)" class="btn-gray-close">&times;
+        <button v-if="probeOrAction.provider.timeout !== undefined" @click="removeTimeout(probeOrAction.provider)" class="btn-gray-close"
+                title="Delete HTTP Timeout">&times;
         </button>
       </div>
-      <button v-if="probeOrAction.provider.timeout === undefined" @click="addTimeout(probeOrAction.provider)" class="btn-gray-add">+</button>
+      <button v-if="probeOrAction.provider.timeout === undefined" @click="addTimeout(probeOrAction.provider)" class="btn-gray-add"
+              title="Add HTTP Timeout">+
+      </button>
     </div>
     <label class="label-small">Request Args / Body</label>
     <ChaosToolkitConfiguratorProviderArgsAndSecrets :probeOrAction="probeOrAction"></ChaosToolkitConfiguratorProviderArgsAndSecrets>
@@ -78,10 +85,13 @@
     <div class="flex flex-col w-full">
       <div class="flex flex-row gap-2 w-full items-center">
         <input v-if="probeOrAction.provider.timeout !== undefined" v-model="probeOrAction.provider.timeout" class="input-default" placeholder="30">
-        <button v-if="probeOrAction.provider.timeout !== undefined" @click="removeTimeout(probeOrAction.provider)" class="btn-gray-close">&times;
+        <button v-if="probeOrAction.provider.timeout !== undefined" @click="removeTimeout(probeOrAction.provider)" class="btn-gray-close"
+                title="Delete Process Timeout">&times;
         </button>
       </div>
-      <button v-if="probeOrAction.provider.timeout === undefined" @click="addTimeout(probeOrAction.provider)" class="btn-gray-add">+</button>
+      <button v-if="probeOrAction.provider.timeout === undefined" @click="addTimeout(probeOrAction.provider)" class="btn-gray-add"
+              title="Add Process Timeout">+
+      </button>
     </div>
 
     <label class="label-small">Process Arguments</label>

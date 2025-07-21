@@ -3,8 +3,10 @@
     <div class="div-subheader">
       <span class="span-subheader">MiSArch Experiment Configuration</span>
       <div>
-        <button class="btn-header" @click="toggleHelpOverlay('MiSArchConfigEditor')">?</button>
-        <button class="btn-header !mr-4" @click="showMisarchEditor = !showMisarchEditor">{{ showMisarchEditor ? 'Simplified UI' : 'Editor' }}</button>
+        <button class="btn-header" @click="toggleHelpOverlay('MiSArchConfigEditor')" title="Open MiSArch Experiment Config Help">?</button>
+        <button class="btn-header !mr-4" @click="showMisarchEditor = !showMisarchEditor" title="Toggle Editor / Simplified UI">
+          {{ showMisarchEditor ? 'Simplified UI' : 'Editor' }}
+        </button>
       </div>
     </div>
     <div v-show="showMisarchEditor" class="flex flex-1">
@@ -16,13 +18,13 @@
         <div v-for="(failureSet, configIndex) in misarchExperimentConfig" :key="configIndex" class="div-outer-border flex flex-col">
           <div class="flex flex-row justify-between w-full mb-2">
             <h3 class="span-ui-header">Failure Set {{ configIndex + 1 }}</h3>
-            <button @click="misarchExperimentConfig.splice(configIndex, 1)" class="btn-gray-close">&times;</button>
+            <button @click="misarchExperimentConfig.splice(configIndex, 1)" class="btn-gray-close" title="Delete Failure Set">&times;</button>
           </div>
           <div v-for="(failure, failureIndex) in failureSet.failures" :key="failureIndex" class="div-inner-border">
             <MiSArchConfigEditorFailure :configIndex="configIndex" :failureIndex="failureIndex" :failure="failure"></MiSArchConfigEditorFailure>
           </div>
           <div class="flex flex-col gap-2">
-            <button @click="addFailure(configIndex)" class="btn-green-add">+</button>
+            <button @click="addFailure(configIndex)" class="btn-green-add" title="Add Failure to Failure Set">+</button>
             <label class="label-small">Pause Durations Before and After Failure Group (s)</label>
             <div class="flex flex-row gap-2 w-full justify-between items-center">
               <input v-model.number="failureSet.pauses.before" type="number" class="input-default" placeholder="Pause Before Execution (s)" min="0">
@@ -31,7 +33,7 @@
           </div>
         </div>
         <div class="flex flex-col gap-2">
-          <button @click="addFailureSet()" class="btn-green-add">+</button>
+          <button @click="addFailureSet()" class="btn-green-add" title="Add Failure Set">+</button>
         </div>
       </div>
     </div>

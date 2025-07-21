@@ -2,9 +2,7 @@
   <div v-if="showHelpOverlay" class="flex fixed bg-[#141414] bg-opacity-70 justify-center z-[1500] text-[#333] w-full h-full overflow-y-auto">
     <div class="flex flex-col w-full max-w-screen-lg m-24 ">
       <div class="flex flex-row gap-2 justify-end bg-[#242424] rounded-t-lg pt-4 pr-4">
-        <button @click="showHelpOverlay = false" class="btn-gray-close"
-                aria-label="Close">&times;
-        </button>
+        <button @click="showHelpOverlay = false" class="btn-gray-close" aria-label="Close" title="Close Help">&times;</button>
       </div>
       <div v-html="htmlContent" class="markdown-body !bg-[#242424] p-8 rounded-b-lg"></div>
     </div>

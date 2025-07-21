@@ -3,8 +3,9 @@
     <div class="div-subheader">
       <span class="span-subheader">Experiment Goals</span>
       <div>
-        <button class="btn-header" @click="toggleHelpOverlay('GoalEditor')">?</button>
-        <button class="btn-header" @click="toggleExperimentGoals">{{ showExperimentGoals ? 'Auto' : 'Manual' }}
+        <button class="btn-header" @click="toggleHelpOverlay('GoalEditor')" title="Open Experiment Goals Help">?</button>
+        <button class="btn-header" @click="toggleExperimentGoals" title="Toggle Manual Goal Editor / Automatic Steady State Detection">
+          {{ showExperimentGoals ? 'Auto' : 'Manual' }}
         </button>
       </div>
     </div>
@@ -25,19 +26,20 @@
     </div>
     <div v-if="showExperimentGoals" class="flex flex-col gap-2 p-2 max-w-full overflow-y-auto min-w-0">
       <div v-for="(line, index) in lines" :key="index" class="flex items-center gap-2 w-full relative">
-        <select v-model="line.dropdown" class="select-default !min-w-0 !flex-6">
+        <select v-model="line.dropdown" class="select-default !min-w-0 !flex-6" title="Select Goal Metric">
           <option v-for="option in dropdownOptions" :key="option" :value="option">{{ option }}</option>
         </select>
-        <input type="number" v-model="line.value" class="input-default !flex-[1.5]"/>
-        <div class="flex-1 rounded cursor-pointer min-w-0 h-full" :style="{ backgroundColor: line.color }" @click="toggleColorOptions(index)"></div>
+        <input type="number" min=0 step=1 v-model="line.value" class="input-default !flex-[1.5]" placeholder="20"/>
+        <button class="flex-1 rounded cursor-pointer min-w-0 h-full" :style="{ backgroundColor: line.color }"
+               @click="toggleColorOptions(index)" title="Select Color"></button>
         <div v-if="line.showDropdown"
              class="absolute top-0 left-0 z-10 flex gap-2 bg-gray-100 p-2 rounded shadow-md w-1/2 max-w-full overflow-auto">
-          <div v-for="(hex, color) in reverseColorMap" :key="color" class="h-5 w-[12%] rounded cursor-pointer" :style="{ backgroundColor: hex }"
-               @click="selectColor(index, hex)"></div>
+          <button v-for="(hex, color) in reverseColorMap" :key="color" class="h-5 w-[12%] rounded cursor-pointer" :style="{ backgroundColor: hex }"
+               @click="selectColor(index, hex)" title="Select This Color"></button>
         </div>
-        <button @click="removeLine(index)" class="btn-gray-close">&times;</button>
+        <button @click="removeLine(index)" class="btn-gray-close" title="Delete Goal">&times;</button>
       </div>
-      <button v-if="showExperimentGoals" @click="addLine" class="btn-green-add">+</button>
+      <button v-if="showExperimentGoals" @click="addLine" class="btn-green-add" title="Add Goal">+</button>
     </div>
   </div>
 </template>

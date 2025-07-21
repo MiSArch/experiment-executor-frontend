@@ -2,21 +2,22 @@
   <div class="flex flex-col w-full md:w-1/3 overflow-hidden">
     <div class="div-subheader !pt-3 ">
       <span class="span-subheader">Work Configuration</span>
-      <button class="btn-header" @click="toggleHelpOverlay('WorkEditor')">?</button>
+      <button class="btn-header" @click="toggleHelpOverlay('WorkEditor')" title="Open Work Configuration Help">?</button>
     </div>
     <div class="flex flex-row w-full justify-evenly bg-[#2c2c2c] border-b border-[#444] z-10">
       <button v-for="(tab, index) in gatlingConfigs" :key="index" :title="tab.fileName" @click="switchTab(index)" @dblclick="startRenaming(index)"
               :class="['flex-1 min-w-0 px-2 py-1 text-white text-sm border-r border-[#444]', {'bg-[#444] font-bold text-white': activeTabIndex === index,'hover:bg-[#333]': activeTabIndex !== index,'overflow-hidden whitespace-nowrap text-ellipsis': renamingTabIndex !== index}]">
   <span class="inline-block select-none rounded mr-1 ml-1 pr-1.5 pl-1.5 hover:bg-red-900" @click.stop="removeTab(index)"
-        aria-label="Close tab"
-        title="Close tab">&times;</span>
+        aria-label="Close Tab"
+        title="Close Tab">&times;</span>
         <template v-if="renamingTabIndex === index">
           <input ref="renameInput" v-model="gatlingConfigs[index].fileName" @blur="finishRenaming(index, $event)"
                  @keyup.enter="finishRenaming(index, $event)" class="w-full bg-[#222] text-white px-1 rounded border-2 border-[#2d7a5a] focus:outline-none"/>
         </template>
         <template v-else>{{ tab.fileName }}</template>
       </button>
-      <button class="px-4 py-1 bg-[#369a6e] text-white text-sm rounded-none hover:bg-[#2d7a5a] focus:outline-none" @click="addTab">＋
+      <button class="px-4 py-1 bg-[#369a6e] text-white text-sm rounded-none hover:bg-[#2d7a5a] focus:outline-none" @click="addTab"
+              title="Add New Scenario">＋
       </button>
     </div>
     <div ref="editorElement" class="h-full overflow-x-auto"></div>

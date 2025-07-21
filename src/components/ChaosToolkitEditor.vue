@@ -3,8 +3,8 @@
     <div class="div-subheader">
       <span class="span-subheader">ChaosToolkit Configuration</span>
       <div>
-        <button class="btn-header" @click="toggleHelpOverlay('ChaosToolkitEditor')">?</button>
-        <button class="btn-header !mr-4" @click="showChaostoolkitEditor = !showChaostoolkitEditor">
+        <button class="btn-header" @click="toggleHelpOverlay('ChaosToolkitEditor')" title="Open ChaosToolkit Help">?</button>
+        <button class="btn-header !mr-4" @click="showChaostoolkitEditor = !showChaostoolkitEditor" title="Toggle Editor / Simplified UI">
           {{ showChaostoolkitEditor ? 'Simplified UI' : 'Editor' }}
         </button>
       </div>
@@ -20,7 +20,8 @@
                class="flex flex-col gap-2 w-full">
             <div class="flex flex-row items-center justify-between">
               <h3 class="span-ui-header">Steady State Hypothesis</h3>
-              <button @click="chaostoolkitConfig['steady-state-hypothesis'] = undefined" class="btn-gray-close">&times;</button>
+              <button @click="chaostoolkitConfig['steady-state-hypothesis'] = undefined" class="btn-gray-close"
+                      title="Delete Steady State Hypothesis">&times;</button>
             </div>
             <input v-model="chaostoolkitConfig['steady-state-hypothesis'].title" class="input-default" placeholder="Name of the Hypothesis">
             <div v-for="(probeOrAction, probeOrActionIndex) in chaostoolkitConfig['steady-state-hypothesis'].probes" :key="probeOrActionIndex"
@@ -30,13 +31,12 @@
                                                      :isSteadyState="true"/>
             </div>
             <button @click="chaostoolkitConfig['steady-state-hypothesis'].probes.push({type: 'probe', name: '', provider: {type: 'http', url: ''}})"
-                    class="bg-[#369a6e] text-white px-3 py-1 rounded hover:bg-[#2d7a5a] text-sm">+
-            </button>
+                    class="btn-green-add" title="Add Probe For Steady State Hypothesis">+</button>
           </div>
 
           <button v-if="chaostoolkitConfig['steady-state-hypothesis'] === null || chaostoolkitConfig['steady-state-hypothesis'] === undefined"
                   @click="chaostoolkitConfig['steady-state-hypothesis'] = {title: '', probes: [{type: 'probe', name: '', provider: {type: 'http', url: ''}}]}"
-                  class="btn-green-add">Add Steady State Hypotheses
+                  class="btn-green-add" title="Add Steady State Hypothesis">Add Steady State Hypothesis
           </button>
 
         </div>
@@ -50,7 +50,8 @@
               <ChaosToolkitConfiguratorProbeOrAction :probeOrAction="probeOrAction" :probeOrActionIndex="probeOrActionIndex"
                                                      :totalProbesOrActions="chaostoolkitConfig.method" :isSteadyState="false"/>
             </div>
-            <button @click="chaostoolkitConfig.method.push({type: 'probe', name: '', provider: {type: 'http', url: ''}})" class="btn-green-add">+
+            <button @click="chaostoolkitConfig.method.push({type: 'probe', name: '', provider: {type: 'http', url: ''}})" class="btn-green-add"
+                    title="Add Probe / Action">+
             </button>
           </div>
         </div>

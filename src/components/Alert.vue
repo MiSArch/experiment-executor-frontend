@@ -4,7 +4,7 @@
     <div class=" flex flex-col max-w-screen-lg">
       <div class="flex flex-col gap-2 bg-white !opacity-100 rounded-lg ">
         <div class="flex flex-row gap-2 z-10 justify-end mt-4 mr-4">
-          <button @click="showAlert=false" class="btn-gray-close !bg-[#369a6e] hover:!bg-[#2d7a5a]" aria-label="Close">&times;</button>
+          <button @click="showAlert=false" class="btn-gray-close !bg-[#369a6e] hover:!bg-[#2d7a5a]" aria-label="Close" title="Close">&times;</button>
         </div>
         <span class="span-header p-16 -mt-12 z-0 " v-html="alertHtml"></span>
       </div>

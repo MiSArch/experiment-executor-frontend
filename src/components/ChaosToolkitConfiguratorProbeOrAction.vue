@@ -3,8 +3,8 @@
     <div class="flex flex-row justify-between items-center">
       <span class="span-ui-header">{{ probeOrAction.type === 'action' ? 'Action' : 'Probe' }} {{ probeOrActionIndex + 1 }}</span>
       <div>
-        <button class="btn-gray-minimize-small" @click="minimized = !minimized">{{ minimized ? '+' : '–' }}</button>
-        <button @click="totalProbesOrActions.splice(probeOrActionIndex, 1)" class="btn-gray-close-small">
+        <button class="btn-gray-minimize-small" @click="minimized = !minimized" title="Minimize / Maximize">{{ minimized ? '+' : '–' }}</button>
+        <button @click="totalProbesOrActions.splice(probeOrActionIndex, 1)" class="btn-gray-close-small" title="Delete Probe / Action">
           &times;
         </button>
       </div>
@@ -31,9 +31,11 @@
              class="flex flex-row gap-2 w-full justify-between items-center">
           <input v-model.number="probeOrAction.pauses.before" type="number" class="input-default" placeholder="Pause Before Execution (s)" min="0">
           <input v-model.number="probeOrAction.pauses.after" type="number" class="input-default" placeholder="Pause After Execution (s)" min="0">
-          <button @click="probeOrAction.pauses = undefined" class="btn-gray-close">&times;</button>
+          <button @click="probeOrAction.pauses = undefined" class="btn-gray-close" title="Delete Pauses">&times;</button>
         </div>
-        <button v-if="probeOrAction.pauses === undefined" @click="probeOrAction.pauses = {before: 0, after: 0}" class="btn-gray-add">+</button>
+        <button v-if="probeOrAction.pauses === undefined" @click="probeOrAction.pauses = {before: 0, after: 0}" class="btn-gray-add"
+                title="Add Pauses">+
+        </button>
       </div>
     </div>
   </div>

@@ -4,12 +4,19 @@
     <span v-if="testUuid" class="span-header">Test UUID: {{ testUuid }}</span>
     <span v-if="testVersion" class="span-header">Test Version: {{ testVersion }}</span>
     <div class="ml-auto flex gap-2">
-      <button @click="toggleHelpOverlay('Header')" class="btn-header">?</button>
-      <button v-if="!showOverlay" @click="showDeleteOverlay = true" class="btn-header">Delete</button>
-      <button v-if="!showOverlay" @click="persistAll" :disabled="isSaving" class="btn-header">{{ isSaving ? 'Saving... ' : 'Save' }}</button>
-      <button v-if="!showOverlay" @click="loadOrGenerate" :disabled="isSaving" class="btn-header">Load / Generate</button>
-      <button v-if="!showOverlay" @click="newVersion" :disabled="isSaving" class="btn-header">New Version</button>
-      <button v-if="!showOverlay" type="button" @click="isRunningExperiment ? stopExperiment() : startExperiment()" class="btn-header">
+      <button @click="toggleHelpOverlay('Header')" class="btn-header" title="Open MiSArch Experiment Tool Help">?</button>
+      <button v-if="!showOverlay" @click="showDeleteOverlay = true" class="btn-header" title="Delete Experiment or Experiment Version">Delete</button>
+      <button v-if="!showOverlay" @click="persistAll" :disabled="isSaving" class="btn-header" title="Save Experiment Version">
+        {{ isSaving ? 'Saving... ' : 'Save' }}
+      </button>
+      <button v-if="!showOverlay" @click="loadOrGenerate" :disabled="isSaving" class="btn-header"
+              title="Load Existing or Generate New Experiment">Load / Generate
+      </button>
+      <button v-if="!showOverlay" @click="newVersion" :disabled="isSaving" class="btn-header" title="Create New Experiment Version">
+        New Version
+      </button>
+      <button v-if="!showOverlay" type="button" @click="isRunningExperiment ? stopExperiment() : startExperiment()" class="btn-header"
+              title="Execute / Stop Experiment">
         {{ isRunningExperiment ? 'Stop Run' : 'Execute' }}
       </button>
       <span v-if="isRunningExperiment" class="spinner"></span>

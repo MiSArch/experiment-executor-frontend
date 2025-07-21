@@ -13,23 +13,26 @@
                   class="select-default bg-[#444]">
             <option v-for="version in versionList" :key="version" :value="version">{{ version }}</option>
           </select>
-          <button @click="useExistingTest" class="btn-header !mr-0 mb-24">Use Existing Experiment</button>
+          <button @click="useExistingTest" class="btn-header !mr-0 mb-24" title="Use Selected Existing Experiment and Version">
+            Use Existing Experiment
+          </button>
         </div>
         <span class="span-header">Create New Experiment</span>
-        <select v-model="loadType" class="select-default bg-[#444]">
+        <select v-model="loadType" class="select-default bg-[#444]" title="Select Load Type for the Experiment">
           <option value="NormalLoadTest">Realistic Load Test</option>
           <option value="ElasticityLoadTest">Elasticity Load Test</option>
           <option value="ResilienceLoadTest">Resilience Load Test</option>
           <option value="ScalabilityLoadTest">Scalability Load Test</option>
         </select>
         <label class="label-small !text-[#444]" type="number">Duration of the Load Test (s)</label>
-        <input v-model="testDuration" class="input-default bg-[#444] text-white" type="number" placeholder="60">
+        <input v-model="testDuration" class="input-default bg-[#444] text-white" type="number" placeholder="60" min="0" step="1">
         <label v-if="loadType==='NormalLoadTest'" class="label-small !text-[#444]">Maximum Arriving Users/s</label>
         <input v-if="loadType==='NormalLoadTest'" v-model="testMaxArrivingUsers" class="input-default bg-[#444] text-white" placeholder="10"
-               type="number">
+               type="number" min="0" step="1">
         <label v-if="loadType!=='NormalLoadTest'" class="label-small !text-[#444]">Growth Rate Arriving Users/s</label>
-        <input v-if="loadType!=='NormalLoadTest'" v-model="testRate" class="input-default bg-[#444] text-white" placeholder="0.8" type="number">
-        <button @click="submitRequest" class="btn-header !mr-0">Create New Experiment</button>
+        <input v-if="loadType!=='NormalLoadTest'" v-model="testRate" class="input-default bg-[#444] text-white" placeholder="0.8" type="number"
+               min="0" step="0.01">
+        <button @click="submitRequest" class="btn-header !mr-0" title="Create New Experiment">Create New Experiment</button>
       </div>
     </div>
   </div>

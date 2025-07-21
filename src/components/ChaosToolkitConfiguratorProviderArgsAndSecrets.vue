@@ -3,20 +3,25 @@
     <div class="flex flex-row gap-2 w-full items-center">
       <textarea ref="argumentsTextarea" v-if="probeOrAction.provider.arguments !== undefined" v-model="argumentsInput" class="textarea-default"
                 placeholder="Arguments (JSON)"></textarea>
-      <button v-if="probeOrAction.provider.arguments !== undefined" @click="removeArguments(probeOrAction.provider)" class="btn-gray-close">&times;
+      <button v-if="probeOrAction.provider.arguments !== undefined" @click="removeArguments(probeOrAction.provider)" class="btn-gray-close"
+              title="Delete Arguments">&times;
       </button>
     </div>
-    <button v-if="probeOrAction.provider.arguments === undefined" @click="addArguments(probeOrAction.provider)" class="btn-gray-add">+</button>
+    <button v-if="probeOrAction.provider.arguments === undefined" @click="addArguments(probeOrAction.provider)" class="btn-gray-add"
+            title="Add Arguments">+</button>
   </div>
   <label class="label-small">ChaosToolkit Secrets</label>
   <div class="flex flex-col w-full">
     <div class="flex flex-row gap-2 w-full items-center">
       <textarea ref="secretsTextarea" v-if="probeOrAction.provider.secrets !== undefined" v-model="secretsInput" class="textarea-default"
                 placeholder="Secrets (JSON)"></textarea>
-      <button v-if="probeOrAction.provider.secrets !== undefined" @click="removeSecrets(probeOrAction.provider)" class="btn-gray-close">&times;
+      <button v-if="probeOrAction.provider.secrets !== undefined" @click="removeSecrets(probeOrAction.provider)" class="btn-gray-close"
+              title="Delete Secrets">&times;
       </button>
     </div>
-    <button v-if="probeOrAction.provider.secrets === undefined" @click="addSecrets(probeOrAction.provider)" class="btn-gray-add">+</button>
+    <button v-if="probeOrAction.provider.secrets === undefined" @click="addSecrets(probeOrAction.provider)" class="btn-gray-add"
+            title="Add Secrets">+
+    </button>
   </div>
 </template>
 
