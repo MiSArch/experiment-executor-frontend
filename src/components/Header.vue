@@ -155,7 +155,6 @@ const stopEventListener = () => {
     clearTimeout(reconnectTimeout);
     reconnectTimeout = null;
   }
-  reconnectAttempts = 0;
 };
 </script>
 
