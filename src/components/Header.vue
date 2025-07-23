@@ -113,10 +113,6 @@ const loadOrGenerate = async () => {
 }
 
 let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
-let reconnectAttempts = 0;
-
-const maxReconnectAttempts = 10;
-const baseReconnectDelay = 1000;
 
 const startEventListener = () => {
   if (eventSource.value) {
@@ -136,9 +132,6 @@ const startEventListener = () => {
     } else {
       toggleAlert(message);
     }
-
-    // Reset reconnect attempts on successful message
-    reconnectAttempts = 0;
   };
 
   eventSource.value.onerror = () => {
@@ -147,16 +140,9 @@ const startEventListener = () => {
     eventSource.value?.close();
     eventSource.value = null;
 
-    if (reconnectAttempts < maxReconnectAttempts) {
-      const delay = baseReconnectDelay * Math.pow(2, reconnectAttempts); // exponential backoff
-      reconnectAttempts++;
-
-      reconnectTimeout = setTimeout(() => {
-        startEventListener();
-      }, delay);
-    } else {
-      toggleAlert('Unable to reconnect to event stream after several attempts.');
-    }
+    reconnectTimeout = setTimeout(() => {
+      startEventListener();
+    }, 1000);
   };
 };
 
