@@ -136,6 +136,7 @@ watch(showOverlay, async (newValue, oldValue) => {
   if (newValue !== oldValue && !newValue && editorElement.value) {
     await loadConfig()
     if (editorInstance?.getEditorType() !== undefined && editorInstance?.getEditorType() !== null) {
+      switchTab(0)
       editorInstance?.setValue(gatlingConfigs.value[activeTabIndex.value].workFileContent)
     } else {
       editorInstance = monaco.editor.create(editorElement.value, {
