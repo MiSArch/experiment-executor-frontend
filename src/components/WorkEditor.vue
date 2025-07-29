@@ -136,10 +136,10 @@ watch(showOverlay, async (newValue, oldValue) => {
   if (newValue !== oldValue && !newValue && editorElement.value) {
     await loadConfig()
     if (editorInstance?.getEditorType() !== undefined && editorInstance?.getEditorType() !== null) {
-      editorInstance?.setValue(gatlingConfigs.value[0].workFileContent)
+      editorInstance?.setValue(gatlingConfigs.value[activeTabIndex.value].workFileContent)
     } else {
       editorInstance = monaco.editor.create(editorElement.value, {
-        value: gatlingConfigs.value[0].workFileContent,
+        value: gatlingConfigs.value[activeTabIndex.value].workFileContent,
         language: 'kotlin',
         tabSize: 2,
         insertSpaces: true,
