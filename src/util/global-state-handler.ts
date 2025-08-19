@@ -4,7 +4,7 @@ import {KotlinScenarioModel} from "../model/gatling-work.ts";
 import {MiSArchConfig} from "../model/misarch-config.ts";
 import {ChaostoolkitConfig} from "../model/chaostoolkit-config.ts";
 
-export const backendUrl = window.__APP_CONFIG__?.BACKEND_URL;
+export const backendUrl = window.__APP_CONFIG__?.BACKEND_URL ?? "http://localhost:8888";
 
 export const testUuid = ref('')
 export const testVersion = ref('')
