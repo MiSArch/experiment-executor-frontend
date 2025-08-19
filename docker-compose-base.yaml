@@ -4,3 +4,5 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      BACKEND_URL: "http://localhost:8888"
