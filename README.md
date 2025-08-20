@@ -1,5 +1,17 @@
-# Vue 3 + TypeScript + Vite
+# Experiment Executor Frontend
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+The Experiment Executor Frontend is a component of the MiSArch Experiment Tool and is responsible for letting researchers and developers 
+define and execute combined load profiles and chaos experiments.
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+## Documentation
+
+Detailed information about the Experiment Executor Frontend service can be found in the [documentation](https://misarch.github.io/docs/docs/dev-manuals/other-repositories/experiment-executor-frontend).
+
+
+## Getting started
+
+A development version of the Experiment Executor Frontend service can be started using docker compose:
+
+```bash
+docker-compose -f docker-compose-base.yaml up --build
+```
