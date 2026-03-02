@@ -1,6 +1,6 @@
 # Experiment Executor Frontend
 
-The Experiment Executor Frontend is a component of the MiSArch Experiment Tool and is responsible for letting researchers and developers 
+The Experiment Executor Frontend is a component of the Ceres and is responsible for letting researchers and developers 
 define and execute combined load profiles and chaos experiments.
 
 ## Documentation
